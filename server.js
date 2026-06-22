@@ -57,6 +57,7 @@ app.use(require("./routes/settings"));
 app.use(require("./routes/auth"));
 app.use(require("./routes/gift-cards"));
 app.use(require("./routes/coupons"));
+app.use(require("./routes/reviews"));
 
 app.use(express.static(path.join(__dirname, "public")));
 
