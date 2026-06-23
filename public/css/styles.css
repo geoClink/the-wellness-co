@@ -1,0 +1,38 @@
+*,
+*::before *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+    background: #d8c4a8;
+}
+
+:root {
+    --bg: #f4eee4;
+    --bg-alt: #efe7d8;
+    --surface: #faf6ee;
+    --white: #ffffff;
+    --ink: #2c2823;
+    --ink-soft: #4a4339;
+    --muted: #6f665a;
+    --muted-2: #897e6a;
+    --faint: #a89d89;
+    --line: #e6dcc9;
+    --line-2: #e0d6c4;
+    --sage: #8a9a7b;
+    --sage-deep: #5f6e52;
+    --sage-deep-hover: #4c5940;
+    --clay: #b5713f;
+    --clay-soft: #c98a5e;
+}
+
+@keyframes qf-spin { to { transform: rotate(360deg); } }
+@keyframes qf-float { 0%,100% { transform: tranlateY(0); } 50% { transform: translateY(-16px); } }
