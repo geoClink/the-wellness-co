@@ -13,7 +13,7 @@ body {
 }
 
 ::selection {
-    background: #d8c4a8;
+    background: var(--selection);
 }
 
 :root {
@@ -40,6 +40,10 @@ body {
     --footer-muted: #a59c8c;
     --footer-legal: #7d7565;
     --footer-divider: #463f35;
+    --placeholder-light: #e9dfcd;
+    --placeholder-dark: #e2d7c2;
+    --selection: #d8c4a8;
+    --header-bg: rgba(244, 238, 228, 0.86);
 }
 
 @keyframes qf-spin {
@@ -75,7 +79,7 @@ header {
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgba(244, 238, 228, 0.86);
+    background: var(--header-bg);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--line);
 }
@@ -129,7 +133,7 @@ nav a.active {
 
 .nav-book-btn {
     background-color: var(--sage-deep);
-    color: #fff !important;
+    color: var(--white) !important;
     padding: 11px 22px;
     border-radius: 999px;
     font-size: 14px;
@@ -163,7 +167,7 @@ nav a.active {
     height: 380px;
     border-radius: 200px 200px 12px 12px;
     overflow: hidden;
-    background: repeating-linear-gradient(48deg, #e9dfcd, #e9dfcd 11px, #e2d7c2 11px, #e2d7c2 22px);
+    background: repeating-linear-gradient(48deg, var(--placeholder-light), var(--placeholder-light) 11px, var(--placeholder-dark) 11px, var(--placeholder-dark) 22px);
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -212,7 +216,7 @@ h1 {
 
 .btn-primary {
     background: var(--sage-deep);
-    color: #fff;
+    color: var(--white);
     border-radius: 999px;
     border: none;
     font-family: inherit;
@@ -345,7 +349,7 @@ h2 {
     aspect-ratio: 4/5;
     border-radius: 14px;
     overflow: hidden;
-    background: repeating-linear-gradient(48deg, #e9dfcd, #e9dfcd 11px, #e2d7c2 11px, #e2d7c2 22px);
+    background: repeating-linear-gradient(48deg, var(--placeholder-light), var(--placeholder-light) 11px, var(--placeholder-dark) 11px, var(--placeholder-dark) 22px);
 }
 
 meet-image img {
@@ -499,5 +503,76 @@ footer {
 
 .about-flex {
     display: flex;
-    
+    gap: 64px;
+    align-items: flex-start;
+}
+
+.about-page {
+    padding: 74px 0 90px;
+}
+
+.about-img {
+    position: sticky;
+    top: 90px;
+    width: 340px;
+    flex-shrink: 0;
+    aspect-ratio: 4/5;
+    border-radius: 14px;
+    background: repeating-linear-gradient(48deg, var(--placeholder-light), var(--placeholder-dark), var(--placeholder-dark) 11px, var(--placeholder-light));
+}
+
+.about-bio p {
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.75;
+    margin: 0 0 20px;
+}
+
+.about-training ul {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.about-training li {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    font-size: 15px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.about-training li::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--clay);
+    flex-shrink: 0;
+}
+
+.about-promise {
+    margin-top: 32px;
+    padding: 28px;
+    background: var(--bg-alt);
+    border-radius: 14px;
+}
+
+.about-promise h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 500;
+    margin: 0 0 12px;
+}
+
+.about-promise p {
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.7;
+    margin: 0 0 20px;
 }
