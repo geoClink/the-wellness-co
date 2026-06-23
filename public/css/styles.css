@@ -36,3 +36,13 @@ body {
 
 @keyframes qf-spin { to { transform: rotate(360deg); } }
 @keyframes qf-float { 0%,100% { transform: tranlateY(0); } 50% { transform: translateY(-16px); } }
+
+.hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 84px 32px 72px;
+    gap: 64px;
+    align-items: center;
+}
