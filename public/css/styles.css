@@ -56,7 +56,7 @@ body {
 
     0%,
     100% {
-        transform: tranlateY(0);
+        transform: translateY(0);
     }
 
     50% {
@@ -352,7 +352,7 @@ h2 {
     background: repeating-linear-gradient(48deg, var(--placeholder-light), var(--placeholder-light) 11px, var(--placeholder-dark) 11px, var(--placeholder-dark) 22px);
 }
 
-meet-image img {
+.meet-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -518,7 +518,7 @@ footer {
     flex-shrink: 0;
     aspect-ratio: 4/5;
     border-radius: 14px;
-    background: repeating-linear-gradient(48deg, var(--placeholder-light), var(--placeholder-dark), var(--placeholder-dark) 11px, var(--placeholder-light));
+    background: repeating-linear-gradient(48deg, var(--placeholder-light), var(--placeholder-light) 11px, var(--placeholder-dark) 11px, var(--placeholder-dark) 22px);
 }
 
 .about-bio p {
@@ -575,4 +575,60 @@ footer {
     font-size: 16px;
     line-height: 1.7;
     margin: 0 0 20px;
+}
+
+.service {
+    background: var(--surface);
+    border: 0.5px solid var(--line);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+.service-hero {
+    padding: 74px 0 0;
+}
+
+.service-hero .hero-body {
+    margin-bottom: 0;
+}
+
+.service-body {
+    padding: 74px 0 90px;
+}
+
+.service-body .container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.service .eyebrow {
+    color: var(--sage);
+}
+
+.service-description .hero-text {
+    max-width: 65%;
+}
+
+.service-description {
+    flex: 1;
+}
+
+.service-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.service-duration {
+    color: var(--muted);
+    margin: 0;
+}
+
+.service-details .btn-primary {
+    padding: 10px 24px;
 }
