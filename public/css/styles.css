@@ -496,3 +496,8 @@ footer {
     color: var(--footer-legal);
     margin: 0;
 }
+
+.about-flex {
+    display: flex;
+    
+}
