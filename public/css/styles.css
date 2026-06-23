@@ -305,9 +305,11 @@ h2 {
     flex-direction: column;
     gap: 10px;
     text-decoration: none;
+    transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .service-card:hover {
+    transform: translateY(-4px);
     border-color: var(--clay);
 }
 
@@ -592,6 +594,12 @@ footer {
     display: flex;
     gap: 40px;
     align-items: flex-start;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.service:hover {
+    transform: translateY(-4px);
+    border-color: var(--clay);
 }
 
 .service-hero {
