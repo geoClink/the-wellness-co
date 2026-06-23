@@ -24,3 +24,19 @@ async function loadServices() {
 }
 
 loadServices();
+
+document.querySelectorAll('.faq-question').forEach(button => {
+    button.addEventListener('click', () => {
+        const item = button.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+
+        document.querySelectorAll('.faq-item').forEach(i => {
+            i.classList.remove('open');
+            i.querySelector('.faq-icon').textContent = "+"
+        });
+        if (!isOpen) {
+            item.classList.add('open');
+            button.querySelector('.faq-icon').textContent = "×"
+        }
+    });
+});
