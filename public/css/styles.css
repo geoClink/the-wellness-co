@@ -145,6 +145,10 @@ nav a.active {
     background: var(--sage-deep-hover);
 }
 
+.page-section {
+    padding: 74px 0 90px;
+}
+
 .hero {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -267,6 +271,13 @@ h2 {
     font-weight: 500;
     font-size: 42px;
     line-height: 1.1;
+    margin: 0;
+}
+
+.hero-text {
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--muted);
     margin: 0;
 }
 
@@ -507,10 +518,6 @@ footer {
     align-items: flex-start;
 }
 
-.about-page {
-    padding: 74px 0 90px;
-}
-
 .about-img {
     position: sticky;
     top: 90px;
@@ -595,10 +602,6 @@ footer {
     margin-bottom: 0;
 }
 
-.service-body {
-    padding: 74px 0 90px;
-}
-
 .service-body .container {
     display: flex;
     flex-direction: column;
@@ -631,4 +634,43 @@ footer {
 
 .service-details .btn-primary {
     padding: 10px 24px;
+}
+
+.stories-hero .hero-text {
+    max-width: 45%;
+}
+
+.testimonials {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 24px;
+    row-gap: 0px;
+}
+
+.testimonial {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px;
+    margin-top: 24px;
+}
+
+
+.testimonial blockquote {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 26px;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0;
+}
+
+.testimonial cite {
+    color: var(--clay);
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 15px;
+    display: block;
+    margin-top: 16px;
 }
