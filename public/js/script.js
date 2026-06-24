@@ -239,7 +239,9 @@ document.getElementById('booking-form')?.addEventListener('submit', async (e) =>
     } catch {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Request appointment';
-        alert('Something went wrong. Please try again or contact us directly.');
+        const err = document.getElementById('booking-error');
+        err.textContent = 'Something went wrong. Please try again or contact us directly.';
+        err.style.display = 'block';
     }
 });
 
@@ -282,12 +284,14 @@ document.getElementById('contact-form')?.addEventListener('submit', async (e) =>
         const data = await res.json();
         if (data.success) {
             e.target.reset();
-            alert('Message sent! I\'ll be in touch soon.');
+            document.getElementById('contact-success').style.display = 'block';
         } else {
             throw new Error();
         }
     } catch {
-        alert('Something went wrong. Please email us directly at hello@thewellnessco.com');
+       const err = document.getElementById('contact-error');
+       err.textContent = 'Something went wrong. Please try again or contact us directly.';
+       err.style.display = 'block';
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Send message';

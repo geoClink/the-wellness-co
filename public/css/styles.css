@@ -1131,6 +1131,25 @@ footer {
     transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
+.form-error {
+    background: #fdf0ee;
+    border: 1px solid #e8b4a8;
+    color: #8a2a1a;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.form-success {
+    background: #edf3e8;
+    border: 1px solid #b4d4a8;
+    color: #2a5a1a;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+}
+
 @keyframes shimmer {
     0% { background-position: -400px 0; }
     100% { background-position: 400px 0; } 
