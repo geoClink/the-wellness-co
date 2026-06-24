@@ -4,6 +4,14 @@ const supabase = require("../lib/supabase");
 const { adminAuth } = require("../middleware/auth");
 const { sendEmail, emailTemplate } = require("../lib/email");
 
+function escapeHtml(str) {
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
 router.post("/api/contact", async (req, res) => {
     const { name, email, subject, message } = req.body;
     if (!name || !email || !message) {
@@ -20,7 +28,7 @@ router.post("/api/contact", async (req, res) => {
             <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
             <p><strong>Subject:</strong> ${subject || "General"}</p>
             <p><strong>Message:</strong></p>
-            <p style="white-space:pre-wrap;">${message}</p>
+            <p style="white-space:pre-wrap;">${escapeHtml(message)}</p>
         `, req.tenant)
     );
 
