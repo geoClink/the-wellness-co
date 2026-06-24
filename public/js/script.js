@@ -40,3 +40,135 @@ document.querySelectorAll('.faq-question').forEach(button => {
         }
     });
 });
+
+//Calender Logic
+
+let currentDate = new Date();
+let selectedServiceId = null;
+let selectedDate = null;
+let selectedTime = null;
+
+function getDaysOfMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+}
+
+function getFirstDay(year, month) {
+    return new Date(year, month, 1).getDay();
+}
+
+async function loadServicePills() {
+    const pillsContainer = document.getElementById("service-pills");
+    if (!pillsContainer) return;
+
+    const res = await fetch("/api/services");
+    const services = await res.json();
+
+    pillsContainer.innerHTML = services.map(s => `
+        <button class="service-pill" data-id="${s.id}" data-price="${s.price}">${s.name} · $${s.price}</button>
+        `).join("");
+
+    pillsContainer.querySelectorAll('.service-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.service-pill').forEach(i => {
+                i.classList.remove('active');
+            })
+            btn.classList.add('active');
+            selectedServiceId = btn.dataset.id;
+            document.getElementById('sum-service').textContent = btn.textContent;
+        });
+    });
+};
+
+async function selectDate(day) {
+    document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('selected'));
+
+    day.classList.add('selected');
+
+    selectedDate = day.dataset.date;
+
+    document.getElementById('sum-date').textContent = selectedDate;
+
+    const res = await fetch(`/api/availability?date=${selectedDate}`);
+    const { available } = await res.json();
+
+
+    const timeSlotsContainer = document.getElementById('time-slots');
+    timeSlotsContainer.innerHTML = available.map(slot => `
+        <button class="time-slot" data-time="${slot}">${slot}</button>
+        `).join("");
+};
+
+async function renderCalendar() {
+    const daysContainer = document.getElementById('cal-days');
+    if (!daysContainer) return;
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const days = getDaysOfMonth(year, month);
+    const firstDay = getFirstDay(year, month);
+
+    let html = '';
+    
+    for (let i = 0; i < firstDay; i++) {
+        html += '<div class="cal-day empty"></div>';
+    }
+
+    for (let d = 1; d <= days; d++) {
+        html += `<div class="cal-day" data-date="${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}">${d}</div>`
+    }
+
+    daysContainer.innerHTML = html;
+    document.querySelectorAll('.cal-day:not(.empty)').forEach(day => {
+        day.addEventListener('click', () => selectDate(day));
+    });
+
+
+    const calMonth = document.getElementById('cal-month');
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    if (calMonth) calMonth.textContent = `${monthNames[month]} ${year}`;
+}
+
+document.getElementById('cal-prev')?.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar();
+});    
+
+document.getElementById('cal-next')?.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() + 1)
+    renderCalendar();
+});
+    
+
+loadServicePills();
+renderCalendar();
+
+
+
+document.getElementById('booking-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!selectedServiceId || !selectedDate || !selectedTime) {
+        alert('Please select a service, date, and time.');
+        return;
+    }
+
+    const payload = {
+        service_id: selectedServiceId,
+        guest_name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('tel').value,
+        date: selectedDate,
+        time: selectedTime,
+        notes: document.getElementById('message').value
+    };
+
+    const res = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    const { url } = await res.json();
+    window.location.href = url;
+});
