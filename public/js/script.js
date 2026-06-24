@@ -245,3 +245,11 @@ document.getElementById('contact-form')?.addEventListener('submit', async (e) =>
         alert('Message Sent! I\'ll be in touch soon.');
     }
 });
+
+
+
+//hamburger menu
+
+document.getElementById('hamburger')?.addEventListener('click', () => {
+    document.querySelector('nav').classList.toggle('open');
+});
