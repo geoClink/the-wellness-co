@@ -18,6 +18,13 @@ router.post("/stripe-webhook", express.raw({ type: "application/json" }), async 
         const session = event.data.object;
         const m = session.metadata;
 
+        const { data: existing } = await supabase
+            .from("appointments")
+            .select("id")
+            .eq("payment_intent_id", session.payment_intent)
+            .maybeSingle();
+        if (existing) return res.json({ received: true });
+
         const { error } = await supabase.from("appointments").insert([{
             tenant_id: m.tenant_id,
             service_id: m.service_id,
