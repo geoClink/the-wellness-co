@@ -735,10 +735,26 @@ footer {
     display: block;
 }
 
+.contact-content {
+    margin: 0;
+    font-size: 15px;
+}
+
+.contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 32px;
+}
+
 .contact-section .container {
     display: flex;
     gap: 80px;
     align-items: flex-start;
+}
+
+.contact-section .hero-text {
+    padding-bottom: 16px;
 }
 
 .contact-text {
@@ -747,12 +763,20 @@ footer {
 
 .contact-form {
     flex: 1;
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    padding: 24px;
+    margin-top: 160px;
 }
-
-
 
 .contact-section .contact-label {
     text-transform: uppercase;
+    color: var(--sage-deep);
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0;
+    padding-bottom: 0;
 }
 .contact-hours {
     display: grid;
@@ -763,7 +787,7 @@ footer {
     font-size: 15px;
 }
 
-.contact-hours {
+.contact-hours dt {
     font-weight: 500;
     color: var(--ink);
 }
@@ -773,6 +797,17 @@ footer {
     gap: 20px;
 }
 
+.contact-form {
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    padding: 24px;
+}
+
+.contact-form .btn-primary {
+    border-radius: 8px;
+    width: 100%;
+}
 .form-group {
     display: flex;
     flex-direction: column;
@@ -789,7 +824,7 @@ footer {
     padding: 12px 16px;
     border: 1px solid var(--line);
     border-radius: 8px;
-    background: var(--surface);
+    background: #ffffff;
     font-family: 'Hanken Grotesk', sans-serif;
     font-size: 15px;
     color: var(--ink);
