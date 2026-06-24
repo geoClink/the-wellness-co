@@ -1234,6 +1234,12 @@ footer {
         grid-template-columns: 1fr;
     }
 
+    .footer-bottom {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+
     .meet-practitioner .container {
         grid-template-columns: 1fr;
     }
