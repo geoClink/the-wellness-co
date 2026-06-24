@@ -86,7 +86,9 @@ async function selectDate(day) {
 
     selectedDate = day.dataset.date;
 
-    document.getElementById('sum-date').textContent = selectedDate;
+    const [year, month, dayNum] = selectedDate.split('-');
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('sum-date').textContent = `${monthNames[month - 1]} ${parseInt(dayNum)}`;
 
     const res = await fetch(`/api/availability?date=${selectedDate}`);
     const { available } = await res.json();
@@ -96,6 +98,15 @@ async function selectDate(day) {
     timeSlotsContainer.innerHTML = available.map(slot => `
         <button class="time-slot" data-time="${slot}">${slot}</button>
         `).join("");
+
+    timeSlotsContainer.querySelectorAll('.time-slot').forEach(btn => {
+        btn.addEventListener('click', () => {
+            timeSlotsContainer.querySelectorAll('.time-slot').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            selectedTime = btn.dataset.time;
+            document.getElementById('sum-time').textContent = selectedTime;
+        });
+    });
 };
 
 async function renderCalendar() {
@@ -148,16 +159,20 @@ renderCalendar();
 document.getElementById('booking-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    if (!selectedServiceId || !selectedDate || !selectedTime) {
-        alert('Please select a service, date, and time.');
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('tel').value.trim();
+
+    if (!selectedServiceId || !selectedDate || !selectedTime || !name || !email || !phone) {
+        alert('Please fill in all required fields and select a service, date, and time.');
         return;
     }
 
     const payload = {
         service_id: selectedServiceId,
         guest_name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('tel').value,
+        email: email,
+        phone: phone,
         date: selectedDate,
         time: selectedTime,
         notes: document.getElementById('message').value

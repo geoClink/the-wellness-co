@@ -298,8 +298,8 @@ h2 {
 .service-card {
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 26px;
+    border-radius: 14px;
+    padding: 24px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -588,8 +588,8 @@ footer {
 
 .service {
     background: var(--surface);
-    border: 0.5px solid var(--line);
-    border-radius: 16px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
     padding: 28px;
     display: flex;
     gap: 40px;
@@ -761,16 +761,6 @@ footer {
     flex: 1;
 }
 
-.contact-form {
-    flex: 1.5;
-    background: var(--surface);
-    border-radius: 14px;
-    border: 1px solid var(--line);
-    padding: 24px;
-    width: 480px;
-    flex-shrink: 0;
-}
-
 .contact-section .contact-label {
     text-transform: uppercase;
     color: var(--sage-deep);
@@ -795,9 +785,15 @@ footer {
 }
 
 .contact-form-fields {
+    flex: 1.5;
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 24px;
+    width: 480px;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 16px;
 }
 
 .contact-form {
@@ -848,7 +844,7 @@ footer {
 .appointment-content {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 32px;
 }
 
 .appointment-bottom-steps {
@@ -908,6 +904,11 @@ footer {
     cursor: pointer;
 }
 
+.cal-day.selected {
+    background: var(--sage-deep);
+    color: white;
+}
+
 .cal-day:hover {
     background: var(--bg-alt);
 }
@@ -951,13 +952,20 @@ footer {
     gap: 12px;
 }
 
+#time-slots {
+    display: grid;
+    grid-template-columns: repeat(4. 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+
 .time-slot {
-    padding: 8px 16px;
+    padding: 6px 10px;
     border: 1px solid var(--line);
     border-radius: 8px;
     background: var(--surface);
     font-family: 'Hanken Grotesk', sans-serif;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--ink);
     cursor: pointer;
 }
@@ -984,13 +992,13 @@ footer {
     border: 1px solid var(--line);
     border-radius: 100px;
     background: var(--surface);
-    font-family: 'Hanken Grotesk, sans-serif';
+    font-family: 'Hanken Grotesk', sans-serif;
     font-size: 14px;
     color: var(--ink);
     cursor: pointer;
 }
 
-.service-pill:active {
+.service-pill.active {
     background: var(--sage-deep);
     color: white;
     border-color: var(--sage-deep);
@@ -1022,4 +1030,10 @@ footer {
 .summary-row span:last-child {
     font-weight: 500;
     color: var(--ink);
+}
+
+.optional-label {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
 }
