@@ -64,7 +64,7 @@ async function loadServicePills() {
     const services = await res.json();
 
     pillsContainer.innerHTML = services.map(s => `
-        <button class="service-pill" data-id="${s.id}" data-price="${s.price}">${s.name} · $${s.price}</button>
+        <button class="service-pill" data-id="${s.id}" data-price="${s.price}" data-slug="${s.slug}">${s.name} · $${s.price}</button>
         `).join("");
 
     pillsContainer.querySelectorAll('.service-pill').forEach(btn => {
@@ -78,6 +78,13 @@ async function loadServicePills() {
             document.getElementById('sum-service').classList.add('has-value');
         });
     });
+
+    const params = new URLSearchParams(window.location.search);
+    const preselect = params.get('service');
+    if (preselect) {
+        const match = pillsContainer.querySelector(`[data-slug="${preselect}"]`);
+        if (match) match.click();
+    }
 };
 
 async function selectDate(day) {
