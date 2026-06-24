@@ -752,7 +752,7 @@ footer {
 
 .contact-section .container {
     display: flex;
-    gap: 80px;
+    gap: 48px;
     align-items: flex-start;
 }
 
