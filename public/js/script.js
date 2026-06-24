@@ -213,17 +213,25 @@ document.getElementById('booking-form')?.addEventListener('submit', async (e) =>
     });
 });
 
-document.getElementBtId('contact-form')?.addEventListener('submit', async (e) => {
+document.getElementById('contact-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
     const message = document.getElementById('message').value.trim();
 
-    if (!name || !email || !message) {
-        alert('Please fill in your name, email, and message.');
-        return;
-    }
+    let valid = true;
+    ['name', 'email', 'message'].forEach(id => {
+        const input = document.getElementById(id);
+        if (!input.value.trim()) {
+            input.classList.add('error');
+            valid = false;
+        } else {
+            input.classList.remove('error');
+        }
+    });
+    
+    if (!valid) return; 
 
     const res = await fetch('/api/contact', {
         method: 'POST',

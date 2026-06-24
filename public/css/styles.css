@@ -750,7 +750,7 @@ footer {
 .contact-section .container {
     display: flex;
     gap: 20px;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .contact-section .hero-text {
@@ -801,6 +801,7 @@ footer {
     border-radius: 14px;
     border: 1px solid var(--line);
     padding: 24px;
+    margin-top: 160px;
 }
 
 .contact-form .btn-primary {
@@ -874,6 +875,7 @@ footer {
     gap: 10px;
     font-weight: 600;
     font-size: 20px;
+    margin: 0 0 12px;
 }
 
 .appointment-calendar {
@@ -1051,4 +1053,8 @@ footer {
 #sum-service.has-value, #sum-date.has-value, #sum-time.has-value {
     color: var(--ink);
     font-weight: 500;
+}
+
+.appointment-step-3 .contact-form {
+    margin-top: 0;
 }
