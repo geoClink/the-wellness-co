@@ -969,7 +969,7 @@ footer {
 
 #time-slots {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
     gap: 8px;
     margin-top: 12px;
 }
@@ -983,6 +983,7 @@ footer {
     font-size: 13px;
     color: var(--ink);
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .time-slot:hover {
@@ -1258,6 +1259,11 @@ footer {
 
     .email-phone {
         flex-direction: column;
+    }
+
+    .cal-day.selected {
+        background: var(--sage-deep) !important;
+        color: white !important;
     }
 
     .meet-image {
