@@ -1256,6 +1256,10 @@ footer {
         max-width: 100%;
     }
 
+    .email-phone {
+        flex-direction: column;
+    }
+
     .meet-image {
         width: 100%;
         max-width: 340px;
