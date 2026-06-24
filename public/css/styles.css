@@ -832,6 +832,10 @@ footer {
     outline: none;
 }
 
+.form-group input.error, .form-group textarea.error {
+    border-color: #c0392b
+}
+
 .form-group input:focus,
 .form-group textarea:focus {
     border-color: var(--sage);

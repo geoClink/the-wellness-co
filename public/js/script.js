@@ -163,14 +163,23 @@ document.getElementById('booking-form')?.addEventListener('submit', async (e) =>
     const email = document.getElementById('email').value.trim();
     const phone = document.getElementById('tel').value.trim();
 
-    if (!selectedServiceId || !selectedDate || !selectedTime || !name || !email || !phone) {
-        alert('Please fill in all required fields and select a service, date, and time.');
-        return;
-    }
+    let valid = true;
+
+        ['name', 'email', 'tel'].forEach(id => {
+            const input = document.getElementById(id);
+            if (!input.value.trim()) {
+                input.classList.add('error');
+                valid = false;
+            } else {
+                input.classList.remove('error');
+            }
+        });
+
+        if (!selectedServiceId || !selectedDate || !selectedTime || !valid) return;
 
     const payload = {
         service_id: selectedServiceId,
-        guest_name: document.getElementById('name').value,
+        guest_name: name,
         email: email,
         phone: phone,
         date: selectedDate,
@@ -186,4 +195,10 @@ document.getElementById('booking-form')?.addEventListener('submit', async (e) =>
 
     const { url } = await res.json();
     window.location.href = url;
+});
+
+['name', 'email', 'tel'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', () => {
+        document.getElementById(id).classList.remove('error');
+    });
 });
