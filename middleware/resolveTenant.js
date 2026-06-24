@@ -10,8 +10,12 @@ async function resolveTenant(req, res, next) {
             ? "the-wellness-co"
             : hostname.split(".")[0]);
     if (tenantCache.has(slug)) {
-        req.tenant = tenantCache.get(slug);
-        return next();
+        const cached = tenantCache.get(slug);
+        if (Date.now() - cached._cachedAt < 5 * 60 * 1000) {
+            req.tenant = cached;
+            return next();
+        }
+        tenantCache.delete(slug);
     }
 
 
@@ -24,7 +28,7 @@ async function resolveTenant(req, res, next) {
 
     if (!tenant) return res.status(404).json({ error: "Tenant not found" });
 
-    tenantCache.set(slug, tenant);
+    tenantCache.set(slug, { ...tenant, _cachedAt: Date.now() });
     req.tenant = tenant;
     next();
 }
