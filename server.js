@@ -63,5 +63,9 @@ app.use(require("./routes/reviews"));
 
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
+});
+
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server is running at http://localhost:${PORT}`));

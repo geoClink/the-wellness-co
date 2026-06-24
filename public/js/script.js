@@ -2,8 +2,17 @@ async function loadServices() {
     const grid = document.getElementById("modalities-grid");
     if (!grid) return;
 
-    const res = await fetch("/api/services");
-    const services = await res.json();
+    grid.innerHTML = '<p style="color:var(--muted);font-size:14px;">Loading services…</p>';
+
+    let services;
+    try {
+        const res = await fetch("/api/services");
+        if (!res.ok) throw new Error();
+        services = await res.json();
+    } catch {
+        grid.innerHTML = '<p style="color:var(--muted);font-size:14px;">Unable to load services. Please refresh the page.</p>';
+        return;
+    }
 
     const tags = {
         "qhht": "Quantum Hypnosis",
@@ -60,8 +69,17 @@ async function loadServicePills() {
     const pillsContainer = document.getElementById("service-pills");
     if (!pillsContainer) return;
 
-    const res = await fetch("/api/services");
-    const services = await res.json();
+    pillsContainer.innerHTML = '<p style="color:var(--muted);font-size:14px;">Loading services…</p>';
+
+    let services;
+    try {
+        const res = await fetch("/api/services");
+        if (!res.ok) throw new Error();
+        services = await res.json();
+    } catch {
+        pillsContainer.innerHTML = '<p style="color:var(--muted);font-size:14px;">Unable to load services. Please refresh.</p>';
+        return;
+    }
 
     pillsContainer.innerHTML = services.map(s => `
         <button class="service-pill" data-id="${s.id}" data-price="${s.price}" data-slug="${s.slug}">${s.name} · $${s.price}</button>
@@ -99,11 +117,19 @@ async function selectDate(day) {
     document.getElementById('sum-date').textContent = `${monthNames[month - 1]} ${parseInt(dayNum)}`;
     document.getElementById('sum-date').classList.add('has-value');
 
-    const res = await fetch(`/api/availability?date=${selectedDate}`);
-    const { available } = await res.json();
-
-
     const timeSlotsContainer = document.getElementById('time-slots');
+    timeSlotsContainer.innerHTML = '<p style="color:var(--muted);font-size:14px;">Loading times…</p>';
+
+    let available;
+    try {
+        const res = await fetch(`/api/availability?date=${selectedDate}`);
+        if (!res.ok) throw new Error();
+        ({ available } = await res.json());
+    } catch {
+        timeSlotsContainer.innerHTML = '<p style="color:var(--muted);font-size:14px;">Unable to load times. Please try again.</p>';
+        return;
+    }
+
     timeSlotsContainer.innerHTML = available.map(slot => `
         <button class="time-slot" data-time="${slot}">${slot}</button>
         `).join("");
@@ -197,14 +223,24 @@ document.getElementById('booking-form')?.addEventListener('submit', async (e) =>
         notes: document.getElementById('message').value
     };
 
-    const res = await fetch('/api/appointments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Processing…';
 
-    const { url } = await res.json();
-    window.location.href = url;
+    try {
+        const res = await fetch('/api/appointments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error();
+        const { url } = await res.json();
+        window.location.href = url;
+    } catch {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Request appointment';
+        alert('Something went wrong. Please try again or contact us directly.');
+    }
 });
 
 ['name', 'email', 'tel'].forEach(id => {
@@ -233,16 +269,28 @@ document.getElementById('contact-form')?.addEventListener('submit', async (e) =>
     
     if (!valid) return; 
 
-    const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message })
-    });
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
 
-    const data = await res.json();
-    if (data.success) {
-        e.target.reset();
-        alert('Message Sent! I\'ll be in touch soon.');
+    try {
+        const res = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, message })
+        });
+        const data = await res.json();
+        if (data.success) {
+            e.target.reset();
+            alert('Message sent! I\'ll be in touch soon.');
+        } else {
+            throw new Error();
+        }
+    } catch {
+        alert('Something went wrong. Please email us directly at hello@thewellnessco.com');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send message';
     }
 });
 
