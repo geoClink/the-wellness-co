@@ -4,9 +4,11 @@ const express = require("express");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
 const cors = require("cors");
+const helmet = require("helmet");
 
 const app = express();
 app.set("trust proxy", 1);
+app.use(helmet({ contentSecurityPolicy: false }));
 
 app.use(cors({
     origin: [

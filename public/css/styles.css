@@ -32,6 +32,7 @@ body {
     --sage-deep: #5f6e52;
     --sage-deep-hover: #4c5940;
     --clay: #b5713f;
+    --clay-text: #8a4520;
     --clay-soft: #c98a5e;
     --btn-outline-border: #cabfac;
     --btn-outline-hover: #ece3d3;
@@ -185,7 +186,7 @@ nav a.active {
     font-weight: 600;
     letter-spacing: 2.5px;
     text-transform: uppercase;
-    color: var(--clay);
+    color: var(--clay-text);
     margin-bottom: 22px;
 }
 
@@ -281,7 +282,7 @@ h2 {
 }
 
 .modalities-all {
-    color: var(--sage-deep);
+    color: var(--sage-deep-hover);
     font-size: 15px;
     font-weight: 600;
     text-decoration: none;
@@ -336,12 +337,12 @@ h2 {
 
 .service-meta {
     font-size: 14px;
-    color: var(--muted-2);
+    color: var(--muted);
     margin-top: 6px;
 }
 
 .service-price {
-    color: var(--clay);
+    color: var(--clay-text);
     font-weight: 600;
 }
 
@@ -426,7 +427,7 @@ h2 {
     font-weight: 500;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: var(--sage);
+    color: var(--surface);
     margin: 0;
 }
 
@@ -508,7 +509,7 @@ footer {
 
 .footer-bottom p {
     font-size: 13px;
-    color: var(--footer-legal);
+    color: var(--footer-muted);
     margin: 0;
 }
 
