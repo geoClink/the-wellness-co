@@ -45,12 +45,6 @@ app.use(express.json());
 app.use(resolveTenant);
 
 app.get("/api/test", (req, res) => res.json({ message: "Server is running!" }));
-app.get("/api/config", (req, res) => res.json ({
-    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
-    supabaseUrl: process.env.SUPABASE_URL,
-    supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
-    vertical: req.tenant?.vertical || "wellness"
-}));
 
 app.use(require("./routes/services"));
 app.use(require("./routes/appointments"));
