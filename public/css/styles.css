@@ -1131,6 +1131,22 @@ footer {
     transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
+@keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; } 
+}
+
+.img-loading {
+      background: linear-gradient(90deg, #ede7dc 25%, #f5f0e8 50%, #ede7dc 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.4s infinite linear;
+}
+
+.img-loading img {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
 @media (max-width: 768px) {
     .hamburger {
         display: flex;
