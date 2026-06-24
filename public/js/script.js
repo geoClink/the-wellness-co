@@ -75,6 +75,7 @@ async function loadServicePills() {
             btn.classList.add('active');
             selectedServiceId = btn.dataset.id;
             document.getElementById('sum-service').textContent = btn.textContent;
+            document.getElementById('sum-service').classList.add('has-value');
         });
     });
 };
@@ -89,6 +90,7 @@ async function selectDate(day) {
     const [year, month, dayNum] = selectedDate.split('-');
     const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     document.getElementById('sum-date').textContent = `${monthNames[month - 1]} ${parseInt(dayNum)}`;
+    document.getElementById('sum-date').classList.add('has-value');
 
     const res = await fetch(`/api/availability?date=${selectedDate}`);
     const { available } = await res.json();
@@ -105,6 +107,7 @@ async function selectDate(day) {
             btn.classList.add('active');
             selectedTime = btn.dataset.time;
             document.getElementById('sum-time').textContent = selectedTime;
+            document.getElementById('sum-time').classList.add('has-value');
         });
     });
 };
@@ -201,4 +204,29 @@ document.getElementById('booking-form')?.addEventListener('submit', async (e) =>
     document.getElementById(id)?.addEventListener('input', () => {
         document.getElementById(id).classList.remove('error');
     });
+});
+
+document.getElementBtId('contact-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const message = document.getElementById('message').value.trim();
+
+    if (!name || !email || !message) {
+        alert('Please fill in your name, email, and message.');
+        return;
+    }
+
+    const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+        e.target.reset();
+        alert('Message Sent! I\'ll be in touch soon.');
+    }
 });

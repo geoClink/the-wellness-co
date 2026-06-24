@@ -919,6 +919,7 @@ footer {
 
 .cal-day.empty {
     cursor: default;
+    pointer-events: none;
 }
 
 .cal-month {
@@ -1040,4 +1041,14 @@ footer {
     font-size: 13px;
     font-weight: 400;
     color: var(--muted);
+}
+
+#sum-service, #sum-date, #sum-time {
+    color: var(--muted);
+    font-weight: 400;
+}
+
+#sum-service.has-value, #sum-date.has-value, #sum-time.has-value {
+    color: var(--ink);
+    font-weight: 500;
 }
