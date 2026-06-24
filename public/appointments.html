@@ -38,6 +38,82 @@
         </div>
     </header>
     <main>
+        <section class="appointment-section page-section">
+            <div class="container">
+                <p class="eyebrow">Reserve</p>
+                <h1>Choose your time.</h1>
+                <div class="appointment-content">
+                    <div class="appointment-step-1">
+                        <p class="appointment-label"><span class="step-num">1</span>
+                            Select a service</p>
+                        <div class="service-pills" id="service-pills"></div>
+                    </div>
+                    <div class="appointment-bottom-steps">
+                        <div class="appointment-step-2">
+                            <p class="appointment-label"><span class="step-num">2</span>
+                                Pick a date &amp; time</p>
+                            <div class="appointment-calendar">
+                                <button id="cal-prev">&larr;</button>
+                                <span id="cal-month"></span>
+                                <button id="cal-next">&rarr;</button>
+                                <div class="cal-weekdays">
+                                    <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                                </div>
+                                <div id="cal-days"></div>
+                            </div>
+                        </div>
+                        <div class="appointment-step-3">
+                            <p class="appointment-label"><span class="step-num">3</span> Your details</p>
+                            <div class="contact-form">
+                                <form id="booking-form">
+                                    <div class="contact-form-fields">
+                                        <div class="form-group">
+                                            <label for="name">Full name</label>
+                                            <input type="text" id="name" name="name" placeholder="Jane Doe">
+                                        </div>
+                                        <div class="email-phone">
+                                            <div class="form-group">
+                                                <label for="email">Email</label>
+                                                <input type="email" id="email" name="email"
+                                                    placeholder="example@email.com">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="tel">Phone</label>
+                                                <input type="tel" id="tel" name="tel" placeholder="(777) 777-7777">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="message">Anything I should know? <span
+                                                    class="optional">(optional)</span></label>
+                                            <textarea id="message" name="notes" rows="5"
+                                                placeholder="Intentions, sensitivities, questions..."></textarea>
+                                        </div>
+                                        <div class="booking-summary">
+                                            <div class="summary-row">
+                                                <span>Service</span>
+                                                <span id="sum-service">—</span>
+                                            </div>
+                                            <div class="summary-row">
+                                                <span>Date</span>
+                                                <span id="sum-date">Not selected</span>
+                                            </div>
+                                            <div class="summary-row">
+                                                <span>Time</span>
+                                                <span id="sum-time">Not selected</span>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn-primary">Request this session</button>
+                                        <p class="hero-text contact-label">No payment now — I'll confirm by email first.</p>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            </div>
+        </section>
     </main>
     <footer>
         <div class="container">
@@ -52,7 +128,8 @@
                         </svg>
                         <span>The Wellness Co.</span>
                     </a>
-                    <p class="hero-text">Quantum and energy healing for body, mind, and spirit. One practitioner, fully present with you.</p>
+                    <p class="hero-text">Quantum and energy healing for body, mind, and spirit. One practitioner, fully
+                        present with you.</p>
                 </div>
                 <div class="footer-explore">
                     <p class="hero-text">Explore</p>
