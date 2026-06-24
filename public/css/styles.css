@@ -1236,6 +1236,26 @@ footer {
         grid-template-columns: 1fr;
     }
 
+    .service {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .service-description .hero-text {
+        max-width: 100%;
+    }
+
+    .service-details {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .stories-hero .hero-text {
+        max-width: 100%;
+    }
+
     .meet-image {
         width: 100%;
         max-width: 340px;
