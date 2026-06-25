@@ -1,3 +1,11 @@
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
 async function loadServices() {
     const grid = document.getElementById("modalities-grid");
     if (!grid) return;
@@ -305,3 +313,55 @@ document.getElementById('contact-form')?.addEventListener('submit', async (e) =>
 document.getElementById('hamburger')?.addEventListener('click', () => {
     document.querySelector('nav').classList.toggle('open');
 });
+
+async function loadReviews() {
+    const list = document.getElementById('reviews-list');
+    if (!list) return;
+
+    list.innerHTML = '<p style="color:var(--muted);font-size:14px;">Loading stories…</p>';
+
+    let reviews;
+    try {
+        const res = await fetch('/api/reviews');
+        if (!res.ok) throw new Error();
+        reviews = await res.json();
+    } catch {
+        list.innerHTML = '<p style="color:var(--muted);font-size:14px;">Unable to load stories. Please refresh the page.</p>';
+        return;
+    }
+
+    if (reviews.length === 0) {
+        list.innerHTML = '<p style="color:var(--muted);font-size:14px;">No stories yet.</p>';
+        return;
+    }
+
+    list.innerHTML = reviews.map(r => `
+        <div class="testimonial">
+            <blockquote>"${escapeHtml(r.body)}"</blockquote>
+            <cite>${escapeHtml(r.name)}</cite>
+        </div>
+    `).join('');
+}
+
+async function loadFeaturedTestimonial() {
+    const blockquote = document.getElementById('featured-blockquote');
+    if (!blockquote) return;
+
+    let reviews;
+    try {
+        const res = await fetch('/api/reviews');
+        if (!res.ok) throw new Error();
+        reviews = await res.json();
+    } catch {
+        return;
+    }
+
+    if (reviews.length === 0) return;
+
+    const r = reviews[0];
+    blockquote.textContent = `"${r.body}"`;
+    document.getElementById('featured-name').textContent = r.name.toUpperCase();
+}
+
+loadReviews();
+loadFeaturedTestimonial();

@@ -18,9 +18,10 @@
 
       <div id="dashboard-view" style="display:none;">
           <button id="logout-btn">Log out</button>
+
           <h1>Bookings</h1>
           <table id="bookings-table">
-              <thead> 
+              <thead>
                   <tr>
                       <th>Date</th>
                       <th>Time</th>
@@ -32,6 +33,35 @@
                   </tr>
               </thead>
               <tbody id="bookings-body"></tbody>
+          </table>
+
+          <h1>Reviews</h1>
+          <form id="add-review-form">
+              <input type="text" id="review-name" placeholder="Client name" required>
+              <select id="review-rating" required>
+                  <option value="">Rating</option>
+                  <option value="5">5 stars</option>
+                  <option value="4">4 stars</option>
+                  <option value="3">3 stars</option>
+                  <option value="2">2 stars</option>
+                  <option value="1">1 star</option>
+              </select>
+              <textarea id="review-body" placeholder="Review text" rows="3" required></textarea>
+              <button type="submit">Add review</button>
+              <div id="review-success" style="display:none;color:green;">Review added.</div>
+              <div id="review-error" style="display:none;color:red;"></div>
+          </form>
+          <table id="reviews-table">
+              <thead>
+                  <tr>
+                      <th>Name</th>
+                      <th>Rating</th>
+                      <th>Quote</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                  </tr>
+              </thead>
+              <tbody id="reviews-body"></tbody>
           </table>
       </div>
       <script>
@@ -49,6 +79,7 @@
             document.getElementById('login-view').style.display = 'none';
             document.getElementById('dashboard-view').style.display = 'block';
             loadBookings();
+            loadAdminReviews();
         }
 
         document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -70,6 +101,7 @@
             document.getElementById('login-view').style.display = 'none';
             document.getElementById('dashboard-view').style.display = 'block';
             loadBookings();
+            loadAdminReviews();
         });
 
         async function loadBookings() {
@@ -122,6 +154,84 @@
             document.getElementById('dashboard-view').style.display = 'none';
             document.getElementById('login-view').style.display = 'block';
         });
+
+        async function loadAdminReviews() {
+            const token = localStorage.getItem('admin_token');
+            const res = await fetch('/api/admin/reviews', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) return;
+            const reviews = await res.json();
+            const tbody = document.getElementById('reviews-body');
+            if (reviews.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No reviews yet.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = reviews.map(r => `
+                <tr>
+                    <td>${escapeHtml(r.name)}</td>
+                    <td>${escapeHtml(String(r.rating))}/5</td>
+                    <td>${escapeHtml(r.body.length > 80 ? r.body.slice(0, 80) + '…' : r.body)}</td>
+                    <td>${r.approved ? 'Approved' : 'Pending'}</td>
+                    <td>
+                        ${!r.approved ? `<button onclick="approveReview('${escapeHtml(r.id)}')">Approve</button>` : ''}
+                        <button onclick="deleteReview('${escapeHtml(r.id)}')">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function approveReview(id) {
+            const token = localStorage.getItem('admin_token');
+            const res = await fetch(`/api/reviews/${id}/approve`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) loadAdminReviews();
+        }
+
+        async function deleteReview(id) {
+            const token = localStorage.getItem('admin_token');
+            const res = await fetch(`/api/reviews/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) loadAdminReviews();
+        }
+
+        document.getElementById('add-review-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('admin_token');
+            const name = document.getElementById('review-name').value.trim();
+            const rating = document.getElementById('review-rating').value;
+            const body = document.getElementById('review-body').value.trim();
+
+            const res = await fetch('/api/admin/reviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name, rating, body })
+            });
+
+            const successEl = document.getElementById('review-success');
+            const errorEl = document.getElementById('review-error');
+
+            if (res.ok) {
+                e.target.reset();
+                successEl.style.display = 'block';
+                errorEl.style.display = 'none';
+                setTimeout(() => successEl.style.display = 'none', 3000);
+                loadAdminReviews();
+            } else {
+                const data = await res.json();
+                errorEl.textContent = data.error || 'Something went wrong.';
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+            }
+        });
+
         </script>
   </body>
   </html>
