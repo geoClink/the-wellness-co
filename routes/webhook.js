@@ -4,6 +4,14 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const supabase = require("../lib/supabase");
 const { sendEmail, emailTemplate } = require("../lib/email");
 
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
 router.post("/stripe-webhook", express.raw({ type: "application/json" }), async (req, res) => {
     const sig = req.headers["stripe-signature"];
     let event;
@@ -45,7 +53,7 @@ router.post("/stripe-webhook", express.raw({ type: "application/json" }), async 
 
         await sendEmail(m.email, "Your appointment is confirmed!",
                 emailTemplate("Appointment Confirmed", `
-                    <p>Hi ${m.guest_name},</p>
+                    <p>Hi ${escapeHtml(m.guest_name)},</p>
                     <p>Your appointment has been booked for <strong>${m.date} at ${m.time}</strong>.</p>
                     <p>If you need to cancel or reschedule, please contact us.</p>
                 `, { name: "The Wellness Co" })

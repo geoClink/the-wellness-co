@@ -35,6 +35,14 @@
           </table>
       </div>
       <script>
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
         const token = localStorage.getItem('admin_token');
 
         if (token) {
@@ -82,15 +90,15 @@
 
             tbody.innerHTML = bookings.map(b => `
                 <tr>
-                    <td>${b.date}</td>
-                    <td>${b.time}</td>
-                    <td>${b.guest_name}</td>
-                    <td>${b.email}</td>
-                    <td>${b.phone || '-'}</td>
-                    <td>${b.status}</td>
+                    <td>${escapeHtml(b.date)}</td>
+                    <td>${escapeHtml(b.time)}</td>
+                    <td>${escapeHtml(b.guest_name)}</td>
+                    <td>${escapeHtml(b.email)}</td>
+                    <td>${escapeHtml(b.phone || '-')}</td>
+                    <td>${escapeHtml(b.status)}</td>
                     <td>
-                        <button onclick="updateStatus('${b.id}', 'confirmed')">Confirm</button>
-                        <button onclick="updateStatus('${b.id}', 'cancelled')">Cancel</button>
+                        <button onclick="updateStatus('${escapeHtml(b.id)}', 'confirmed')">Confirm</button>
+                        <button onclick="updateStatus('${escapeHtml(b.id)}', 'cancelled')">Cancel</button>
                     </td>
                 </tr>
             `).join('');

@@ -46,7 +46,7 @@ router.post("/api/appointments", async (req, res) => {
         mode: "payment",
         customer_email: email,
         success_url: `${origin}/confirmation.html`,
-        cancel_url: `${origin}/booking.html`,
+        cancel_url: `${origin}/appointments.html`,
         metadata: { tenant_id: req.tenant.id, service_id, guest_name, email, phone: phone || "", date, time, notes: notes || "" }
     });
 
@@ -62,8 +62,13 @@ router.get("/api/appointments", adminAuth, async (req, res) => {
     res.json(data);
 });
 
+const VALID_STATUSES = ["confirmed", "cancelled", "completed"];
+
 router.patch("/api/appointments/:id/status", adminAuth, async (req, res) => {
     const { status } = req.body;
+    if (!VALID_STATUSES.includes(status)) {
+        return res.status(400).json({ error: "Invalid status." });
+    }
     const { error } = await supabase.from("appointments")
         .update({ status })
         .eq("id", req.params.id)

@@ -22,11 +22,11 @@ router.post("/api/contact", async (req, res) => {
         .insert([{ tenant_id: req.tenant.id, name, email, subject: subject || "General", message }]);
     if (error) return res.status(500).json({ error: error.message });
 
-    await sendEmail(process.env.OWNER_EMAIL, `New Contact Message from ${name}`,
+    await sendEmail(process.env.OWNER_EMAIL, `New Contact Message from ${escapeHtml(name)}`,
         emailTemplate("New Contact Message", `
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-            <p><strong>Subject:</strong> ${subject || "General"}</p>
+            <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+            <p><strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
+            <p><strong>Subject:</strong> ${escapeHtml(subject || "General")}</p>
             <p><strong>Message:</strong></p>
             <p style="white-space:pre-wrap;">${escapeHtml(message)}</p>
         `, req.tenant)
