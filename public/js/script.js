@@ -23,7 +23,7 @@ async function loadServices() {
     };
 
     grid.innerHTML = services.map(s => `
-        <a href="appointments.html?service=${s.slug}" class="service-card">
+        <a href="appointments.html?service=${s.id}" class="service-card">
         <span class="service-tag">${tags[s.slug] || s.name}</span>
         <span class="service-name">${s.name}</span>
         <span class="service-short">${s.description}</span>
@@ -82,7 +82,7 @@ async function loadServicePills() {
     }
 
     pillsContainer.innerHTML = services.map(s => `
-        <button class="service-pill" data-id="${s.id}" data-price="${s.price}" data-slug="${s.slug}">${s.name} · $${s.price}</button>
+        <button class="service-pill" data-id="${s.id}" data-price="${s.price}" data-slug="${s.id}">${s.name} · $${s.price}</button>
         `).join("");
 
     pillsContainer.querySelectorAll('.service-pill').forEach(btn => {

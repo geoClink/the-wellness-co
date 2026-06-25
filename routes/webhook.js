@@ -40,15 +40,16 @@ router.post("/stripe-webhook", express.raw({ type: "application/json" }), async 
 
         if (error) {
             console.error("Supabase insert error:", error);
-        } else {
-            await sendEmail(m.email, "Your appointment is confirmed!",
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        await sendEmail(m.email, "Your appointment is confirmed!",
                 emailTemplate("Appointment Confirmed", `
                     <p>Hi ${m.guest_name},</p>
                     <p>Your appointment has been booked for <strong>${m.date} at ${m.time}</strong>.</p>
                     <p>If you need to cancel or reschedule, please contact us.</p>
                 `, { name: "The Wellness Co" })
             );
-        }
     }
 
     res.json({ received: true });
