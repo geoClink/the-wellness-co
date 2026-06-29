@@ -6,235 +6,375 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | The Wellness Co.</title>
     <style>
-        /* ==========================================================================
-           1. ROOT BRAND COLOR SCHEME UNIFICATION
-           ========================================================================= */
-        :root {
-            --bg: #f4eee4;
-            --bg-alt: #efe7d8;
-            --surface: #faf6ee;
-            --white: #ffffff;
-            --ink: #2c2823;
-            --ink-soft: #4a4339;
-            --muted: #6f665a;
-            --line: #e6dcc9;
-            --sage: #8a9a7b;
-            --sage-deep: #5f6e52;
-            --sage-deep-hover: #4c5940;
-            --clay: #b5713f;
-            --clay-text: #8a4520;
-            
-            /* System layout alerts mapped directly to your theme */
-            --error-bg: #fdf0ee;
-            --error-text: #8a2a1a;
-            --success-green: #28a745;
-            --danger-red: #dc3545;
-        }
-
-        body { 
-            font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            color: var(--ink); 
-            margin: 0; 
-            padding: 40px 20px; 
-            background: var(--bg); 
-            -webkit-font-smoothing: antialiased;
-        }
-
-        h1, h2, h3, h4 { 
-            font-family: 'Cormorant Garamond', serif; 
-            font-weight: 600; 
-            color: var(--ink);
-            margin-top: 0; 
-        }
+    /* ==========================================================================
+       1. ROOT BRAND COLOR SCHEME UNIFICATION
+       ========================================================================= */
+    :root {
+        --bg: #f4eee4;
+        --bg-alt: #efe7d8;
+        --surface: #faf6ee;
+        --white: #ffffff;
+        --ink: #2c2823;
+        --ink-soft: #4a4339;
+        --muted: #6f665a;
+        --line: #e6dcc9;
+        --sage: #8a9a7b;
+        --sage-deep: #5f6e52;
+        --sage-deep-hover: #4c5940;
+        --clay: #b5713f;
+        --clay-text: #8a4520;
         
-        h1 { font-size: 36px; border-bottom: 2px solid var(--line); padding-bottom: 12px; }
-        h2 { font-size: 26px; margin-bottom: 15px; color: var(--clay-text); }
-        h3 { font-size: 20px; margin-bottom: 12px; color: var(--muted); }
+        --error-bg: #fdf0ee;
+        --error-text: #8a2a1a;
+        --success-green: #28a745;
+        --danger-red: #dc3545;
+    }
 
-        /* ==========================================================================
-           2. SECURITY LOGIN WRAPPER
-           ========================================================================== */
-        #login-view { 
-            max-width: 400px; 
-            margin: 100px auto; 
-            padding: 40px; 
-            background: var(--surface); 
-            border: 1px solid var(--line);
-            border-radius: 14px; 
-            box-shadow: 0 12px 32px -12px rgba(44, 40, 35, 0.15); 
-        }
-        
-        #login-form input { 
-            width: 100%; 
-            padding: 12px 16px; 
-            margin-bottom: 20px; 
-            box-sizing: border-box; 
-            border: 1px solid var(--line); 
-            border-radius: 8px; 
-            font-size: 14px; 
-            background: var(--white);
-            outline: none;
+    /* 🌟 CRITICAL FIX: Ensures padding calculation doesn't stretch items past containers globally */
+    * {
+        box-sizing: border-box !important;
+    }
+
+    body { 
+        font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+        color: var(--ink); 
+        margin: 0; 
+        padding: 40px 20px; 
+        background: var(--bg); 
+        -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4 { 
+        font-family: 'Cormorant Garamond', serif; 
+        font-weight: 600; 
+        color: var(--ink);
+        margin-top: 0; 
+    }
+    
+    h1 { font-size: 36px; border-bottom: 2px solid var(--line); padding-bottom: 12px; margin-bottom: 30px; }
+    h2 { font-size: 26px; margin-bottom: 15px; color: var(--clay-text); }
+    h3 { font-size: 20px; margin-bottom: 12px; color: var(--muted); }
+
+    /* ==========================================================================
+       2. SECURITY LOGIN WRAPPER
+       ========================================================================== */
+    #login-view { 
+        max-width: 400px; 
+        margin: 100px auto; 
+        padding: 40px; 
+        background: var(--surface); 
+        border: 1px solid var(--line);
+        border-radius: 14px; 
+        box-shadow: 0 12px 32px -12px rgba(44, 40, 35, 0.15); 
+    }
+    
+    #login-form input { 
+        width: 100%; 
+        padding: 12px 16px; 
+        margin-bottom: 20px; 
+        border: 1px solid var(--line); 
+        border-radius: 8px; 
+        font-size: 14px; 
+        background: var(--white);
+        outline: none;
+    }
+
+    #login-form input:focus {
+        border-color: var(--sage);
+    }
+    
+    /* ==========================================================================
+       3. CENTRAL DASHBOARD GRID LAYOUT 
+       ========================================================================== */
+    #dashboard-view { 
+        max-width: 1100px; 
+        margin: 0 auto; 
+        position: relative; 
+    }
+    
+    /* Header Container to separate text from absolute layouts cleanly */
+    .dashboard-header-block {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid var(--line);
+        padding-bottom: 12px;
+        margin-bottom: 30px;
+        gap: 20px;
+    }
+
+    .dashboard-header-block h1 {
+        border: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    #logout-btn { 
+        background: var(--danger-red); 
+        color: var(--white); 
+        border: none; 
+        padding: 10px 20px; 
+        border-radius: 30px; 
+        font-weight: 600;
+        cursor: pointer; 
+        white-space: nowrap;
+    }
+    
+    .panel { 
+        background: var(--surface); 
+        padding: 30px; 
+        margin-bottom: 30px; 
+        border-radius: 14px; 
+        border: 1px solid var(--line);
+        box-shadow: 0 4px 12px -4px rgba(44, 40, 35, 0.04);
+    }
+    
+    /* ==========================================================================
+       4. FORM FIELDS & CONTENT TYPE INPUTS
+       ========================================================================== */
+    label {
+        display: block; 
+        font-weight: 600; 
+        font-size: 14px;
+        margin-bottom: 6px;
+        color: var(--ink-soft);
+    }
+
+    input[type="text"], input[type="url"], input[type="email"], input[type="password"], select, textarea { 
+        width: 100%; /* Default everything to fill its container nicely */
+        padding: 10px 14px; 
+        border: 1px solid var(--line); 
+        border-radius: 8px; 
+        font-size: 14px; 
+        font-family: inherit;
+        background: var(--white);
+        outline: none;
+        color: var(--ink);
+        margin-bottom: 15px;
+    }
+
+    input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
+        border-color: var(--sage);
+    }
+
+    textarea { 
+        resize: vertical;
+        margin-bottom: 20px;
+    }
+
+    /* ==========================================================================
+       5. DATA STORAGE GRID TABLES
+       ========================================================================== */
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-top: 15px; 
+        background: var(--white); 
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+    }
+    
+    th, td { 
+        padding: 14px 16px; 
+        text-align: left; 
+        border-bottom: 1px solid var(--bg); 
+        font-size: 14px;
+    }
+    
+    th { 
+        background: var(--bg-alt); 
+        font-weight: 600; 
+        color: var(--ink-soft); 
+    }
+
+    #reviews-body td {
+        height: auto !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        word-break: break-word !important;
+        vertical-align: top !important;
+    }
+    
+    /* ==========================================================================
+       6. CONTROL STRIPS & TRANSACTION ACTION BUTTONS
+       ========================================================================== */
+    button { 
+        background: var(--sage-deep); 
+        color: var(--white); 
+        border: none; 
+        padding: 10px 20px; 
+        border-radius: 30px; 
+        font-weight: 600; 
+        cursor: pointer; 
+        font-size: 14px; 
+        transition: background-color 0.2s;
+    }
+    
+    button:hover { 
+        background: var(--sage-deep-hover); 
+    }
+
+    .delete-service-btn, button[onclick*="deleteReview"], button[onclick*="cancelled"] { 
+        background: var(--danger-red) !important; 
+    }
+    
+    button[onclick*="approveReview"], button[onclick*="confirmed"] { 
+        background: var(--success-green) !important; 
+        margin-right: 5px; 
+    }
+
+    .btn-feature {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--muted);
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        margin-right: 4px;
+    }
+    .btn-feature:hover {
+        border-color: var(--clay);
+        color: var(--clay);
+    }
+    .btn-feature.active {
+        background: var(--clay);
+        color: var(--white);
+        border-color: var(--clay);
+    }
+
+    small {
+        color: var(--muted);
+        display: block;
+        margin: 6px 0 16px;
+    }
+
+    /* ==========================================================================
+       7. MOBILE RESPONSIVE ENGINE
+       ========================================================================== */
+    @media (max-width: 768px) {
+        body {
+            padding: 16px 12px;
         }
 
-        #login-form input:focus {
-            border-color: var(--sage);
-        }
-        
-        /* ==========================================================================
-           3. CENTRAL DASHBOARD GRID LAYOUT 
-           ========================================================================== */
-        #dashboard-view { 
-            max-width: 1100px; 
-            margin: 0 auto; 
-            position: relative; 
-        }
-        
-        #logout-btn { 
-            position: absolute; 
-            right: 0; 
-            top: -5px; 
-            background: var(--danger-red); 
-            color: var(--white); 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: 30px; 
-            font-weight: 600;
-            cursor: pointer; 
-        }
-        
-        .panel { 
-            background: var(--surface); 
-            padding: 30px; 
-            margin-bottom: 30px; 
-            border-radius: 14px; 
-            border: 1px solid var(--line);
-            box-shadow: 0 4px 12px -4px rgba(44, 40, 35, 0.04);
-        }
-        
-        /* ==========================================================================
-           4. FORM FIELDS & CONTENT TYPE INPUTS
-           ========================================================================== */
-        label {
-            display: block; 
-            font-weight: 600; 
-            font-size: 14px;
-            margin-bottom: 6px;
-            color: var(--ink-soft);
+        /* 🌟 FIX: Changes header into vertical layout so Log Out drops cleanly below the text */
+        .dashboard-header-block {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 14px;
+            margin-bottom: 20px;
         }
 
-        input[type="text"], input[type="url"], input[type="email"], input[type="password"], select, textarea { 
-            padding: 10px 14px; 
-            border: 1px solid var(--line); 
-            border-radius: 8px; 
-            font-size: 14px; 
-            font-family: inherit;
-            background: var(--white);
-            outline: none;
-            color: var(--ink);
+        .dashboard-header-block h1 {
+            font-size: 28px;
+            text-align: center;
         }
 
-        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
-            border-color: var(--sage);
-        }
-
-        textarea { 
-            width: 100%; 
-            box-sizing: border-box; 
-            margin-bottom: 20px; 
-            resize: vertical;
-        }
-
-        /* ==========================================================================
-           5. DATA STORAGE GRID TABLES
-           ========================================================================== */
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 15px; 
-            background: var(--white); 
+        #logout-btn {
+            width: 100%;
+            text-align: center;
             border-radius: 8px;
-            overflow: hidden;
+            padding: 12px;
+        }
+
+        .panel {
+            padding: 20px 14px;
+            margin-bottom: 20px;
+        }
+
+        /* 🌟 FIX: Ensures no element runs off the right side edge */
+        input[type="text"], input[type="url"], input[type="email"], input[type="password"], select, textarea {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        #add-service-form, #add-review-form div {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+        }
+
+        #add-service-form button, #add-review-form button {
+            width: 100% !important;
+        }
+
+        /* Responsive Table Transformations */
+        table, tbody, th, td, tr { 
+            display: block; 
+        }
+        
+        thead tr { 
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+        
+        tr { 
             border: 1px solid var(--line);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: var(--white);
+            padding: 8px;
         }
         
-        th, td { 
-            padding: 14px 16px; 
-            text-align: left; 
-            border-bottom: 1px solid var(--bg); 
-            font-size: 14px;
-        }
-        
-        th { 
-            background: var(--bg-alt); 
-            font-weight: 600; 
-            color: var(--ink-soft); 
+        td { 
+            border: none;
+            border-bottom: 1px dashed var(--bg); 
+            position: relative;
+            padding-left: 45% !important; 
+            text-align: right !important;
+            white-space: normal;
         }
 
-        #reviews-body td {
-            height: auto !important;
-            white-space: normal !important;
-            overflow: visible !important;
-            word-break: break-word !important;
-            vertical-align: top !important;
+        td:last-child {
+            border-bottom: none;
         }
         
-        /* ==========================================================================
-           6. CONTROL STRIPS & TRANSACTION ACTION BUTTONS
-           ========================================================================== */
-        button { 
-            background: var(--sage-deep); 
-            color: var(--white); 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: 30px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            font-size: 14px; 
-            transition: background-color 0.2s;
+        td:before { 
+            position: absolute;
+            top: 14px;
+            left: 12px;
+            width: 40%; 
+            padding-right: 10px; 
+            white-space: nowrap;
+            text-align: left;
+            font-weight: 600;
+            color: var(--clay-text);
         }
         
-        button:hover { 
-            background: var(--sage-deep-hover); 
-        }
+        #availability-rows td:nth-of-type(1):before { content: "Day"; }
+        #availability-rows td:nth-of-type(2):before { content: "Status"; }
+        #availability-rows td:nth-of-type(3):before { content: "Start Time"; }
+        #availability-rows td:nth-of-type(4):before { content: "End Time"; }
 
-        .delete-service-btn, button[onclick*="deleteReview"], button[onclick*="cancelled"] { 
-            background: var(--danger-red) !important; 
-        }
-        
-        button[onclick*="approveReview"], button[onclick*="confirmed"], button[onclick*="toggleFeaturedReview"].active { 
-            background: var(--success-green) !important; 
-            margin-right: 5px; 
-        }
+        #services-body td:nth-of-type(1):before { content: "Service"; }
+        #services-body td:nth-of-type(2):before { content: "Description"; }
+        #services-body td:nth-of-type(3):before { content: "Rate"; }
+        #services-body td:nth-of-type(4):before { content: "Action"; }
 
-        /* Styles specifically targeting the custom featured toggle button */
-        .btn-feature {
-            background: transparent;
-            border: 1px solid var(--line);
-            color: var(--muted);
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            margin-right: 4px;
-        }
-        .btn-feature:hover {
-            border-color: var(--clay);
-            color: var(--clay);
-        }
-        .btn-feature.active {
-            background: var(--clay);
-            color: var(--white);
-            border-color: var(--clay);
-        }
+        #bookings-body td:nth-of-type(1):before { content: "Date"; }
+        #bookings-body td:nth-of-type(2):before { content: "Time"; }
+        #bookings-body td:nth-of-type(3):before { content: "Client"; }
+        #bookings-body td:nth-of-type(4):before { content: "Email"; }
+        #bookings-body td:nth-of-type(5):before { content: "Phone"; }
+        #bookings-body td:nth-of-type(6):before { content: "Status"; }
+        #bookings-body td:nth-of-type(7):before { content: "Action"; }
 
-        small {
-            color: var(--muted);
-            display: block;
-            margin: 6px 0 16px;
+        #reviews-body td:nth-of-type(1):before { content: "Name"; }
+        #reviews-body td:nth-of-type(2):before { content: "Rating"; }
+        #reviews-body td:nth-of-type(3):before { content: "Quote"; }
+        #reviews-body td:nth-of-type(4):before { content: "Status"; }
+        #reviews-body td:nth-of-type(5):before { content: "Action"; }
+
+        td button {
+            width: 100%;
+            margin: 4px 0 !important;
         }
-    </style>
+    }
+</style>
 </head>
 
 <body>

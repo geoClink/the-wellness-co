@@ -1460,3 +1460,134 @@ footer {
         font-size: 13px !important;
     }
 }
+
+/* ==========================================================================
+   16. MOBILE & TABLET RESPONSIVE REPAIR MEDIA MATRIX
+   ========================================================================== */
+@media (max-width: 768px) {
+    body {
+        padding: 16px 12px; /* Pull margins in tighter on small touch screens */
+    }
+
+    h1 {
+        font-size: 28px;
+        padding-bottom: 8px;
+        margin-top: 60px; /* 🌟 FIX: Pushes the header down so it never clips behind the button */
+        word-wrap: break-word;
+    }
+
+    #logout-btn {
+        position: absolute; /* Keep it absolute but aligned cleanly in the upper right */
+        top: -15px; 
+        right: 0;
+        width: auto; 
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    .panel {
+        padding: 20px 16px; 
+        margin-bottom: 20px;
+        box-sizing: border-box; /* 🌟 FIX: Forces borders inside containment boxes */
+    }
+
+    /* Ensure every single input block scales perfectly inside card padding boundaries */
+    input[type="text"], 
+    input[type="url"], 
+    input[type="email"], 
+    input[type="password"], 
+    select, 
+    textarea {
+        width: 100% !important;
+        box-sizing: border-box; /* 🌟 FIX: Stops inputs from expanding outside cards */
+    }
+
+    /* Force linear column stacking on custom horizontal layout strips */
+    #add-service-form, 
+    #add-review-form div {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+    }
+
+    #add-service-form button {
+        width: 100% !important;
+    }
+
+    /* 🌟 THE REVOLUTIONARY MOBILE TABLE WORKAROUND */
+    table, tbody, th, td, tr { 
+        display: block; 
+    }
+    
+    thead tr { 
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    
+    tr { 
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        margin-bottom: 15px;
+        background: var(--surface);
+        padding: 8px;
+        box-sizing: border-box;
+    }
+    
+    td { 
+        border: none;
+        border-bottom: 1px dashed var(--bg); 
+        position: relative;
+        padding-left: 45% !important; 
+        text-align: right !important;
+        white-space: normal;
+        box-sizing: border-box;
+    }
+
+    td:last-child {
+        border-bottom: none;
+    }
+    
+    td:before { 
+        position: absolute;
+        top: 14px;
+        left: 12px;
+        width: 40%; 
+        padding-right: 10px; 
+        white-space: nowrap;
+        text-align: left;
+        font-weight: 600;
+        color: var(--clay-text);
+    }
+    
+    /* Apply explicit row headers mapped directly to your specific column layouts */
+    #availability-rows td:nth-of-type(1):before { content: "Day"; }
+    #availability-rows td:nth-of-type(2):before { content: "Status"; }
+    #availability-rows td:nth-of-type(3):before { content: "Start Time"; }
+    #availability-rows td:nth-of-type(4):before { content: "End Time"; }
+
+    #services-body td:nth-of-type(1):before { content: "Service"; }
+    #services-body td:nth-of-type(2):before { content: "Description"; }
+    #services-body td:nth-of-type(3):before { content: "Rate"; }
+    #services-body td:nth-of-type(4):before { content: "Action"; }
+
+    #bookings-body td:nth-of-type(1):before { content: "Date"; }
+    #bookings-body td:nth-of-type(2):before { content: "Time"; }
+    #bookings-body td:nth-of-type(3):before { content: "Client"; }
+    #bookings-body td:nth-of-type(4):before { content: "Email"; }
+    #bookings-body td:nth-of-type(5):before { content: "Phone"; }
+    #bookings-body td:nth-of-type(6):before { content: "Status"; }
+    #bookings-body td:nth-of-type(7):before { content: "Action"; }
+
+    #reviews-body td:nth-of-type(1):before { content: "Name"; }
+    #reviews-body td:nth-of-type(2):before { content: "Rating"; }
+    #reviews-body td:nth-of-type(3):before { content: "Quote"; }
+    #reviews-body td:nth-of-type(4):before { content: "Status"; }
+    #reviews-body td:nth-of-type(5):before { content: "Action"; }
+
+    td button {
+        width: 100%;
+        margin: 4px 0 !important;
+        box-sizing: border-box;
+    }
+}
