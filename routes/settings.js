@@ -184,4 +184,34 @@ router.post("/api/settings/availability", adminAuth, async (req, res) => {
     }
 });
 
+// 1. GET: Fetch existing gateway configurations safely for the dashboard views
+router.get("/api/settings/integrations", adminAuth, async (req, res) => {
+    const { data, error } = await supabase
+        .from("tenant_settings")
+        .select("stripe_publishable_key, stripe_secret_key, stripe_webhook_secret, resend_api_key")
+        .eq("tenant_id", req.tenant.id)
+        .maybeSingle();
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.json(data || {});
+});
+
+// 2. PUT: Update integrations records securely 
+router.put("/api/settings/integrations", adminAuth, async (req, res) => {
+    const { stripe_pub, stripe_sec, stripe_wh, resend_key } = req.body;
+    
+    const { data, error } = await supabase
+        .from("tenant_settings")
+        .update({
+            stripe_publishable_key: stripe_pub,
+            stripe_secret_key: stripe_sec,
+            stripe_webhook_secret: stripe_wh,
+            resend_api_key: resend_key // 🌟 SAVE RESEND KEY TO SECURE ROW
+        })
+        .eq("tenant_id", req.tenant.id);
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.json({ success: true });
+});
+
 module.exports = router;

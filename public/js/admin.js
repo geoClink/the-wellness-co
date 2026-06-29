@@ -42,6 +42,22 @@ function showLogin() {
     if (dashboardView) dashboardView.style.display = 'none';
 }
 
+function showDashboard() {
+    document.getElementById('login-view').style.display = 'none';
+    document.getElementById('dashboard-view').style.display = 'block';
+    
+    // Core Data Fetch Operations
+    loadBookings();
+    loadAdminReviews();
+    loadHeroContent();     
+    loadAdminServices();   
+    loadBusinessProfile();
+    loadAboutContent();
+    loadAvailabilitySettings(); 
+    
+    // 🌟 ADD THIS LINE HERE:
+    loadIntegrationSettings(); 
+}
 // ==========================================
 // 1. AUTHENTICATION HANDLERS
 // ==========================================
@@ -477,6 +493,65 @@ document.getElementById('footer-form')?.addEventListener('submit', async (e) => 
         setTimeout(() => statusEl.textContent = "", 3000);
     }
 });
+
+// 🎯 Add inside your settings load sequence inside public/js/admin.js
+// ==========================================
+// INTEGRATIONS & GATEWAYS HANDLERS
+// ==========================================
+
+// Fetch existing keys to populate the form on dashboard load
+async function loadIntegrationSettings() {
+    try {
+        const res = await fetch('/api/settings/integrations', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('admin_token')}` }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (document.getElementById('stripe-pub-key')) document.getElementById('stripe-pub-key').value = data.stripe_publishable_key || '';
+            if (document.getElementById('stripe-sec-key')) document.getElementById('stripe-sec-key').value = data.stripe_secret_key || '';
+            if (document.getElementById('stripe-wh-key')) document.getElementById('stripe-wh-key').value = data.stripe_webhook_secret || '';
+            if (document.getElementById('resend-api-key')) document.getElementById('resend-api-key').value = data.resend_api_key || '';
+        }
+    } catch (err) {
+        console.error("Failed to load integrations setup fields:", err);
+    }
+}
+
+// Form submit listener to save keys to Supabase
+const integrationsForm = document.getElementById('integrations-form');
+if (integrationsForm) {
+    integrationsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('admin_token');
+        const statusEl = document.getElementById('gateway-status');
+
+        const payload = {
+            stripe_pub: document.getElementById('stripe-pub-key').value.trim(),
+            stripe_sec: document.getElementById('stripe-sec-key').value.trim(),
+            stripe_wh: document.getElementById('stripe-wh-key').value.trim(),
+            resend_key: document.getElementById('resend-api-key').value.trim()
+        };
+
+        const res = await fetch('/api/settings/integrations', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            if (statusEl) {
+                statusEl.textContent = "All gateway integrations updated successfully!";
+                setTimeout(() => statusEl.textContent = "", 3000);
+            }
+            loadIntegrationSettings();
+        } else {
+            alert("Failed to update system gateways.");
+        }
+    });
+}
 
 // Add inside your dashboard initializers: loadAvailabilitySettings();
 
