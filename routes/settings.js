@@ -184,31 +184,31 @@ router.post("/api/settings/availability", adminAuth, async (req, res) => {
     }
 });
 
-// 🎯 FIXED: Wrapped in try/catch to capture structural failures cleanly
+// 1. GET: Fetch existing gateway configurations safely for the dashboard views
 router.get("/api/settings/integrations", adminAuth, async (req, res) => {
     try {
-        // Enforce a strict fallback check to ensure the tenant middleware executed correctly
         if (!req.tenant || !req.tenant.id) {
-            console.error("❌ Context validation error: req.tenant context is missing in route.");
             return res.status(400).json({ error: "Tenant authorization context missing." });
         }
+
+        // 🌟 FIX: Convert the UUID object explicitly to a text string to match the column type perfectly
+        const textTenantId = String(req.tenant.id);
 
         const { data, error } = await supabase
             .from("tenant_settings")
             .select("stripe_publishable_key, stripe_secret_key, stripe_webhook_secret, resend_api_key")
-            .eq("tenant_id", req.tenant.id)
+            .eq("tenant_id", textTenantId) 
             .maybeSingle();
 
         if (error) {
-            console.error("❌ Supabase DB Exception during integrations fetch:", error.message);
+            console.error("❌ Supabase DB Mismatch Error:", error.message);
             return res.status(500).json({ error: error.message });
         }
 
-        // Return a clean empty object if no rows exist yet, avoiding frontend mapping errors
         return res.json(data || {});
 
     } catch (err) {
-        console.error("💥 Unhandled Crash inside GET /api/settings/integrations:", err.stack);
+        console.error("💥 Unhandled integration route breakdown:", err.message);
         return res.status(500).json({ error: err.message });
     }
 });
