@@ -438,6 +438,46 @@ if (addReviewForm) {
     });
 }
 
+// Add inside your showDashboard() bootstrap stack: loadFooterContent();
+
+async function loadFooterContent() {
+    const res = await fetch('/api/settings/footer');
+    if (res.ok) {
+        const data = await res.json();
+        document.getElementById('footer-bio-input').value = data.footer_bio || '';
+        document.getElementById('footer-email-input').value = data.footer_email || '';
+        document.getElementById('footer-phone-input').value = data.footer_phone || '';
+        document.getElementById('footer-address-input').value = data.footer_address || '';
+    }
+}
+
+document.getElementById('footer-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('admin_token');
+    const statusEl = document.getElementById('footer-status');
+
+    const payload = {
+        bio: document.getElementById('footer-bio-input').value.trim(),
+        email: document.getElementById('footer-email-input').value.trim(),
+        phone: document.getElementById('footer-phone-input').value.trim(),
+        address: document.getElementById('footer-address-input').value.trim()
+    };
+
+    const res = await fetch('/api/settings/footer', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+        statusEl.textContent = "Footer updated successfully!";
+        setTimeout(() => statusEl.textContent = "", 3000);
+    }
+});
+
 // Add inside your dashboard initializers: loadAvailabilitySettings();
 
 const daysMapping = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];

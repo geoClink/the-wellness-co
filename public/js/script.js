@@ -215,3 +215,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+async function renderDynamicFooterContent() {
+    try {
+        const res = await fetch("/api/settings/footer");
+        if (!res.ok) return;
+        const data = await res.json();
+
+        const bioEl = document.getElementById("live-footer-bio");
+        const emailEl = document.getElementById("live-footer-email");
+        const phoneEl = document.getElementById("live-footer-phone");
+        const addressEl = document.getElementById("live-footer-address");
+
+        if (bioEl && data.footer_bio) bioEl.textContent = data.footer_bio;
+        
+        if (emailEl && data.footer_email) {
+            emailEl.textContent = data.footer_email;
+            emailEl.href = `mailto:${data.footer_email}`;
+        }
+        
+        if (phoneEl && data.footer_phone) {
+            phoneEl.textContent = data.footer_phone;
+            phoneEl.href = `tel:${data.footer_phone.replace(/\D/g,'')}`;
+        }
+        
+        if (addressEl && data.footer_address) {
+            addressEl.textContent = data.footer_address;
+        }
+    } catch (err) {
+        console.error("Footer template asset sync failure:", err);
+    }
+}
+
+// Fire automatically inside your script initialization block:
+document.addEventListener("DOMContentLoaded", renderDynamicFooterContent);

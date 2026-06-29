@@ -51,6 +51,32 @@ router.get("/api/settings/hero", async (req, res) => {
     });
 });
 
+router.put("/api/settings/footer", adminAuth, async (req, res) => {
+    const { bio, email, phone, address } = req.body;
+    
+    const { data, error } = await supabase
+        .from("tenant_settings")
+        .update({ 
+            footer_bio: bio, 
+            footer_email: email, 
+            footer_phone: phone, 
+            footer_address: address 
+        })
+        .eq("tenant_id", req.tenant.id); // Isolate to current business
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.json({ success: true, data });
+});
+router.get("/api/settings/footer", async (req, res) => {
+    const { data, error } = await supabase
+        .from("tenant_settings")
+        .select("footer_bio, footer_email, footer_phone, footer_address")
+        .eq("tenant_id", req.tenant.id)
+        .single();
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.json(data || {});
+});
 // ==========================================
 // 2. TENANT BUSINESS PROFILE ENDPOINTS
 // ==========================================
