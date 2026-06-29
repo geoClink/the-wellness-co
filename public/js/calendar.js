@@ -4,6 +4,8 @@
 
 let cl_currentDate = new Date();
 let cl_selectedDate = null;
+let cl_selectedTime = null; // 🌟 TRACKS ACTIVE SELECTED TIME
+let cl_selectedServiceId = null; // 🌟 TRACKS AUTO-SELECTED REQ ID
 let cl_availabilityRules = []; 
 
 function cl_getDaysInMonth(year, month) {
@@ -17,17 +19,20 @@ function cl_getFirstDayIndex(year, month) {
 async function cl_initializeBookingPage() {
     console.log("🚀 Standalone Calendar initialization fired!");
     
+    // Grab ?service= parameters out of the address bar right away
+    const urlParams = new URLSearchParams(window.location.search);
+    cl_selectedServiceId = urlParams.get('service');
+    console.log("🎯 URL Target Service Found:", cl_selectedServiceId);
+
     try {
         const res = await fetch('/api/settings/availability');
         if (res.ok) {
             cl_availabilityRules = await res.json();
-            console.log("📊 Loaded rules from database:", cl_availabilityRules);
         }
     } catch (err) {
         console.error("❌ API Availability fetch failed:", err);
     }
     
-    // Fallback scheduling defaults if table returns completely empty
     if (!cl_availabilityRules || cl_availabilityRules.length === 0) {
         cl_availabilityRules = [
             { day_of_week: 0, is_active: false }, 
@@ -58,16 +63,23 @@ async function cl_renderServicePillsFallback() {
             return;
         }
 
+        // Check if our incoming URL parameter matches any database item IDs or slugs
+        let activeIndex = services.findIndex(s => s.id === cl_selectedServiceId || s.slug === cl_selectedServiceId);
+        
+        // If no match was found, default gracefully back to the first pill index item
+        if (activeIndex === -1) activeIndex = 0;
+
         pillsContainer.innerHTML = services.map((s, idx) => `
-            <button type="button" class="service-pill ${idx === 0 ? 'active' : ''}" data-id="${s.id}" data-price="${s.price}" data-name="${s.name}">
+            <button type="button" class="service-pill ${idx === activeIndex ? 'active' : ''}" data-id="${s.id}" data-price="${s.price}" data-name="${s.name}">
                 ${escapeHtml(s.name)} · $${s.price}
             </button>
         `).join('');
 
-        const firstService = services[0];
+        // Populate summary box with the correct starting selection row details
+        const startingService = services[activeIndex];
         const sumService = document.getElementById('sum-service');
         if (sumService) {
-            sumService.textContent = `${firstService.name} · $${firstService.price}`;
+            sumService.textContent = `${startingService.name} · $${startingService.price}`;
             sumService.classList.add('has-value');
         }
 
@@ -170,6 +182,10 @@ function cl_mockTimeSlotsForDate(dateStr) {
             e.preventDefault();
             slotsContainer.querySelectorAll('.time-slot').forEach(t => t.classList.remove('active'));
             btn.classList.add('active');
+            
+            // 🌟 FIX: Assign selection parameter string straight to your validation state variable!
+            cl_selectedTime = btn.dataset.time; 
+            
             document.getElementById('sum-time').textContent = btn.textContent;
             document.getElementById('sum-time').classList.add('has-value');
         });
@@ -221,23 +237,20 @@ document.getElementById('booking-form')?.addEventListener('submit', async (e) =>
 
     const activeServiceButton = document.querySelector('.service-pill.active');
     const currentServiceId = activeServiceButton ? activeServiceButton.dataset.id : null;
-    
-    const activeTimeButton = document.querySelector('.time-slot.active');
-    const currentSelectedTime = activeTimeButton ? activeTimeButton.dataset.time : null;
 
-    if (!currentServiceId || !cl_selectedDate || !currentSelectedTime || !isValid) {
+    // 🌟 FIX: Checks our newly filled state tracker variables perfectly to avoid fake alert blocks
+    if (!currentServiceId || !cl_selectedDate || !cl_selectedTime || !isValid) {
         alert("Please complete step 1 (Service), step 2 (Date & Time slot), and step 3 (Your Details) before checkout.");
         return;
     }
 
-    // 🌟 UNIFIED UNIFORM camelCase PROPERTY PACKAGING
     const payload = {
         serviceId: currentServiceId,
         guestName: nameInput.value.trim(),
         email: emailInput.value.trim(),
         phone: telInput.value.trim(),
         date: cl_selectedDate,         
-        time: currentSelectedTime,
+        time: cl_selectedTime,
         notes: document.getElementById('message')?.value || ''
     };
 
@@ -274,12 +287,6 @@ document.getElementById('booking-form')?.addEventListener('submit', async (e) =>
             errDisplay.style.display = 'block';
         }
     }
-});
-
-['name', 'email', 'tel'].forEach(id => {
-    document.getElementById(id)?.addEventListener('input', () => {
-        document.getElementById(id).classList.remove('error');
-    });
 });
 
 cl_initializeBookingPage();
