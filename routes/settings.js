@@ -9,104 +9,139 @@ const { adminAuth } = require("../middleware/auth");
 
 // Fetch ALL Site Settings Profile Metrics
 router.get("/api/site-settings", async (req, res) => {
-    const { data, error } = await supabase.from("site_settings").select("*")
-        .eq("tenant_id", req.tenant.id).maybeSingle();
-    if (error) return res.status(500).json({ error: error.message });
-    res.json(data ?? {});
+    try {
+        const { data, error } = await supabase.from("site_settings").select("*")
+            .eq("tenant_id", req.tenant.id).maybeSingle();
+        if (error) return res.status(500).json({ error: error.message });
+        res.json(data ?? {});
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
 });
 
 // Comprehensive Patch Route (Handles Hero Updates + Banners + General Hours)
 router.patch("/api/site-settings", adminAuth, async (req, res) => {
-    const { hero_heading, hero_subtext, hero_image_url, hours, hours_note, banner_visible, banner_text } = req.body;
-    const updates = { tenant_id: req.tenant.id };
-    
-    if (hero_heading !== undefined) updates.hero_heading = hero_heading;
-    if (hero_subtext !== undefined) updates.hero_subtext = hero_subtext;
-    if (hero_image_url !== undefined) updates.hero_image_url = hero_image_url;
-    if (hours !== undefined) updates.hours = hours;
-    if (hours_note !== undefined) updates.hours_note = hours_note;
-    if (banner_visible !== undefined) updates.banner_visible = banner_visible;
-    if (banner_text !== undefined) updates.banner_text = banner_text;
-    
-    const { error } = await supabase.from("site_settings").upsert(updates, {
-        onConflict: "tenant_id"
-    });
-    if (error) return res.status(500).json({ error: error.message });
-    res.json({ success: true });
+    try {
+        const { hero_heading, hero_subtext, hero_image_url, hours, hours_note, banner_visible, banner_text } = req.body;
+        const updates = { tenant_id: req.tenant.id };
+        
+        if (hero_heading !== undefined) updates.hero_heading = hero_heading;
+        if (hero_subtext !== undefined) updates.hero_subtext = hero_subtext;
+        if (hero_image_url !== undefined) updates.hero_image_url = hero_image_url;
+        if (hours !== undefined) updates.hours = hours;
+        if (hours_note !== undefined) updates.hours_note = hours_note;
+        if (banner_visible !== undefined) updates.banner_visible = banner_visible;
+        if (banner_text !== undefined) updates.banner_text = banner_text;
+        
+        const { error } = await supabase.from("site_settings").upsert(updates, {
+            onConflict: "tenant_id"
+        });
+        if (error) return res.status(500).json({ error: error.message });
+        res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
 });
 
 // Dedicated Hero Customizer Data Bridge 
 router.get("/api/settings/hero", async (req, res) => {
-    const { data, error } = await supabase.from("site_settings")
-        .select("hero_heading, hero_subtext, hero_image_url")
-        .eq("tenant_id", req.tenant.id)
-        .maybeSingle();
+    try {
+        const { data, error } = await supabase.from("site_settings")
+            .select("hero_heading, hero_subtext, hero_image_url")
+            .eq("tenant_id", req.tenant.id)
+            .maybeSingle();
+            
+        if (error) return res.status(500).json({ error: error.message });
         
-    if (error) return res.status(500).json({ error: error.message });
-    
-    res.json({
-        title: data?.hero_heading || "",
-        description: data?.hero_subtext || "", 
-        imageUrl: data?.hero_image_url || ""
-    });
+        res.json({
+            title: data?.hero_heading || "",
+            description: data?.hero_subtext || "", 
+            imageUrl: data?.hero_image_url || ""
+        });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
 });
 
 router.put("/api/settings/footer", adminAuth, async (req, res) => {
-    const { bio, email, phone, address } = req.body;
-    
-    const { data, error } = await supabase
-        .from("tenant_settings")
-        .update({ 
-            footer_bio: bio, 
-            footer_email: email, 
-            footer_phone: phone, 
-            footer_address: address 
-        })
-        .eq("tenant_id", req.tenant.id); // Isolate to current business
+    try {
+        const { bio, email, phone, address } = req.body;
+        
+        const { data, error } = await supabase
+            .from("tenant_settings")
+            .update({ 
+                footer_bio: bio, 
+                footer_email: email, 
+                footer_phone: phone, 
+                footer_address: address 
+            })
+            .eq("tenant_id", String(req.tenant.id)); // Isolate securely to text field string matching format
 
-    if (error) return res.status(500).json({ error: error.message });
-    return res.json({ success: true, data });
+        if (error) return res.status(500).json({ error: error.message });
+        return res.json({ success: true, data });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
 });
+
 router.get("/api/settings/footer", async (req, res) => {
-    const { data, error } = await supabase
-        .from("tenant_settings")
-        .select("footer_bio, footer_email, footer_phone, footer_address")
-        .eq("tenant_id", req.tenant.id)
-        .single();
+    try {
+        if (!req.tenant || !req.tenant.id) {
+            return res.status(400).json({ error: "Tenant context structural validation missing." });
+        }
 
-    if (error) return res.status(500).json({ error: error.message });
-    return res.json(data || {});
+        // 🌟 FIXED: String-casts the UUID lookup parameter to clear Postgres text crashes
+        const { data, error } = await supabase
+            .from("tenant_settings")
+            .select("footer_bio, footer_email, footer_phone, footer_address")
+            .eq("tenant_id", String(req.tenant.id))
+            .maybeSingle(); // 🌟 FIXED: Safe single parser prevents crash loops on initial loads
+
+        if (error) return res.status(500).json({ error: error.message });
+        return res.json(data || {});
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
 });
+
 // ==========================================
 // 2. TENANT BUSINESS PROFILE ENDPOINTS
 // ==========================================
 
 // GET current profile settings
 router.get("/api/settings/profile", async (req, res) => {
-    const { data, error } = await supabase
-        .from("tenants")
-        .select("phone, business_hours")
-        .eq("id", req.tenant.id)
-        .single();
-    if (error) return res.status(500).json({ error: error.message });
-    res.json(data);
+    try {
+        const { data, error } = await supabase
+            .from("tenants")
+            .select("phone, business_hours")
+            .eq("id", req.tenant.id)
+            .single();
+        if (error) return res.status(500).json({ error: error.message });
+        res.json(data);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
 });
 
 // PUT updated profile configurations
 router.put("/api/settings/profile", adminAuth, async (req, res) => {
-    const { phone, hours } = req.body;
-    
-    const { data, error } = await supabase
-        .from("tenants")
-        .update({ phone, business_hours: hours })
-        .eq("id", req.tenant.id);
+    try {
+        const { phone, hours } = req.body;
+        
+        const { data, error } = await supabase
+            .from("tenants")
+            .update({ phone, business_hours: hours })
+            .eq("id", req.tenant.id);
 
-    if (error) return res.status(500).json({ error: error.message });
-    res.json({ success: true });
+        if (error) return res.status(500).json({ error: error.message });
+        res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
 });
 
 // ==========================================
-// 3. CALENDAR AVAILABILITY ENDPOINTS (CLEANED)
+// 3. CALENDAR AVAILABILITY ENDPOINTS
 // ==========================================
 
 // GET Availability Configuration Matrix
@@ -127,7 +162,6 @@ router.get("/api/settings/availability", async (req, res) => {
             return res.status(500).json({ error: error.message });
         }
 
-        // Clean output strings to safe display values (e.g., "09:00:00" -> "09:00")
         const formattedData = (data || []).map(r => ({
             ...r,
             start_time: r.start_time ? r.start_time.substring(0, 5) : "09:00",
@@ -150,7 +184,6 @@ router.post("/api/settings/availability", adminAuth, async (req, res) => {
             return res.status(400).json({ error: "Invalid rules payload configuration." });
         }
 
-        // Format short front-end string variables into true database-compliant TIME indicators
         const payload = rules.map(r => {
             const padTime = (t) => {
                 if (!t) return "00:00:00";
@@ -184,8 +217,8 @@ router.post("/api/settings/availability", adminAuth, async (req, res) => {
     }
 });
 
-// 🎯 TEST SETUP: Temporarily remove adminAuth to check if the query loads safely
-router.get("/api/settings/integrations", async (req, res) => {
+// GET: Fetch existing integrations securely for dashboard views (Cleaned test setup)
+router.get("/api/settings/integrations", adminAuth, async (req, res) => {
     try {
         if (!req.tenant || !req.tenant.id) {
             return res.status(400).json({ error: "Tenant context missing." });
@@ -206,20 +239,24 @@ router.get("/api/settings/integrations", async (req, res) => {
 
 // 2. PUT: Update integrations records securely 
 router.put("/api/settings/integrations", adminAuth, async (req, res) => {
-    const { stripe_pub, stripe_sec, stripe_wh, resend_key } = req.body;
-    
-    const { data, error } = await supabase
-        .from("tenant_settings")
-        .update({
-            stripe_publishable_key: stripe_pub,
-            stripe_secret_key: stripe_sec,
-            stripe_webhook_secret: stripe_wh,
-            resend_api_key: resend_key // 🌟 SAVE RESEND KEY TO SECURE ROW
-        })
-        .eq("tenant_id", req.tenant.id);
+    try {
+        const { stripe_pub, stripe_sec, stripe_wh, resend_key } = req.body;
+        
+        const { data, error } = await supabase
+            .from("tenant_settings")
+            .update({
+                stripe_publishable_key: stripe_pub,
+                stripe_secret_key: stripe_sec,
+                stripe_webhook_secret: stripe_wh,
+                resend_api_key: resend_key 
+            })
+            .eq("tenant_id", String(req.tenant.id)); // 🌟 FIXED: Enforce clear text string parameter conversion lookup match
 
-    if (error) return res.status(500).json({ error: error.message });
-    return res.json({ success: true });
+        if (error) return res.status(500).json({ error: error.message });
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
 });
 
 module.exports = router;
