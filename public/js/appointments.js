@@ -31,45 +31,40 @@ router.post("/api/appointments", async (req, res) => {
 
         // 3. GENERATE STRIPE CHECKOUT SESSION
         // We pass the booking variables into metadata so the Stripe Webhook can read them on payment success
-        const session = await stripe.checkout.sessions.create({
-            payment_method_types: ["card"],
-            mode: "payment",
-            success_url: `${req.protocol}://${req.get("host")}/confirmation.html?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${req.protocol}://${req.get("host")}/appointments.html`,
-            customer_email: email,
-            line_items: [
-                {
-                    price_data: {
-                        currency: "usd",
-                        product_data: {
-                            name: service.name,
-                            description: `Healing session on ${date} at ${time}`,
-                        },
-                        unit_amount: Math.round(service.price * 100), // Stripe processes parameters strictly in cents
-                    },
-                    quantity: 1,
+        // 🎯 UPDATE THIS inside routes/appointments.js:
+const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: [
+        {
+            price_data: {
+                currency: 'usd',
+                product_data: {
+                    name: serviceName, // Fetch this from your service profile
                 },
-            ],
-            metadata: {
-                tenant_id: req.tenant?.id || null,
-                service_id,
-                guest_name,
-                email,
-                phone,
-                date,
-                time,
-                notes,
+                unit_amount: servicePrice * 100, // Stripe expects amounts in cents
             },
-        });
-
-        // Return the secure direct redirect link straight back to calendar.js
-        return res.json({ url: session.url });
-
-    } catch (err) {
-        console.error("❌ CRITICAL BOOKING ENDPOINT CRASH:", err.message);
-        return res.status(500).json({ error: "Internal payment processing engine fault." });
-    }
+            quantity: 1,
+        },
+    ],
+    mode: 'payment',
+    
+    // 🌟 THIS IS THE CRITICAL MISSING BLOCK:
+    metadata: {
+        tenant_id: req.tenant?.id || "the-wellness-co", // Match your middleware lookup strategy
+        service_id: req.body.service_id,
+        guest_name: req.body.guest_name,
+        email: req.body.email,
+        phone: req.body.phone,
+        date: req.body.date,
+        time: req.body.time,
+        notes: req.body.notes
+    },
+    
+    success_url: 'https://the-wellness-co.vercel.app/appointments.html?success=true',
+    cancel_url: 'https://the-wellness-co.vercel.app/appointments.html',
 });
+
+res.json({ url: session.url });
 
 // ==========================================
 // 2. ADMIN ENDPOINTS: DASHBOARD HUB INTERFACE
