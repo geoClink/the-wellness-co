@@ -115,8 +115,13 @@ function renderCalendar() {
 
     daysContainer.innerHTML = html;
     
+    // Custom date click hook setup
     document.querySelectorAll('.cal-day:not(.empty):not(.disabled)').forEach(day => {
         day.addEventListener('click', () => {
+            document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
+            day.classList.add('selected');
+            selectedDate = day.dataset.date;
+            console.log(`🎯 Date Selected Baseline Target: ${selectedDate}`);
             if (typeof selectDate === 'function') selectDate(day);
         });
     });
@@ -128,11 +133,11 @@ function renderCalendar() {
 }
 
 // ==========================================
-// 🌟 PUBLIC STORIES & REVIEWS RENDERER
+// PUBLIC STORIES & REVIEWS RENDERER
 // ==========================================
 async function loadPublicReviews() {
     const container = document.getElementById("testimonials-grid");
-    if (!container) return; // Safely exit if we are not on stories.html
+    if (!container) return; 
 
     try {
         const res = await fetch("/api/reviews");
@@ -157,14 +162,14 @@ async function loadPublicReviews() {
 }
 
 // ==========================================
-// 🌟 HOMEPAGE DYNAMIC FEATURED QUOTE
+// HOMEPAGE DYNAMIC FEATURED QUOTE
 // ==========================================
 async function loadFeaturedQuoteOnHomepage() {
     const quoteElement = document.getElementById("featured-blockquote");
     const nameElement = document.getElementById("featured-name");
     const serviceElement = document.getElementById("featured-service");
 
-    if (!quoteElement || !nameElement) return; // Safely exit if we are not on index.html
+    if (!quoteElement || !nameElement) return; 
 
     try {
         const response = await fetch("/api/reviews/featured");
@@ -185,37 +190,8 @@ async function loadFeaturedQuoteOnHomepage() {
 }
 
 // ==========================================
-// MOBILE HAMBURGER NAVIGATION TOGGLER
+// DYNAMIC FOOTER RENDER MATRIX
 // ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    // Fire off all async layout data components upon boot initialization
-    loadPublicReviews();
-    loadFeaturedQuoteOnHomepage();
-    if (document.getElementById('cal-days')) {
-        initializeBookingPage();
-    }
-
-    const hamburger = document.getElementById('hamburger');
-    const navMenu = document.querySelector('nav');
-
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation(); 
-            
-            navMenu.classList.toggle('open');
-            hamburger.classList.toggle('active');
-        });
-
-        document.addEventListener('click', (event) => {
-            if (!navMenu.contains(event.target) && !hamburger.contains(event.target)) {
-                navMenu.classList.remove('open');
-                hamburger.classList.remove('active');
-            }
-        });
-    }
-});
-
 async function renderDynamicFooterContent() {
     try {
         const res = await fetch("/api/settings/footer");
@@ -247,5 +223,99 @@ async function renderDynamicFooterContent() {
     }
 }
 
-// Fire automatically inside your script initialization block:
-document.addEventListener("DOMContentLoaded", renderDynamicFooterContent);
+// ==========================================
+// CENTRALIZED DOM COMPONENT COORDINATOR
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    loadPublicReviews();
+    loadFeaturedQuoteOnHomepage();
+    renderDynamicFooterContent();
+    
+    if (document.getElementById('cal-days')) {
+        initializeBookingPage();
+    }
+
+    // A. Mobile Hamburger Controller Layout
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.querySelector('nav');
+
+    if (hamburger && navMenu) {
+        hamburger.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation(); 
+            navMenu.classList.toggle('open');
+            hamburger.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!navMenu.contains(event.target) && !hamburger.contains(event.target)) {
+                navMenu.classList.remove('open');
+                hamburger.classList.remove('active');
+            }
+        });
+    }
+
+    // 🌟 B. NEW: STRIPE CHECKOUT EVENT ROUTER FORM INTERCEPTOR
+    const checkoutForm = document.getElementById('booking-form') || document.querySelector('.booking-sidebar form');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Stop raw layout fallback loop reloads instantly!
+            
+            // Collect metadata parameters from selectors safely
+            const guestName = document.getElementById('guest-name')?.value.trim();
+            const email = document.getElementById('guest-email')?.value.trim();
+            const phone = document.getElementById('guest-phone')?.value.trim() || "";
+            const notes = document.getElementById('guest-notes')?.value.trim() || "";
+            
+            // Try resolving treatment metadata parameters from current URL params if needed
+            const urlParams = new URLSearchParams(window.location.search);
+            const fallbackServiceId = urlParams.get('service') || "general-session";
+            const serviceId = selectedServiceId || fallbackServiceId;
+
+            // Simple interface confirmation checks
+            if (!selectedDate) {
+                alert("Please select a convenient date from the calendar view.");
+                return;
+            }
+            
+            const timeSelector = document.getElementById('time-slots') || document.querySelector('.avail-time.selected');
+            const timeValue = timeSelector?.value || timeSelector?.dataset?.time || "10:00 AM";
+
+            const payload = {
+                serviceId,
+                date: selectedDate,
+                time: timeValue,
+                guestName,
+                email,
+                phone,
+                notes
+            };
+
+            console.log("🚀 Dispatched checkout initialization event to api...", payload);
+
+            try {
+                const res = await fetch('/api/appointments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.url) {
+                        console.log("➡️ Redirecting customer window to secure Stripe layout context...");
+                        window.location.href = data.url; // Kick out directly to processing screen!
+                    } else {
+                        alert("Could not process reservation secure link payload tokens.");
+                    }
+                } else {
+                    const errorObj = await res.json();
+                    alert(`Submission failed: ${errorObj.error || 'Server error'}`);
+                }
+            } catch (err) {
+                console.error("❌ Checkout transmission error:", err);
+                alert("Network communication barrier encountered while establishing checkout gateway.");
+            }
+        });
+    }
+});
