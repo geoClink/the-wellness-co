@@ -20,6 +20,7 @@ app.use(cors({
     ]
 }));
 
+// --- RATE LIMITERS ---
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
@@ -42,34 +43,53 @@ app.use("/api/", generalLimiter);
 app.use("/api/checkout", checkoutLimiter);
 app.use("/api/login", loginLimiter);
 
+// --- CORE INITIALIZATIONS ---
 const supabase = require("./lib/supabase");
 const resolveTenant = require("./middleware/resolveTenant");
 
 app.use(require("./routes/webhook"));
-
 app.use(express.json());
-app.use(resolveTenant);
 
-app.get("/api/test", (req, res) => res.json({ message: "Server is running!" }));
-
-app.use(require("./routes/services"));
-app.use(require("./routes/appointments"));
-app.use(require("./routes/contact"));
-app.use(require("./routes/settings"));
-app.use(require("./routes/auth"));
-app.use(require("./routes/gift-cards"));
-app.use(require("./routes/coupons"));
-app.use(require("./routes/reviews"));
-
+// 1. SERVE STATIC FILES & DIRECT HTML VIEWS
 app.use(express.static(path.join(__dirname, "public")));
 
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.get("/admin.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "admin.html"));
+});
+
+// 2. 🔓 OPEN API ENDPOINTS (Bypasses Tenant Restrictions)
+app.get("/api/test", (req, res) => res.json({ message: "Server is running!" }));
+app.use("/", require("./routes/auth")); 
+
+// 3. 🔒 SECURED API DATA ENDPOINTS
+// Routed through "/" because your route files already include the "/api" prefix internally
+app.use("/", resolveTenant, require("./routes/services"));
+app.use("/", resolveTenant, require("./routes/appointments"));
+app.use("/", resolveTenant, require("./routes/contact"));
+app.use("/", resolveTenant, require("./routes/settings"));
+app.use("/", resolveTenant, require("./routes/gift-cards"));
+app.use("/", resolveTenant, require("./routes/coupons"));
+app.use("/", resolveTenant, require("./routes/reviews"));
+
+// --- ERROR FALLBACK HANDLERS ---
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
 });
 
 app.use((err, req, res, next) => {
+    console.error("Server Error Hook caught:", err);
     res.status(500).sendFile(path.join(__dirname, "public", "500.html"));
 });
 
+// --- LIFECYCLE INITIALIZER ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server is running at http://localhost:${PORT}`));
+
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => console.log(`Server is running at http://localhost:${PORT}`));
+}
+
+module.exports = app;

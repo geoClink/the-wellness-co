@@ -70,4 +70,13 @@ router.delete("/api/reviews/:id", adminAuth, async (req, res) => {
     res.json({ success: true });
 });
 
+// Inside routes/reviews.js
+router.get("/api/admin/reviews", adminAuth, async (req, res) => {
+    const { data, error } = await supabase.from("reviews")
+        .select("*")
+        .eq("tenant_id", req.tenant.id);
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data || []);
+});
+
 module.exports = router;

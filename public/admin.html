@@ -1,237 +1,147 @@
- <!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Admin | The Wellness Co.</title>
-  </head>
-  <body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | The Wellness Co.</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #333; margin: 0; padding: 20px; background: #f4f6f8; }
+        h1, h2, h3 { margin-top: 0; }
+        
+        /* Login Form Styles */
+        #login-view { max-width: 400px; margin: 100px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #login-form input { width: 100%; padding: 12px; margin-bottom: 15px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        
+        /* Dashboard Layout */
+        #dashboard-view { max-width: 1100px; margin: 0 auto; position: relative; }
+        #logout-btn { position: absolute; right: 0; top: 0; background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        
+        /* Panel Container Blocks */
+        .panel { background: white; padding: 25px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+        
+        /* Inputs & Textareas */
+        input[type="text"], input[type="url"], select, textarea { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; margin-right: 10px; }
+        textarea { width: 100%; box-sizing: border-box; margin-bottom: 15px; }
+        
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; color: #555; }
+        
+        /* Buttons */
+        button { background: #0070f3; color: white; border: none; padding: 9px 16px; border-radius: 4px; font-weight: 500; cursor: pointer; font-size: 14px; }
+        button:hover { opacity: 0.9; }
+        .delete-service-btn, button[onclick*="deleteReview"], button[onclick*="cancelled"] { background: #e00; }
+        button[onclick*="approveReview"], button[onclick*="confirmed"] { background: #28a745; margin-right: 5px; }
+    </style>
+</head>
+<body>
 
-      <div id="login-view">
-          <h1>Admin login</h1>
-          <form id="login-form">
-              <input type="email" id="admin-email" placeholder="Email" required>
-              <input type="password" id="admin-password" placeholder="Password" required>
-              <button type="submit">Sign in</button>
-          </form>
-      </div>
+    <div id="login-view">
+        <h1>Admin Login</h1>
+        <form id="login-form">
+            <input type="email" id="admin-email" placeholder="Email Address" required>
+            <input type="password" id="admin-password" placeholder="Password" required>
+            <button type="submit" style="width: 100%;">Sign In</button>
+        </form>
+    </div>
 
-      <div id="dashboard-view" style="display:none;">
-          <button id="logout-btn">Log out</button>
+    <div id="dashboard-view" style="display:none;">
+        <button id="logout-btn">Log out</button>
+        <h1 style="margin-bottom: 30px;">The Wellness Co. Command Panel</h1>
 
-          <h1>Bookings</h1>
-          <table id="bookings-table">
-              <thead>
-                  <tr>
-                      <th>Date</th>
-                      <th>Time</th>
-                      <th>Client</th>
-                      <th>Email</th>
-                      <th>Phone</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                  </tr>
-              </thead>
-              <tbody id="bookings-body"></tbody>
-          </table>
+        <div class="panel">
+            <h2>Website Customizer</h2>
+            <h3>Hero Banner Content</h3>
+            <form id="hero-form">
+                <label style="display:block; font-weight:600; margin-bottom:5px;">Hero Main Title text:</label>
+                <input type="text" id="hero-title" style="width:100%; max-width:600px; margin-bottom:15px;" required><br>
+                
+                <label style="display:block; font-weight:600; margin-bottom:5px;">Hero Desktop Background Image File:</label>
+                <input type="file" id="hero-image-file" accept="image/*"><br>
+                <small id="current-image-url" style="color: #666; display:block; margin: 8px 0 15px; font-style: italic;"></small>
+                
+                <button type="submit">Save Changes</button>
+                <span id="hero-status" style="color:green; margin-left:15px; font-weight:600;"></span>
+            </form>
+        </div>
 
-          <h1>Reviews</h1>
-          <form id="add-review-form">
-              <input type="text" id="review-name" placeholder="Client name" required>
-              <select id="review-rating" required>
-                  <option value="">Rating</option>
-                  <option value="5">5 stars</option>
-                  <option value="4">4 stars</option>
-                  <option value="3">3 stars</option>
-                  <option value="2">2 stars</option>
-                  <option value="1">1 star</option>
-              </select>
-              <textarea id="review-body" placeholder="Review text" rows="3" required></textarea>
-              <button type="submit">Add review</button>
-              <div id="review-success" style="display:none;color:green;">Review added.</div>
-              <div id="review-error" style="display:none;color:red;"></div>
-          </form>
-          <table id="reviews-table">
-              <thead>
-                  <tr>
-                      <th>Name</th>
-                      <th>Rating</th>
-                      <th>Quote</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                  </tr>
-              </thead>
-              <tbody id="reviews-body"></tbody>
-          </table>
-      </div>
-      <script>
-        function escapeHtml(str) {
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
+        <div class="panel">
+            <h3>Manage Services Menu</h3>
+            <form id="add-service-form" style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+                <input type="text" id="service-title" placeholder="Service Title (e.g., Deep Tissue)" required>
+                <input type="text" id="service-desc" placeholder="Brief Description Details" style="flex-grow: 1;" required>
+                <input type="text" id="service-price" placeholder="Price (e.g., $110)" style="width: 100px;" required>
+                <button type="submit">Add Item</button>
+            </form>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Service Profile Name</th>
+                        <th>Catalog Description Line</th>
+                        <th>Standard Rate</th>
+                        <th style="width: 100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="services-body"></tbody>
+            </table>
+        </div>
 
-        const token = localStorage.getItem('admin_token');
+        <div class="panel">
+            <h2>Client Appointment Requests</h2>
+            <table id="bookings-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Client</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookings-body"></tbody>
+            </table>
+        </div>
 
-        if (token) {
-            document.getElementById('login-view').style.display = 'none';
-            document.getElementById('dashboard-view').style.display = 'block';
-            loadBookings();
-            loadAdminReviews();
-        }
+        <div class="panel">
+            <h2>Customer Reviews & Testimonials</h2>
+            <form id="add-review-form" style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed #eee;">
+                <h4 style="margin: 0 0 10px 0;">Manually Inject Review Asset</h4>
+                <div style="margin-bottom: 10px;">
+                    <input type="text" id="review-name" placeholder="Client Name" required>
+                    <select id="review-rating" required>
+                        <option value="">Choose Rating</option>
+                        <option value="5">5 stars</option>
+                        <option value="4">4 stars</option>
+                        <option value="3">3 stars</option>
+                        <option value="2">2 stars</option>
+                        <option value="1">1 star</option>
+                    </select>
+                </div>
+                <textarea id="review-body" placeholder="Write full testimonial description..." rows="3" required></textarea>
+                <button type="submit">Submit Review Entry</button>
+                <div id="review-success" style="display:none;color:green; margin-top:10px; font-weight:600;">Review appended successfully.</div>
+                <div id="review-error" style="display:none;color:red; margin-top:10px;"></div>
+            </form>
 
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('admin-email').value.trim();
-            const password = document.getElementById('admin-password').value;
+            <table id="reviews-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Rating</th>
+                        <th>Quote Snip</th>
+                        <th>Status</th>
+                        <th style="width: 180px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reviews-body"></tbody>
+            </table>
+        </div>
+    </div>
 
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-            if (!res.ok) {
-                alert('Invalid email or password.');
-                return;
-            }
-            const data = await res.json();
-            localStorage.setItem('admin_token', data.token);
-            document.getElementById('login-view').style.display = 'none';
-            document.getElementById('dashboard-view').style.display = 'block';
-            loadBookings();
-            loadAdminReviews();
-        });
-
-        async function loadBookings() {
-            const token = localStorage.getItem('admin_token');
-            const res = await fetch('/api/appointments', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (res.status === 401) {
-                localStorage.removeItem('admin_token');
-                document.getElementById('login-view').style.display = 'block';
-                document.getElementById('dashboard-view').style.display = 'none';
-                return;
-            }
-
-            const bookings = await res.json();
-            const tbody = document.getElementById('bookings-body');
-
-            tbody.innerHTML = bookings.map(b => `
-                <tr>
-                    <td>${escapeHtml(b.date)}</td>
-                    <td>${escapeHtml(b.time)}</td>
-                    <td>${escapeHtml(b.guest_name)}</td>
-                    <td>${escapeHtml(b.email)}</td>
-                    <td>${escapeHtml(b.phone || '-')}</td>
-                    <td>${escapeHtml(b.status)}</td>
-                    <td>
-                        <button onclick="updateStatus('${escapeHtml(b.id)}', 'confirmed')">Confirm</button>
-                        <button onclick="updateStatus('${escapeHtml(b.id)}', 'cancelled')">Cancel</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        async function updateStatus(id, status) {
-            const token = localStorage.getItem('admin_token');
-            await fetch(`/api/appointments/${id}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ status })
-            });
-            loadBookings();
-        }
-
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            localStorage.removeItem('admin_token');
-            document.getElementById('dashboard-view').style.display = 'none';
-            document.getElementById('login-view').style.display = 'block';
-        });
-
-        async function loadAdminReviews() {
-            const token = localStorage.getItem('admin_token');
-            const res = await fetch('/api/admin/reviews', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!res.ok) return;
-            const reviews = await res.json();
-            const tbody = document.getElementById('reviews-body');
-            if (reviews.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">No reviews yet.</td></tr>';
-                return;
-            }
-            tbody.innerHTML = reviews.map(r => `
-                <tr>
-                    <td>${escapeHtml(r.name)}</td>
-                    <td>${escapeHtml(String(r.rating))}/5</td>
-                    <td>${escapeHtml(r.body.length > 80 ? r.body.slice(0, 80) + '…' : r.body)}</td>
-                    <td>${r.approved ? 'Approved' : 'Pending'}</td>
-                    <td>
-                        ${!r.approved ? `<button onclick="approveReview('${escapeHtml(r.id)}')">Approve</button>` : ''}
-                        <button onclick="deleteReview('${escapeHtml(r.id)}')">Delete</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        async function approveReview(id) {
-            const token = localStorage.getItem('admin_token');
-            const res = await fetch(`/api/reviews/${id}/approve`, {
-                method: 'PATCH',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (res.ok) loadAdminReviews();
-        }
-
-        async function deleteReview(id) {
-            const token = localStorage.getItem('admin_token');
-            const res = await fetch(`/api/reviews/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (res.ok) loadAdminReviews();
-        }
-
-        document.getElementById('add-review-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const token = localStorage.getItem('admin_token');
-            const name = document.getElementById('review-name').value.trim();
-            const rating = document.getElementById('review-rating').value;
-            const body = document.getElementById('review-body').value.trim();
-
-            const res = await fetch('/api/admin/reviews', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ name, rating, body })
-            });
-
-            const successEl = document.getElementById('review-success');
-            const errorEl = document.getElementById('review-error');
-
-            if (res.ok) {
-                e.target.reset();
-                successEl.style.display = 'block';
-                errorEl.style.display = 'none';
-                setTimeout(() => successEl.style.display = 'none', 3000);
-                loadAdminReviews();
-            } else {
-                const data = await res.json();
-                errorEl.textContent = data.error || 'Something went wrong.';
-                errorEl.style.display = 'block';
-                successEl.style.display = 'none';
-            }
-        });
-
-        </script>
-  </body>
-  </html>
+    <script src="/js/admin.js" defer></script>
+</body>
+</html>

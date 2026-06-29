@@ -3,6 +3,8 @@ const supabase = require("../lib/supabase");
 const tenantCache = new Map();
 
 async function resolveTenant(req, res, next) {
+
+    console.log(`🔍 TENANT MIDDLEWARE HIT - Method: ${req.method} | URL: ${req.url} | Host: ${req.hostname}`);
     const hostname = req.hostname;
 
     const slug = process.env.TENANT_SLUG
@@ -25,6 +27,8 @@ async function resolveTenant(req, res, next) {
         .eq("slug", slug)
         .eq("active", true)
         .maybeSingle();
+
+        console.log(`📊 DB Tenant Lookup Result for slug [${slug}]:`, tenant, "Error:", tenantError);
 
     if (!tenant) return res.status(404).json({ error: "Tenant not found" });
 

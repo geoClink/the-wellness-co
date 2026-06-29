@@ -27,5 +27,18 @@ router.patch("/api/site-settings", adminAuth, async (req, res) => {
     res.json({ success: true });
 });
 
+router.get("/api/settings/hero", async (req, res) => {
+    const { data, error } = await supabase.from("site_settings")
+        .select("hero_heading, hero_image_url")
+        .eq("tenant_id", req.tenant.id)
+        .maybeSingle();
+        
+    if (error) return res.status(500).json({ error: error.message });
+    
+    res.json({
+        title: data?.hero_heading || "",
+        imageUrl: data?.hero_image_url || ""
+    });
+});
 
 module.exports = router;

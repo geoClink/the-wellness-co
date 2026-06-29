@@ -1140,25 +1140,20 @@ footer {
     font-size: 14px;
 }
 
-.form-success {
-    background: #edf3e8;
-    border: 1px solid #b4d4a8;
-    color: #2a5a1a;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-}
-}
-
 @keyframes shimmer {
-    0% { background-position: -400px 0; }
-    100% { background-position: 400px 0; } 
+    0% {
+        background-position: -400px 0;
+    }
+
+    100% {
+        background-position: 400px 0;
+    }
 }
 
 .img-loading {
-      background: linear-gradient(90deg, #ede7dc 25%, #f5f0e8 50%, #ede7dc 75%);
-      background-size: 800px 100%;
-      animation: shimmer 1.4s infinite linear;
+    background: linear-gradient(90deg, #ede7dc 25%, #f5f0e8 50%, #ede7dc 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.4s infinite linear;
 }
 
 .img-loading img {
