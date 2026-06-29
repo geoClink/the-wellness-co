@@ -1,43 +1,427 @@
-<footer>
-    <div class="container">
-        <div class="footer-grid">
-            <div class="footer-brand">
-                <a href="/index.html" class="logo">
-                    <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-                        <circle cx="20" cy="20" r="18" stroke="#8a9a7b" stroke-width="1" />
-                        <circle cx="20" cy="20" r="12" stroke="#b5713f" stroke-width="1" />
-                        <circle cx="20" cy="20" r="6" stroke="#8a9a7b" stroke-width="1" />
-                        <circle cx="20" cy="20" r="2" fill="#b5713f" />
-                    </svg>
-                    <span>The Wellness Co.</span>
-                </a>
-                <p class="hero-text" id="live-footer-bio">Quantum and energy healing for body, mind, and spirit. One practitioner, fully present with you.</p>
-            </div>
-            <div class="footer-explore">
-                <p class="hero-text">Explore</p>
-                <a href="/about.html">About</a>
-                <a href="/services.html">Services</a>
-                <a href="/stories.html">Stories</a>
-                <a href="/faq.html">FAQ</a>
-            </div>
-            <div class="footer-contact">
-                <p class="hero-text">Get in touch</p>
-                <a href="mailto:hello@thewellnessco.com" id="live-footer-email">hello@thewellnessco.com</a>
-                <a href="tel:7777777777" id="live-footer-phone">(777) 777-7777</a>
-                <p class="hero-text" id="live-footer-address">AnyTown, MI</p>
-                <a href="/appointments.html" class="btn-primary">Book a session</a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2026 The Wellness Co. All rights reserved.</p>
-            <p>
-                Complementary care — not a substitute for medical treatment. 
-                <a href="/privacy.html" style="color:inherit;">Privacy</a> · 
-                <a href="/terms.html" style="color:inherit;">Terms</a> · 
-                <span style="opacity: 0.8;">Site by <a href="https://your-studio-link.com" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:underline;">CH Studios</a></span>
-            </p>
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | The Wellness Co.</title>
+    <style>
+        /* ==========================================================================
+           1. ROOT BRAND COLOR SCHEME UNIFICATION
+           ========================================================================= */
+        :root {
+            --bg: #f4eee4;
+            --bg-alt: #efe7d8;
+            --surface: #faf6ee;
+            --white: #ffffff;
+            --ink: #2c2823;
+            --ink-soft: #4a4339;
+            --muted: #6f665a;
+            --line: #e6dcc9;
+            --sage: #8a9a7b;
+            --sage-deep: #5f6e52;
+            --sage-deep-hover: #4c5940;
+            --clay: #b5713f;
+            --clay-text: #8a4520;
+            
+            /* System layout alerts mapped directly to your theme */
+            --error-bg: #fdf0ee;
+            --error-text: #8a2a1a;
+            --success-green: #28a745;
+            --danger-red: #dc3545;
+        }
+
+        body { 
+            font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            color: var(--ink); 
+            margin: 0; 
+            padding: 40px 20px; 
+            background: var(--bg); 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 { 
+            font-family: 'Cormorant Garamond', serif; 
+            font-weight: 600; 
+            color: var(--ink);
+            margin-top: 0; 
+        }
+        
+        h1 { font-size: 36px; border-bottom: 2px solid var(--line); padding-bottom: 12px; }
+        h2 { font-size: 26px; margin-bottom: 15px; color: var(--clay-text); }
+        h3 { font-size: 20px; margin-bottom: 12px; color: var(--muted); }
+
+        /* ==========================================================================
+           2. SECURITY LOGIN WRAPPER
+           ========================================================================== */
+        #login-view { 
+            max-width: 400px; 
+            margin: 100px auto; 
+            padding: 40px; 
+            background: var(--surface); 
+            border: 1px solid var(--line);
+            border-radius: 14px; 
+            box-shadow: 0 12px 32px -12px rgba(44, 40, 35, 0.15); 
+        }
+        
+        #login-form input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            margin-bottom: 20px; 
+            box-sizing: border-box; 
+            border: 1px solid var(--line); 
+            border-radius: 8px; 
+            font-size: 14px; 
+            background: var(--white);
+            outline: none;
+        }
+
+        #login-form input:focus {
+            border-color: var(--sage);
+        }
+        
+        /* ==========================================================================
+           3. CENTRAL DASHBOARD GRID LAYOUT 
+           ========================================================================== */
+        #dashboard-view { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            position: relative; 
+        }
+        
+        #logout-btn { 
+            position: absolute; 
+            right: 0; 
+            top: -5px; 
+            background: var(--danger-red); 
+            color: var(--white); 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 30px; 
+            font-weight: 600;
+            cursor: pointer; 
+        }
+        
+        .panel { 
+            background: var(--surface); 
+            padding: 30px; 
+            margin-bottom: 30px; 
+            border-radius: 14px; 
+            border: 1px solid var(--line);
+            box-shadow: 0 4px 12px -4px rgba(44, 40, 35, 0.04);
+        }
+        
+        /* ==========================================================================
+           4. FORM FIELDS & CONTENT TYPE INPUTS
+           ========================================================================== */
+        label {
+            display: block; 
+            font-weight: 600; 
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: var(--ink-soft);
+        }
+
+        input[type="text"], input[type="url"], input[type="email"], input[type="password"], select, textarea { 
+            padding: 10px 14px; 
+            border: 1px solid var(--line); 
+            border-radius: 8px; 
+            font-size: 14px; 
+            font-family: inherit;
+            background: var(--white);
+            outline: none;
+            color: var(--ink);
+        }
+
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
+            border-color: var(--sage);
+        }
+
+        textarea { 
+            width: 100%; 
+            box-sizing: border-box; 
+            margin-bottom: 20px; 
+            resize: vertical;
+        }
+
+        /* ==========================================================================
+           5. DATA STORAGE GRID TABLES
+           ========================================================================== */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 15px; 
+            background: var(--white); 
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+        }
+        
+        th, td { 
+            padding: 14px 16px; 
+            text-align: left; 
+            border-bottom: 1px solid var(--bg); 
+            font-size: 14px;
+        }
+        
+        th { 
+            background: var(--bg-alt); 
+            font-weight: 600; 
+            color: var(--ink-soft); 
+        }
+
+        #reviews-body td {
+            height: auto !important;
+            white-space: normal !important;
+            overflow: visible !important;
+            word-break: break-word !important;
+            vertical-align: top !important;
+        }
+        
+        /* ==========================================================================
+           6. CONTROL STRIPS & TRANSACTION ACTION BUTTONS
+           ========================================================================== */
+        button { 
+            background: var(--sage-deep); 
+            color: var(--white); 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 30px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            font-size: 14px; 
+            transition: background-color 0.2s;
+        }
+        
+        button:hover { 
+            background: var(--sage-deep-hover); 
+        }
+
+        .delete-service-btn, button[onclick*="deleteReview"], button[onclick*="cancelled"] { 
+            background: var(--danger-red) !important; 
+        }
+        
+        button[onclick*="approveReview"], button[onclick*="confirmed"], button[onclick*="toggleFeaturedReview"].active { 
+            background: var(--success-green) !important; 
+            margin-right: 5px; 
+        }
+
+        /* Styles specifically targeting the custom featured toggle button */
+        .btn-feature {
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--muted);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-right: 4px;
+        }
+        .btn-feature:hover {
+            border-color: var(--clay);
+            color: var(--clay);
+        }
+        .btn-feature.active {
+            background: var(--clay);
+            color: var(--white);
+            border-color: var(--clay);
+        }
+
+        small {
+            color: var(--muted);
+            display: block;
+            margin: 6px 0 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-view">
+        <h1>Admin Login</h1>
+        <form id="login-form">
+            <input type="email" id="admin-email" placeholder="Email Address" required>
+            <input type="password" id="admin-password" placeholder="Password" required>
+            <button type="submit" style="width: 100%;">Sign In</button>
+        </form>
     </div>
-</footer>
+
+    <div id="dashboard-view" style="display:none;">
+        <button id="logout-btn">Log out</button>
+        <h1>The Wellness Co. Command Panel</h1>
+
+        <div class="panel">
+            <h2>Website Customizer (Hero Section)</h2>
+            <form id="hero-form">
+                <label for="hero-title">Hero Title (Use &lt;em&gt;text&lt;/em&gt; for italics)</label>
+                <input type="text" id="hero-title" style="width:100%; margin-bottom:15px;" placeholder="e.g., Choose the work that &lt;em&gt;calls you&lt;/em&gt;.">
+
+                <label for="hero-desc">Hero Description</label>
+                <textarea id="hero-desc" rows="3" placeholder="Enter your website introduction text..."></textarea>
+
+                <label for="hero-image-file">Hero Background Image</label>
+                <input type="file" id="hero-image-file" accept="image/*">
+                <small id="current-image-url"></small>
+
+                <button type="submit">Save Hero Configurations</button>
+                <span id="hero-status" style="color:var(--success-green); margin-left:15px; font-weight:600;"></span>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2>Website Customizer (About Page)</h2>
+            <form id="about-form">
+                <label for="about-heading">About Heading (Use &lt;em&gt;text&lt;/em&gt; for italics)</label>
+                <input type="text" id="about-heading" style="width:100%; margin-bottom:15px;" placeholder="e.g., Who <em>We</em> Are">
+
+                <label for="about-body">About Body Story Content</label>
+                <textarea id="about-body" rows="6" placeholder="Tell your customers your business story, values, and mission..."></textarea>
+
+                <button type="submit">Save About Page Content</button>
+                <span id="about-status" style="color:var(--success-green); margin-left:15px; font-weight:600;"></span>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2>Weekly Calendar Availability</h2>
+            <p style="color:var(--muted); font-size:15px; margin:0 0 15px;">Set your active operational windows for each day of the week.</p>
+            <form id="availability-form">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Status</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="availability-rows"></tbody>
+                </table>
+                <div style="margin-top: 20px;">
+                    <button type="submit">Save Weekly Schedule</button>
+                    <span id="avail-status" style="color:var(--success-green); margin-left:15px; font-weight:600;"></span>
+                </div>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2>Manage Services Menu</h2>
+            <form id="add-service-form" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 25px;">
+                <input type="text" id="service-title" placeholder="Service Title (e.g., Deep Tissue)" style="flex: 1; min-width: 200px;" required>
+                <input type="text" id="service-desc" placeholder="Brief Description Details" style="flex: 2; min-width: 300px;" required>
+                <input type="text" id="service-price" placeholder="Price (e.g., 110)" style="width: 120px;" required>
+                <button type="submit">Add Item</button>
+            </form>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Service Profile Name</th>
+                        <th>Catalog Description Line</th>
+                        <th>Standard Rate</th>
+                        <th style="width: 100px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="services-body"></tbody>
+            </table>
+        </div>
+
+        <div class="panel">
+            <h2>Client Appointment Requests</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Client</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th style="width: 180px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookings-body"></tbody>
+            </table>
+        </div>
+
+        <div class="panel">
+            <h2>Customer Reviews & Testimonials</h2>
+            <form id="add-review-form" style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed var(--line);">
+                <h3 style="margin: 0 0 15px 0; font-size:18px;">Manually Inject Review Asset</h3>
+                <div style="margin-bottom: 15px; display:flex; gap:10px;">
+                    <input type="text" id="review-name" placeholder="Client Name" style="flex:1;" required>
+                    <select id="review-rating" required>
+                        <option value="">Choose Rating</option>
+                        <option value="5">5 stars</option>
+                        <option value="4">4 stars</option>
+                        <option value="3">3 stars</option>
+                        <option value="2">2 stars</option>
+                        <option value="1">1 star</option>
+                    </select>
+                </div>
+                <textarea id="review-body" placeholder="Write full testimonial description..." rows="3" required></textarea>
+                <button type="submit">Submit Review Entry</button>
+                <div id="review-success" style="display:none; color:var(--success-green); margin-top:10px; font-weight:600;">Review appended successfully.</div>
+                <div id="review-error" style="display:none; color:var(--danger-red); margin-top:10px; font-weight:600;"></div>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Rating</th>
+                        <th>Quote Snip</th>
+                        <th>Status</th>
+                        <th style="width: 220px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reviews-body"></tbody>
+            </table>
+        </div>
+
+        <div class="panel">
+            <h2>Integrations & Payment Gateways</h2>
+            <p style="color:var(--muted); font-size:15px; margin:0 0 15px;">Connect your own Stripe account for processing secure client payments.</p>
+            <form id="integrations-form">
+                <label for="stripe-pub-key">Stripe Publishable Key</label>
+                <input type="text" id="stripe-pub-key" style="width:100%; margin-bottom:15px;" placeholder="pk_test_...">
+
+                <label for="stripe-sec-key">Stripe Secret Key</label>
+                <input type="password" id="stripe-sec-key" style="width:100%; margin-bottom:15px;" placeholder="sk_test_...">
+
+                <label for="stripe-wh-key">Stripe Webhook Signing Secret</label>
+                <input type="password" id="stripe-wh-key" style="width:100%; margin-bottom:15px;" placeholder="whsec_...">
+                <small>Provide your Webhook URL to Stripe: <code>https://the-wellness-co.vercel.app/stripe-webhook</code></small>
+
+                <button type="submit">Save Gateway Connections</button>
+                <span id="gateway-status" style="color:var(--success-green); margin-left:15px; font-weight:600;"></span>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2>Footer Customization</h2>
+            <form id="footer-form">
+                <label for="footer-bio-input">Footer Brand Bio Summary</label>
+                <textarea id="footer-bio-input" rows="3" placeholder="Brief summary of company vision statement..."></textarea>
+
+                <label for="footer-email-input">Public Contact Email</label>
+                <input type="email" id="footer-email-input" style="width:100%; margin-bottom:15px;" placeholder="hello@thewellnessco.com">
+
+                <label for="footer-phone-input">Public Business Phone</label>
+                <input type="text" id="footer-phone-input" style="width:100%; margin-bottom:15px;" placeholder="(777) 777-7777">
+
+                <label for="footer-address-input">Business Location / City</label>
+                <input type="text" id="footer-address-input" style="width:100%; margin-bottom:15px;" placeholder="AnyTown, MI">
+
+                <button type="submit">Update Footer Layout</button>
+                <span id="footer-status" style="color: var(--success-green); margin-left: 10px; font-weight:600;"></span>
+            </form>
+        </div>
+        
+    </div>
+
+    <script src="/js/admin.js" defer></script>
 </body>
 </html>
