@@ -23,8 +23,7 @@ app.use(cors({
 
 // --- 2. STRIPE WEBHOOK (CRITICAL: Must sit BEFORE express.json) ---
 // If your webhook route needs raw request bodies, keep it up here.
-app.use(require("./routes/webhook"));
-
+app.use("/api/webhooks/stripe", require("./routes/webhook"));
 // --- 3. CORE PLUGINS & BODY PARSERS (MUST RUN BEFORE RATE LIMITS & ROUTERS) ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
