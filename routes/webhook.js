@@ -14,7 +14,7 @@ function escapeHtml(str) {
 }
 
 // 🎯 CHANGED PATH: Standardized to "/api/webhooks/stripe"
-router.post("/api/webhooks/stripe", express.raw({ type: "application/json" }), async (req, res) => {
+router.post("/", express.raw({ type: "application/json" }), async (req, res) => {
     const sig = req.headers["stripe-signature"];
     let event;
 
