@@ -31,13 +31,13 @@ async function getDynamicStripeClient(tenantId) {
 // 1. PUBLIC ENDPOINTS: AVAILABILITY & BOOKING
 // ==========================================
 
-// GET: Fetch available slots for a specific date (filtering out booked appointments)
+// GET: Fetch available slots for a specific date
 router.get("/api/availability", async (req, res) => {
     try {
         const { date } = req.query;
         if (!date) return res.status(400).json({ error: "date is required." });
 
-        const allSlots = ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"];
+        const allSlots = ["09:00 AM", "11:30 AM", "02:00 PM", "04:30 PM"];
 
         const { data, error } = await supabase
             .from("appointments")
@@ -60,25 +60,38 @@ router.get("/api/availability", async (req, res) => {
 // POST: Generate Stripe checkout sessions using dynamically resolved key scopes
 router.post("/api/appointments", async (req, res) => {
     try {
-        const { service_id, guest_name, email, phone, date, time, notes } = req.body;
-        if (!service_id || !guest_name || !email || !date || !time) {
-            return res.status(400).json({ error: "service_id, guest_name, email, date, and time are required." });
+        // 🌟 DUAL CASING FALLBACK EXTRACTOR
+        const { 
+            serviceId, service_id, 
+            guestName, guest_name, 
+            email, phone, date, time, notes 
+        } = req.body;
+
+        const finalServiceId = serviceId || service_id;
+        const finalGuestName = guestName || guest_name;
+
+        if (!finalServiceId || !finalGuestName || !email || !date || !time) {
+            return res.status(400).json({ error: "Service, Full name, Email, Date, and Time slots are required." });
         }
 
-        // Fetch service price and metadata scoped safely to the active routing tenant context
+        // Fetch service price and metadata safely from database
         const { data: service, error: serviceError } = await supabase
             .from("services")
             .select("name, price")
-            .eq("id", service_id)
+            .eq("id", finalServiceId)
             .eq("tenant_id", req.tenant.id)
             .single();
 
-        if (serviceError || !service) return res.status(404).json({ error: "Service not found." });
+        if (serviceError || !service) return res.status(404).json({ error: "Chosen service profile not found." });
 
-        // Resolve the dynamic Stripe instance assigned to this specific business profile
+        // Resolve the dynamic Stripe instance
         const activeStripe = await getDynamicStripeClient(req.tenant.id);
 
-        const origin = `${req.protocol}://${req.get("host")}`;
+        // Enforce secure redirection link resolution mapping
+        const origin = process.env.NODE_ENV === 'production' 
+            ? `https://${req.get("host")}` 
+            : `${req.protocol}://${req.get("host")}`;
+
         const session = await activeStripe.checkout.sessions.create({
             payment_method_types: ["card"],
             line_items: [{
@@ -88,18 +101,19 @@ router.post("/api/appointments", async (req, res) => {
                         name: service.name, 
                         description: `${date} at ${time}` 
                     },
+                    // Converts price dynamically out of database scale safely to cents
                     unit_amount: Math.round(parseFloat(service.price) * 100)
                 },
                 quantity: 1
             }],
             mode: "payment",
             customer_email: email,
-            success_url: `${origin}/appointments.html?success=true`,
+            success_url: `${origin}/confirmation.html?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}/appointments.html`,
             metadata: { 
                 tenant_id: req.tenant.id, 
-                service_id, 
-                guest_name, 
+                service_id: finalServiceId, 
+                guest_name: finalGuestName, 
                 email, 
                 phone: phone || "", 
                 date, 
@@ -108,7 +122,7 @@ router.post("/api/appointments", async (req, res) => {
             }
         });
 
-        return res.json({ url: session.url });
+        return res.json({ id: session.id, url: session.url });
     } catch (err) {
         console.error("❌ Checkout session setup failed:", err);
         return res.status(500).json({ error: err.message });
