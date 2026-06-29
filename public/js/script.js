@@ -255,30 +255,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ==========================================
     // 🌟 B. NEW: STRIPE CHECKOUT EVENT ROUTER FORM INTERCEPTOR
-    const checkoutForm = document.getElementById('booking-form') || document.querySelector('.booking-sidebar form');
+    // ==========================================
+    const checkoutForm = document.getElementById('booking-form') || document.querySelector('form');
     if (checkoutForm) {
         checkoutForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Stop raw layout fallback loop reloads instantly!
+            e.preventDefault(); // Stop raw layout loops instantly!
             
-            // Collect metadata parameters from selectors safely
-            const guestName = document.getElementById('guest-name')?.value.trim();
-            const email = document.getElementById('guest-email')?.value.trim();
-            const phone = document.getElementById('guest-phone')?.value.trim() || "";
-            const notes = document.getElementById('guest-notes')?.value.trim() || "";
+            // 🎯 CORRECTED LOOKUPS: Maps directly to your appointments.html inputs
+            const guestName = document.getElementById('name')?.value.trim();
+            const email = document.getElementById('email')?.value.trim();
+            const phone = document.getElementById('tel')?.value.trim() || "";
+            const notes = document.getElementById('message')?.value.trim() || "";
             
-            // Try resolving treatment metadata parameters from current URL params if needed
+            // Try resolving treatment parameters from current URL params if needed
             const urlParams = new URLSearchParams(window.location.search);
             const fallbackServiceId = urlParams.get('service') || "general-session";
             const serviceId = selectedServiceId || fallbackServiceId;
 
-            // Simple interface confirmation checks
+            // Simple interface validation checks
             if (!selectedDate) {
                 alert("Please select a convenient date from the calendar view.");
                 return;
             }
             
-            const timeSelector = document.getElementById('time-slots') || document.querySelector('.avail-time.selected');
+            // Pulls selected time from your active layout slots
+            const timeSelector = document.querySelector('.avail-time.selected') || document.getElementById('time-slots');
             const timeValue = timeSelector?.value || timeSelector?.dataset?.time || "10:00 AM";
 
             const payload = {
@@ -291,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 notes
             };
 
-            console.log("🚀 Dispatched checkout initialization event to api...", payload);
+            console.log("🚀 Dispatched payload data to /api/appointments...", payload);
 
             try {
                 const res = await fetch('/api/appointments', {
@@ -303,10 +306,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (res.ok) {
                     const data = await res.json();
                     if (data.url) {
-                        console.log("➡️ Redirecting customer window to secure Stripe layout context...");
+                        console.log("➡️ Redirecting window to secure Stripe checkout...");
                         window.location.href = data.url; // Kick out directly to processing screen!
                     } else {
-                        alert("Could not process reservation secure link payload tokens.");
+                        alert("Could not parse dynamic billing URL from payment gateway response.");
                     }
                 } else {
                     const errorObj = await res.json();
