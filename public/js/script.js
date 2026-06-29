@@ -1,5 +1,3 @@
-// 🎯 ADD THIS TO THE ABSOLUTE TOP (LINE 1) OF public/js/script.js:
-
 function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -14,17 +12,12 @@ function escapeHtml(str) {
 // CALENDAR & AVAILABILITY LOGIC
 // ==========================================
 
-// ==========================================
-// CALENDAR & AVAILABILITY LOGIC
-// ==========================================
-
 let currentDate = new Date();
 let selectedServiceId = null;
 let selectedDate = null;
 let selectedTime = null;
 let businessAvailabilityRules = []; 
 
-// 🌟 CRITICAL FIX: Re-added the missing calculation helpers!
 function getDaysOfMonth(year, month) {
     return new Date(year, month + 1, 0).getDate();
 }
@@ -34,7 +27,6 @@ function getFirstDay(year, month) {
 }
 
 async function initializeBookingPage() {
-    // 1. Fire off the availability rule fetch safely
     try {
         const res = await fetch('/api/settings/availability');
         if (res.ok) {
@@ -44,23 +36,19 @@ async function initializeBookingPage() {
         console.error("Failed to fetch availability profiles:", err);
     }
     
-    // 2. 🌟 FIXED: Load the service pills wrapped in their own try/catch block
-    // This prevents a pill loading crash from killing your calendar generation!
     try {
-        await loadServicePills();
+        if (typeof loadServicePills === 'function') {
+            await loadServicePills();
+        }
     } catch (pillError) {
         console.error("Non-fatal: Could not load service pills:", pillError);
     }
     
-    // 3. Render the calendar grid independently
     renderCalendar();
 }
 
-// 🎯 Ensure this function is inside public/js/script.js to populate services.html:
 async function loadServices() {
     const grid = document.getElementById("modalities-grid");
-    
-    // 🌟 THE PROTECTION GUARD: If this element doesn't exist on the current page, exit safely without crashing!
     if (!grid) return; 
 
     grid.innerHTML = '<p style="color:var(--muted);font-size:14px;">Loading services…</p>';
@@ -70,12 +58,11 @@ async function loadServices() {
         if (!res.ok) throw new Error();
         const services = await res.json();
         
-        // Render cards into the layout
         grid.innerHTML = services.map(s => `
-            <a href="appointments.html?service=${s.slug}" class="service-card">
+            <a href="appointments.html?service=${s.slug || s.id}" class="service-card">
                 <span class="service-name">${escapeHtml(s.name)}</span>
                 <span class="service-short">${escapeHtml(s.description)}</span>
-                <span class="service-meta">${s.duration_minutes} min · <span class="service-price">$${s.price}</span></span>
+                <span class="service-meta">${s.duration_minutes || '60'} min · <span class="service-price">$${s.price}</span></span>
             </a>
         `).join("");
         
@@ -89,10 +76,7 @@ loadServices();
 
 function renderCalendar() {
     const daysContainer = document.getElementById('cal-days');
-    if (!daysContainer) {
-        console.error("❌ CRITICAL HTML ERROR: Could not find an element with id='cal-days' on this page!");
-        return;
-    }
+    if (!daysContainer) return;
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -101,16 +85,13 @@ function renderCalendar() {
 
     let html = '';
     
-    // Create alignment spacing blocks
     for (let i = 0; i < firstDay; i++) {
         html += '<div class="cal-day empty"></div>';
     }
 
-    // Set time-agnostic midnight baseline parameters
     const exactToday = new Date();
     exactToday.setHours(0, 0, 0, 0);
 
-    // Ensure our business availability rules array exists safely
     const activeRules = Array.isArray(businessAvailabilityRules) ? businessAvailabilityRules : [];
 
     for (let d = 1; d <= days; d++) {
@@ -118,11 +99,9 @@ function renderCalendar() {
         const formattedDay = String(d).padStart(2, '0');
         const dateString = `${year}-${formattedMonth}-${formattedDay}`;
         
-        // Timezone-safe baseline instantiator string format syntax
         const compareLoopDate = new Date(`${year}/${formattedMonth}/${formattedDay} 00:00:00`);
         const dayOfWeek = compareLoopDate.getDay(); 
         
-        // 🌟 FIXED: Fallback added. If database rules fail to fetch, default all days to open instead of crashing!
         const rule = activeRules.find(r => r.day_of_week === dayOfWeek);
         const isClosed = rule ? rule.is_active === false : false; 
         const isPast = compareLoopDate < exactToday;
@@ -134,12 +113,12 @@ function renderCalendar() {
         }
     }
 
-    // Explicitly update DOM container string content tree
     daysContainer.innerHTML = html;
     
-    // Attach listener triggers strictly to active display cells
     document.querySelectorAll('.cal-day:not(.empty):not(.disabled)').forEach(day => {
-        day.addEventListener('click', () => selectDate(day));
+        day.addEventListener('click', () => {
+            if (typeof selectDate === 'function') selectDate(day);
+        });
     });
 
     const calMonth = document.getElementById('cal-month');
@@ -149,22 +128,85 @@ function renderCalendar() {
 }
 
 // ==========================================
+// 🌟 PUBLIC STORIES & REVIEWS RENDERER
+// ==========================================
+async function loadPublicReviews() {
+    const container = document.getElementById("testimonials-grid");
+    if (!container) return; // Safely exit if we are not on stories.html
+
+    try {
+        const res = await fetch("/api/reviews");
+        if (!res.ok) throw new Error("Failed to load reviews ledger");
+        const reviews = await res.json();
+
+        if (reviews.length === 0) {
+            container.innerHTML = `<p style="color:var(--muted); font-size:15px;">No beautiful stories shared yet. Be the first!</p>`;
+            return;
+        }
+
+        container.innerHTML = reviews.map(r => `
+            <div class="testimonial">
+                <blockquote>“${escapeHtml(r.body)}”</blockquote>
+                <cite>— ${escapeHtml(r.name)} (${escapeHtml(String(r.rating))}/5 Stars)</cite>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        console.error("❌ Failed to bind user reviews layout stream:", err);
+    }
+}
+
+// ==========================================
+// 🌟 HOMEPAGE DYNAMIC FEATURED QUOTE
+// ==========================================
+async function loadFeaturedQuoteOnHomepage() {
+    const quoteElement = document.getElementById("featured-blockquote");
+    const nameElement = document.getElementById("featured-name");
+    const serviceElement = document.getElementById("featured-service");
+
+    if (!quoteElement || !nameElement) return; // Safely exit if we are not on index.html
+
+    try {
+        const response = await fetch("/api/reviews/featured");
+        if (!response.ok) return;
+        
+        const featuredReview = await response.json();
+
+        if (featuredReview && featuredReview.body) {
+            quoteElement.textContent = `“${featuredReview.body}”`;
+            nameElement.textContent = featuredReview.name;
+            if (serviceElement && featuredReview.rating) {
+                serviceElement.textContent = `· Rated ${featuredReview.rating}/5 By Client`;
+            }
+        }
+    } catch (err) {
+        console.error("❌ Failed to bind active homepage testimonial asset:", err);
+    }
+}
+
+// ==========================================
 // MOBILE HAMBURGER NAVIGATION TOGGLER
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Fire off all async layout data components upon boot initialization
+    loadPublicReviews();
+    loadFeaturedQuoteOnHomepage();
+    if (document.getElementById('cal-days')) {
+        initializeBookingPage();
+    }
+
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.querySelector('nav');
 
     if (hamburger && navMenu) {
         hamburger.addEventListener('click', (e) => {
             e.preventDefault();
-            e.stopPropagation(); // Prevents instant bubbling close
+            e.stopPropagation(); 
             
             navMenu.classList.toggle('open');
             hamburger.classList.toggle('active');
         });
 
-        // Safe UX touch: Close the menu if a user clicks anywhere outside of it
         document.addEventListener('click', (event) => {
             if (!navMenu.contains(event.target) && !hamburger.contains(event.target)) {
                 navMenu.classList.remove('open');
