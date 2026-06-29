@@ -8,14 +8,7 @@ function escapeHtml(str) {
         .replace(/'/g, '&#39;');
 }
 
-// ==========================================
-// CALENDAR & AVAILABILITY LOGIC
-// ==========================================
-
 let currentDate = new Date();
-let selectedServiceId = null;
-let selectedDate = null;
-let selectedTime = null;
 let businessAvailabilityRules = []; 
 
 function getDaysOfMonth(year, month) {
@@ -24,27 +17,6 @@ function getDaysOfMonth(year, month) {
 
 function getFirstDay(year, month) {
     return new Date(year, month, 1).getDay();
-}
-
-async function initializeBookingPage() {
-    try {
-        const res = await fetch('/api/settings/availability');
-        if (res.ok) {
-            businessAvailabilityRules = await res.json();
-        }
-    } catch (err) {
-        console.error("Failed to fetch availability profiles:", err);
-    }
-    
-    try {
-        if (typeof loadServicePills === 'function') {
-            await loadServicePills();
-        }
-    } catch (pillError) {
-        console.error("Non-fatal: Could not load service pills:", pillError);
-    }
-    
-    renderCalendar();
 }
 
 async function loadServices() {
@@ -71,70 +43,8 @@ async function loadServices() {
     }
 }
 
-// Fire the loader call automatically
 loadServices();
 
-function renderCalendar() {
-    const daysContainer = document.getElementById('cal-days');
-    if (!daysContainer) return;
-
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const days = getDaysOfMonth(year, month);
-    const firstDay = getFirstDay(year, month);
-
-    let html = '';
-    
-    for (let i = 0; i < firstDay; i++) {
-        html += '<div class="cal-day empty"></div>';
-    }
-
-    const exactToday = new Date();
-    exactToday.setHours(0, 0, 0, 0);
-
-    const activeRules = Array.isArray(businessAvailabilityRules) ? businessAvailabilityRules : [];
-
-    for (let d = 1; d <= days; d++) {
-        const formattedMonth = String(month + 1).padStart(2, '0');
-        const formattedDay = String(d).padStart(2, '0');
-        const dateString = `${year}-${formattedMonth}-${formattedDay}`;
-        
-        const compareLoopDate = new Date(`${year}/${formattedMonth}/${formattedDay} 00:00:00`);
-        const dayOfWeek = compareLoopDate.getDay(); 
-        
-        const rule = activeRules.find(r => r.day_of_week === dayOfWeek);
-        const isClosed = rule ? rule.is_active === false : false; 
-        const isPast = compareLoopDate < exactToday;
-
-        if (isClosed || isPast) {
-            html += `<div class="cal-day disabled" data-date="${dateString}">${d}</div>`;
-        } else {
-            html += `<div class="cal-day" data-date="${dateString}">${d}</div>`;
-        }
-    }
-
-    daysContainer.innerHTML = html;
-    
-    // Custom date click hook setup
-    document.querySelectorAll('.cal-day:not(.empty):not(.disabled)').forEach(day => {
-        day.addEventListener('click', () => {
-            document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
-            day.classList.add('selected');
-            selectedDate = day.dataset.date;
-            console.log(`🎯 Date Selected Baseline Target: ${selectedDate}`);
-            if (typeof selectDate === 'function') selectDate(day);
-        });
-    });
-
-    const calMonth = document.getElementById('cal-month');
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-    if (calMonth) calMonth.textContent = `${monthNames[month]} ${year}`;
-}
-
-// ==========================================
-// PUBLIC STORIES & REVIEWS RENDERER
-// ==========================================
 async function loadPublicReviews() {
     const container = document.getElementById("testimonials-grid");
     if (!container) return; 
@@ -161,9 +71,6 @@ async function loadPublicReviews() {
     }
 }
 
-// ==========================================
-// HOMEPAGE DYNAMIC FEATURED QUOTE
-// ==========================================
 async function loadFeaturedQuoteOnHomepage() {
     const quoteElement = document.getElementById("featured-blockquote");
     const nameElement = document.getElementById("featured-name");
@@ -189,9 +96,6 @@ async function loadFeaturedQuoteOnHomepage() {
     }
 }
 
-// ==========================================
-// DYNAMIC FOOTER RENDER MATRIX
-// ==========================================
 async function renderDynamicFooterContent() {
     try {
         const res = await fetch("/api/settings/footer");
@@ -223,19 +127,11 @@ async function renderDynamicFooterContent() {
     }
 }
 
-// ==========================================
-// CENTRALIZED DOM COMPONENT COORDINATOR
-// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     loadPublicReviews();
     loadFeaturedQuoteOnHomepage();
     renderDynamicFooterContent();
-    
-    if (document.getElementById('cal-days')) {
-        initializeBookingPage();
-    }
 
-    // A. Mobile Hamburger Controller Layout
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.querySelector('nav');
 
@@ -251,73 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!navMenu.contains(event.target) && !hamburger.contains(event.target)) {
                 navMenu.classList.remove('open');
                 hamburger.classList.remove('active');
-            }
-        });
-    }
-
-    // ==========================================
-    // 🌟 B. NEW: STRIPE CHECKOUT EVENT ROUTER FORM INTERCEPTOR
-    // ==========================================
-    const checkoutForm = document.getElementById('booking-form') || document.querySelector('form');
-    if (checkoutForm) {
-        checkoutForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Stop raw layout loops instantly!
-            
-            // 🎯 CORRECTED LOOKUPS: Maps directly to your appointments.html inputs
-            const guestName = document.getElementById('name')?.value.trim();
-            const email = document.getElementById('email')?.value.trim();
-            const phone = document.getElementById('tel')?.value.trim() || "";
-            const notes = document.getElementById('message')?.value.trim() || "";
-            
-            // Try resolving treatment parameters from current URL params if needed
-            const urlParams = new URLSearchParams(window.location.search);
-            const fallbackServiceId = urlParams.get('service') || "general-session";
-            const serviceId = selectedServiceId || fallbackServiceId;
-
-            // Simple interface validation checks
-            if (!selectedDate) {
-                alert("Please select a convenient date from the calendar view.");
-                return;
-            }
-            
-            // Pulls selected time from your active layout slots
-            const timeSelector = document.querySelector('.avail-time.selected') || document.getElementById('time-slots');
-            const timeValue = timeSelector?.value || timeSelector?.dataset?.time || "10:00 AM";
-
-            const payload = {
-                serviceId,
-                date: selectedDate,
-                time: timeValue,
-                guestName,
-                email,
-                phone,
-                notes
-            };
-
-            console.log("🚀 Dispatched payload data to /api/appointments...", payload);
-
-            try {
-                const res = await fetch('/api/appointments', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.url) {
-                        console.log("➡️ Redirecting window to secure Stripe checkout...");
-                        window.location.href = data.url; // Kick out directly to processing screen!
-                    } else {
-                        alert("Could not parse dynamic billing URL from payment gateway response.");
-                    }
-                } else {
-                    const errorObj = await res.json();
-                    alert(`Submission failed: ${errorObj.error || 'Server error'}`);
-                }
-            } catch (err) {
-                console.error("❌ Checkout transmission error:", err);
-                alert("Network communication barrier encountered while establishing checkout gateway.");
             }
         });
     }

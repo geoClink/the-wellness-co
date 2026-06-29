@@ -3,7 +3,6 @@ const supabase = require("../lib/supabase");
 const tenantCache = new Map();
 
 async function resolveTenant(req, res, next) {
-
     console.log(`🔍 TENANT MIDDLEWARE HIT - Method: ${req.method} | URL: ${req.url} | Host: ${req.hostname}`);
     const hostname = req.hostname;
 
@@ -11,6 +10,7 @@ async function resolveTenant(req, res, next) {
         || (hostname === "localhost" || hostname === "127.0.0.1"
             ? "the-wellness-co"
             : hostname.split(".")[0]);
+
     if (tenantCache.has(slug)) {
         const cached = tenantCache.get(slug);
         if (Date.now() - cached._cachedAt < 5 * 60 * 1000) {
@@ -20,7 +20,6 @@ async function resolveTenant(req, res, next) {
         tenantCache.delete(slug);
     }
 
-
     const { data: tenant, error: tenantError } = await supabase
         .from("tenants")
         .select("id, name, vertical, slug, owner_email, address, contact_email")
@@ -28,7 +27,7 @@ async function resolveTenant(req, res, next) {
         .eq("active", true)
         .maybeSingle();
 
-        console.log(`📊 DB Tenant Lookup Result for slug [${slug}]:`, tenant, "Error:", tenantError);
+    console.log(`📊 DB Tenant Lookup Result for slug [${slug}]:`, tenant, "Error:", tenantError);
 
     if (!tenant) return res.status(404).json({ error: "Tenant not found" });
 
@@ -38,5 +37,3 @@ async function resolveTenant(req, res, next) {
 }
 
 module.exports = resolveTenant;
-
-

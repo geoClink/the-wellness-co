@@ -5,8 +5,22 @@ const Stripe = require("stripe");
 
 router.post("/api/appointments", async (req, res) => {
     try {
-        const { serviceId, date, time, guestName, email, phone, notes } = req.body;
-        const tenantId = req.tenant.id; // Resolved securely by your global middleware
+        // Destructure both camelCase and snake_case properties for bulletproof parsing
+        const { 
+            serviceId, service_id,
+            date, 
+            time, 
+            guestName, guest_name,
+            email, 
+            phone, 
+            notes 
+        } = req.body;
+        
+        const tenantId = req.tenant.id; 
+
+        // Resolve absolute fallbacks
+        const finalServiceId = serviceId || service_id;
+        const finalGuestName = guestName || guest_name;
 
         // 1. Fetch this tenant's payment gateway records from Supabase
         const { data: settings } = await supabase
@@ -15,7 +29,7 @@ router.post("/api/appointments", async (req, res) => {
             .eq("tenant_id", tenantId)
             .maybeSingle();
 
-        // 🌟 CRITICAL FIX: Use the tenant's live key, OR fall back safely to your environment variable key
+        // Fall back safely to your global master environment variable if setting row is empty
         const activeStripeKey = (settings && settings.stripe_secret_key) 
             ? settings.stripe_secret_key 
             : process.env.STRIPE_SECRET_KEY;
@@ -39,15 +53,14 @@ router.post("/api/appointments", async (req, res) => {
                         name: "Wellness Session Reservation Balance",
                         description: `Appointment Scheduled for ${date} at ${time}`,
                     },
-                    unit_amount: 11000, // $110.00 base balance rate (or match dynamic pricing)
+                    unit_amount: 11000, // $110.00 base balance rate
                 },
                 quantity: 1,
             }],
-            // 🌟 CRITICAL METADATA: Handing parameters down to your working webhook handler
             metadata: {
                 tenant_id: tenantId,
-                service_id: serviceId,
-                guest_name: guestName,
+                service_id: finalServiceId,
+                guest_name: finalGuestName,
                 email: email,
                 phone: phone || "",
                 date: date,
@@ -58,7 +71,6 @@ router.post("/api/appointments", async (req, res) => {
             cancel_url: `${req.protocol}://${req.get("host")}/appointments.html`,
         });
 
-        // 🌟 FIX: Return the JSON object containing the URL instead of a raw text success payload!
         return res.json({ id: session.id, url: session.url });
 
     } catch (err) {

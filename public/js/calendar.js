@@ -159,10 +159,10 @@ function cl_mockTimeSlotsForDate(dateStr) {
     if (!slotsContainer) return;
     
     slotsContainer.innerHTML = `
-        <button type="button" class="time-slot" data-time="09:00">09:00 AM</button>
-        <button type="button" class="time-slot" data-time="11:30">11:30 AM</button>
-        <button type="button" class="time-slot" data-time="14:00">02:00 PM</button>
-        <button type="button" class="time-slot" data-time="16:30">04:30 PM</button>
+        <button type="button" class="time-slot" data-time="09:00 AM">09:00 AM</button>
+        <button type="button" class="time-slot" data-time="11:30 AM">11:30 AM</button>
+        <button type="button" class="time-slot" data-time="02:00 PM">02:00 PM</button>
+        <button type="button" class="time-slot" data-time="04:30 PM">04:30 PM</button>
     `;
     
     slotsContainer.querySelectorAll('.time-slot').forEach(btn => {
@@ -188,7 +188,6 @@ document.getElementById('cal-next')?.addEventListener('click', (e) => {
     cl_buildCalendarGrid();
 });
 
-// Helper string sanitizer
 function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -231,9 +230,10 @@ document.getElementById('booking-form')?.addEventListener('submit', async (e) =>
         return;
     }
 
+    // 🌟 UNIFIED UNIFORM camelCase PROPERTY PACKAGING
     const payload = {
-        service_id: currentServiceId,
-        guest_name: nameInput.value.trim(),
+        serviceId: currentServiceId,
+        guestName: nameInput.value.trim(),
         email: emailInput.value.trim(),
         phone: telInput.value.trim(),
         date: cl_selectedDate,         
@@ -276,19 +276,10 @@ document.getElementById('booking-form')?.addEventListener('submit', async (e) =>
     }
 });
 
-// Structural input dynamic error resets
 ['name', 'email', 'tel'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', () => {
         document.getElementById(id).classList.remove('error');
     });
 });
 
-// Run initialization
 cl_initializeBookingPage();
-
-console.log({
-    serviceSelected: !!document.querySelector('.service-pill.active'),
-    dateSelected: cl_selectedDate,
-    timeSelected: document.querySelector('.time-slot.active')?.dataset.time,
-    formValid: !!(document.getElementById('name')?.value && document.getElementById('email')?.value && document.getElementById('tel')?.value)
-});
