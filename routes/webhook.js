@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const supabase = require("../lib/supabase");
-const { sendEmail, emailTemplate } = require("../lib/email");
+
+// 🌟 IMPORT YOUR NEW DYNAMIC EMAIL UTILITY
+const { sendDynamicTenantEmail } = require("../utils/email");
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -13,7 +15,6 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;');
 }
 
-// 🎯 CHANGED PATH: Standardized to "/api/webhooks/stripe"
 router.post("/", express.raw({ type: "application/json" }), async (req, res) => {
     const sig = req.headers["stripe-signature"];
     let event;
@@ -62,7 +63,7 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
             date: m.date,
             time: m.time,
             notes: m.notes || "",
-            status: "confirmed", // Mark as paid/confirmed immediately
+            status: "confirmed", 
             payment_intent_id: session.payment_intent
         }]);
 
@@ -71,20 +72,28 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
             return res.status(500).json({ error: "Database error" });
         }
 
-        console.log("🎯 Database write complete! Sending client confirmation email...");
+        console.log("🎯 Database write complete! Sending dynamic notification confirmation email...");
 
-        // ✉️ SEND EMAIL
+        // ✉️ DYNAMIC WHITE-LABEL RESEND NOTIFICATION DELIVERY
         try {
-            await sendEmail(m.email, "Your appointment is confirmed!",
-                emailTemplate("Appointment Confirmed", `
-                    <p>Hi ${escapeHtml(m.guest_name)},</p>
-                    <p>Your appointment has been booked for <strong>${m.date} at ${m.time}</strong>.</p>
-                    <p>If you need to cancel or reschedule, please contact us.</p>
-                `, { name: "The Wellness Co" })
-            );
-            console.log("✅ Confirmation email sent successfully!");
+            await sendDynamicTenantEmail(m.tenant_id, {
+                to: m.email,
+                subject: "Your appointment is confirmed!",
+                html: `
+                    <div style="font-family: sans-serif; color: #2c2823; max-width: 600px; padding: 20px;">
+                        <h3>Hi ${escapeHtml(m.guest_name)},</h3>
+                        <p>Your appointment has been successfully booked and confirmed!</p>
+                        <hr style="border: 0; border-top: 1px solid #e6dcc9; margin: 20px 0;">
+                        <p><strong>Session Date:</strong> ${escapeHtml(m.date)}</p>
+                        <p><strong>Arrival Time:</strong> ${escapeHtml(m.time)}</p>
+                        <hr style="border: 0; border-top: 1px solid #e6dcc9; margin: 20px 0;">
+                        <p style="font-size: 14px; color: #6f665a;">Thank you for booking with us. If you need to cancel or reschedule, please contact your practitioner directly.</p>
+                    </div>
+                `
+            });
+            console.log("✅ Dynamic confirmation email processed cleanly!");
         } catch (emailErr) {
-            console.error("⚠️ Webhook succeeded, but confirmation email failed to fire:", emailErr);
+            console.error("⚠️ Webhook database updated, but dynamic email delivery failed:", emailErr);
         }
     }
 
