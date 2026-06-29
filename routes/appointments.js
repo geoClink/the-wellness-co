@@ -1,5 +1,5 @@
 const express = require("express");
-const router = express.Router();
+const router = require("express").Router();
 const supabase = require("../lib/supabase");
 const { adminAuth } = require("../middleware/auth");
 
@@ -66,7 +66,7 @@ router.post("/api/appointments", async (req, res) => {
             return res.status(400).json({ error: "Service, Full name, Email, Date, and Time slots are required." });
         }
 
-        // 🌟 FIX: Query looking up columns by ID OR matching slug strings to safely locate the product row
+        // Query looking up columns by ID OR matching slug strings to safely locate the product row
         let query = supabase.from("services").select("id, name, price").eq("tenant_id", req.tenant.id);
         
         // Check if the parameter passed is a valid UUID structure format
@@ -79,8 +79,8 @@ router.post("/api/appointments", async (req, res) => {
 
         const { data: service, error: serviceError } = await query.maybeSingle();
 
-        // Safe dynamic fallback layout in case service table row isn't fully filled yet
-        const activeServiceId = service ? service.id : "cab90af2-b9ac-43fb-8f60-3fa9f18df477"; -- Fallback to safe workspace ID
+        // 🌟 FIXED: Changed sql style comment '--' to proper js style code comment '//'
+        const activeServiceId = service ? service.id : "cab90af2-b9ac-43fb-8f60-3fa9f18df477"; // Fallback to safe workspace ID
         const activeServiceName = service ? service.name : "Wellness Session Reservation Balance";
         const activeServicePrice = service ? service.price : 110;
 
@@ -109,7 +109,7 @@ router.post("/api/appointments", async (req, res) => {
             cancel_url: `${origin}/appointments.html`,
             metadata: { 
                 tenant_id: req.tenant.id, 
-                service_id: activeServiceId, -- 🌟 FIX: Passes a verified true UUID down into Stripe metadata!
+                service_id: activeServiceId, 
                 guest_name: finalGuestName, 
                 email, 
                 phone: phone || "", 
