@@ -66,6 +66,59 @@
             </form>
         </div>
 
+        <section class="admin-card">
+    <h2>Website Customizer (Hero Section)</h2>
+    <form id="hero-form">
+        <label>Hero Title (Use &lt;em&gt;text&lt;/em&gt; for italics)</label>
+        <input type="text" id="hero-title" placeholder="e.g., Choose the work that &lt;em&gt;calls you&lt;/em&gt;.">
+
+        <label>Hero Description</label>
+        <textarea id="hero-desc" rows="3" placeholder="Enter your website introduction text..."></textarea>
+
+        <label>Hero Image</label>
+        <input type="file" id="hero-image-file" accept="image/*">
+        <span id="current-image-url" style="font-size: 12px; color: var(--muted);"></span>
+
+        <button type="submit">Save Hero Configurations</button>
+        <p id="hero-status" style="color: green; font-size: 14px;"></p>
+    </form>
+</section>
+
+<section class="admin-card">
+    <h2>Website Customizer (About Page)</h2>
+    <form id="about-form">
+        <label>About Heading (Use &lt;em&gt;text&lt;/em&gt; for italics)</label>
+        <input type="text" id="about-heading" placeholder="e.g., Who <em>We</em> Are">
+
+        <label>About Body Story Content</label>
+        <textarea id="about-body" rows="6" placeholder="Tell your customers your business story, values, and mission..."></textarea>
+
+        <button type="submit">Save About Page Content</button>
+        <p id="about-status" style="color: green; font-size: 14px;"></p>
+    </form>
+</section>
+
+<section class="admin-card">
+    <h2>Weekly Calendar Availability</h2>
+    <p class="hero-text">Set your active operational windows for each day of the week.</p>
+    <form id="availability-form">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+                <tr style="text-align: left; border-bottom: 2px solid var(--border);">
+                    <th style="padding: 10px;">Day</th>
+                    <th style="padding: 10px;">Status</th>
+                    <th style="padding: 10px;">Start Time</th>
+                    <th style="padding: 10px;">End Time</th>
+                </tr>
+            </thead>
+            <tbody id="availability-rows">
+                </tbody>
+        </table>
+        <button type="submit">Save Weekly Schedule</button>
+        <p id="avail-status" style="color: green; font-size: 14px; margin-top: 10px;"></p>
+    </form>
+</section>
+
         <div class="panel">
             <h3>Manage Services Menu</h3>
             <form id="add-service-form" style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">

@@ -3,38 +3,69 @@ const router = express.Router();
 const supabase = require("../lib/supabase");
 const { adminAuth } = require("../middleware/auth");
 
-
+// 1. Fetch Active Catalog Menu Options
 router.get("/api/services", async (req, res) => {
     const { data, error } = await supabase.from("services")
         .select("*")
         .eq("tenant_id", req.tenant.id)
-        .order("sort_order");
+        .order("name");
     if (error) return res.status(500).json({ error: error.message });
-    res.json(data);
+    res.json(data || []);
 });
 
-router.post("/api/services", adminAuth, async (req, res) => {
-    const { name, duration_minutes, price, description, img, active } = req.body;
-    if (!name || !price) return res.status(400).json({ error: "Name and price are required." });
-    const { error } = await supabase.from("services")
-        .insert([{ tenant_id: req.tenant.id, name, duration_minutes, price, description, img, active: active ?? true }]);
-    if (error) return res.status(500).json({ error: error.message });
-    res.json({ success: true });
+// 2. Commit New Treatment Asset Profile
+// 2. Commit New Treatment Asset Profile
+router.post("/api/services/admin", adminAuth, async (req, res) => {
+    const { title, description, price } = req.body;
+    const serviceName = title || req.body.name;
+
+    if (!serviceName || !price) {
+        return res.status(400).json({ error: "Service title and price are required." });
+    }
+
+    // 🌟 THE CONSTRAINT FIX: Convert name string into a clean URL-friendly slug
+    const serviceSlug = serviceName
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')     // Strip out unusual characters
+        .replace(/[\s_-]+/g, '-')     // Swap all spaces and underscores to singular hyphens
+        .replace(/^-+|-+$/g, '');     // Clean up loose edges
+
+    const { data, error } = await supabase
+        .from("services")
+        .insert([{
+            tenant_id: req.tenant.id,
+            name: serviceName,
+            slug: serviceSlug,        // 🎯 Passes the required not-null slug column check!
+            description: description || "",
+            price: parseFloat(price),
+            duration_minutes: 60,
+            active: true
+        }])
+        .select()
+        .single();
+
+    if (error) {
+        console.error("❌ Supabase Insertion Error:", error);
+        return res.status(500).json({ error: error.message });
+    }
+
+    res.status(201).json(data);
 });
 
-router.patch("/api/services/:id", adminAuth, async (req, res) => {
-    const { name, duration_minutes, price, description, img,
-        active } = req.body;
-    const { error } = await supabase.from("services")
-        .update({
-            name, duration_minutes, price, description,
-            img, active
-        })
+// 3. Delete Active Service Profiles
+router.delete("/api/services/admin/:id", adminAuth, async (req, res) => {
+    const { error } = await supabase
+        .from("services")
+        .delete()
         .eq("id", req.params.id)
         .eq("tenant_id", req.tenant.id);
-    if (error) return res.status(500).json({
-        error: error.message
-    });
+
+    if (error) {
+        console.error("❌ Supabase Deletion Error:", error);
+        return res.status(500).json({ error: error.message });
+    }
+
     res.json({ success: true });
 });
 

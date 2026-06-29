@@ -14,6 +14,8 @@ const token = localStorage.getItem('admin_token');
 // Application Bootstrapper
 if (token) {
     showDashboard();
+} else {
+    showLogin();
 }
 
 function showDashboard() {
@@ -23,60 +25,80 @@ function showDashboard() {
     // Core Data Fetch Operations
     loadBookings();
     loadAdminReviews();
-    loadHeroContent();     // NEW: Fetch hero settings from Supabase
-    loadAdminServices();   // NEW: Fetch customizable services menu
+    loadHeroContent();     
+    loadAdminServices();   
+    loadBusinessProfile();
+    loadAboutContent();
+    
+    // 🎯 CRITICAL: Verify this line is explicitly typed out here!
+    loadAvailabilitySettings(); 
 }
 
 function showLogin() {
-    document.getElementById('login-view').style.display = 'block';
-    document.getElementById('dashboard-view').style.display = 'none';
+    const loginView = document.getElementById('login-view');
+    const dashboardView = document.getElementById('dashboard-view');
+    
+    if (loginView) loginView.style.display = 'block';
+    if (dashboardView) dashboardView.style.display = 'none';
 }
 
 // ==========================================
 // 1. AUTHENTICATION HANDLERS
 // ==========================================
 
-// Handle Login Submission
-document.getElementById('login-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('admin-email').value.trim();
-    const password = document.getElementById('admin-password').value;
+const loginForm = document.getElementById('login-form');
+if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('admin-email').value.trim();
+        const password = document.getElementById('admin-password').value;
 
-    const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            if (!res.ok) {
+                alert('Invalid email or password.');
+                return;
+            }
+            
+            const data = await res.json();
+            localStorage.setItem('admin_token', data.token);
+            showDashboard();
+        } catch (err) {
+            console.error("Network error during login:", err);
+            alert("Could not connect to the authentication server.");
+        }
     });
-    
-    if (!res.ok) {
-        alert('Invalid email or password.');
-        return;
-    }
-    
-    const data = await res.json();
-    localStorage.setItem('admin_token', data.token);
-    showDashboard();
-});
+}
 
-// Logout Request
-document.getElementById('logout-btn').addEventListener('click', () => {
-    localStorage.removeItem('admin_token');
-    showLogin();
-});
+const logoutBtn = document.getElementById('logout-btn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('admin_token');
+        showLogin();
+    });
+}
 
 
 // ==========================================
-// 2. NEW: WEBSITE CUSTOMIZER (HERO SECTION)
+// 2. WEBSITE CUSTOMIZER (HERO SECTION)
 // ==========================================
 
-// Fetch active hero options from your settings endpoint
 async function loadHeroContent() {
     try {
         const res = await fetch('/api/settings/hero');
         if (res.ok) {
             const data = await res.json();
-            document.getElementById('hero-title').value = data.title || '';
+            const titleEl = document.getElementById('hero-title');
+            const descEl = document.getElementById('hero-desc');
             const imgLabel = document.getElementById('current-image-url');
+            
+            if (titleEl) titleEl.value = data.title || '';
+            if (descEl) descEl.value = data.description || ''; // 🌟 Dynamic Tracking
             if (imgLabel && data.imageUrl) {
                 imgLabel.textContent = `Active file link: ${data.imageUrl.split('/').pop()}`;
             }
@@ -86,49 +108,53 @@ async function loadHeroContent() {
     }
 }
 
-// Process Hero updates using multipart/form-data for file stream transfers
-document.getElementById('hero-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const currentToken = localStorage.getItem('admin_token');
-    const statusEl = document.getElementById('hero-status');
+const heroForm = document.getElementById('hero-form');
+if (heroForm) {
+    heroForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const currentToken = localStorage.getItem('admin_token');
+        const statusEl = document.getElementById('hero-status');
 
-    // Pack standard strings alongside binary data buffers using FormData
-    const formData = new FormData();
-    formData.append('title', document.getElementById('hero-title').value.trim());
-    
-    const fileInput = document.getElementById('hero-image-file');
-    if (fileInput.files[0]) {
-        formData.append('heroImage', fileInput.files[0]);
-    }
+        const formData = new FormData();
+        formData.append('title', document.getElementById('hero-title').value.trim());
+        
+        const descEl = document.getElementById('hero-desc');
+        if (descEl) formData.append('description', descEl.value.trim()); // 🌟 Dynamic Tracking
+        
+        const fileInput = document.getElementById('hero-image-file');
+        if (fileInput && fileInput.files[0]) {
+            formData.append('heroImage', fileInput.files[0]);
+        }
 
-    const res = await fetch('/api/settings/hero', {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${currentToken}` },
-        body: formData // Let browser auto-configure boundary content headers
+        const res = await fetch('/api/settings/hero', {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${currentToken}` },
+            body: formData 
+        });
+
+        if (res.ok) {
+            if (statusEl) statusEl.textContent = "Saved successfully!";
+            if (fileInput) fileInput.value = ""; 
+            loadHeroContent();
+            if (statusEl) setTimeout(() => statusEl.textContent = "", 3000);
+        } else {
+            alert("Failed to sync hero asset update configurations.");
+        }
     });
-
-    if (res.ok) {
-        statusEl.textContent = "Saved successfully!";
-        fileInput.value = ""; 
-        loadHeroContent();
-        setTimeout(() => statusEl.textContent = "", 3000);
-    } else {
-        alert("Failed to sync hero asset update configurations.");
-    }
-});
+}
 
 
 // ==========================================
-// 3. NEW: SERVICES MENU MANAGEMENT
+// 3. SERVICES & PROFILE PROFILE MANAGEMENT
 // ==========================================
 
-// Get and construct your public menu items dynamically
 async function loadAdminServices() {
     try {
         const res = await fetch('/api/services');
         if (!res.ok) return;
         const services = await res.json();
         const tbody = document.getElementById('services-body');
+        if (!tbody) return;
         
         if (services.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4">No catalog treatment options created yet.</td></tr>';
@@ -136,58 +162,112 @@ async function loadAdminServices() {
         }
 
        tbody.innerHTML = services.map(s => `
-    <tr>
-        <td>${escapeHtml(s.name)}</td>   <td>${escapeHtml(s.description)}</td>
-        <td>${escapeHtml(s.price)}</td>
-        <td>
-            <button class="delete-service-btn" data-id="${escapeHtml(s.id)}">Delete</button>
-        </td>
-    </tr>
-`).join('');
+            <tr>
+                <td>${escapeHtml(s.name)}</td>   
+                <td>${escapeHtml(s.description)}</td>
+                <td>$${escapeHtml(String(s.price))}</td>
+                <td>
+                    <button class="delete-service-btn" data-id="${escapeHtml(s.id)}">Delete</button>
+                </td>
+            </tr>
+        `).join('');
     } catch (err) {
         console.error("Failed to map dynamic treatment items:", err);
     }
 }
 
-// Create Service Form Submission Interceptor
-document.getElementById('add-service-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const currentToken = localStorage.getItem('admin_token');
-    const title = document.getElementById('service-title').value.trim();
-    const description = document.getElementById('service-desc').value.trim();
-    const price = document.getElementById('service-price').value.trim();
-
-    const res = await fetch('/api/services/admin', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentToken}`
-        },
-        body: JSON.stringify({ title, description, price })
-    });
-
-    if (res.ok) {
-        e.target.reset();
-        loadAdminServices();
-    } else {
-        alert("Could not commit new treatment asset profile.");
+async function loadBusinessProfile() {
+    try {
+        const res = await fetch('/api/settings/profile');
+        if (res.ok) {
+            const data = await res.json();
+            const phoneEl = document.getElementById('biz-phone');
+            const wkdayEl = document.getElementById('biz-hours-wkday');
+            const wkndEl = document.getElementById('biz-hours-wknd');
+            
+            if (phoneEl) phoneEl.value = data.phone || '';
+            if (wkdayEl) wkdayEl.value = data.business_hours?.mon_fri || '';
+            if (wkndEl) wkndEl.value = data.business_hours?.sat_sun || '';
+        }
+    } catch (err) {
+        console.error("Failed to load business profile details:", err);
     }
-});
+}
 
-// Delete click interceptor delegation tracking
-document.getElementById('services-body').addEventListener('click', async (e) => {
-    if (!e.target.classList.contains('delete-service-btn')) return;
-    if (!confirm('Permanently wipe out this active service profile?')) return;
-    
-    const currentToken = localStorage.getItem('admin_token');
-    const id = e.target.dataset.id;
+const bizProfileForm = document.getElementById('business-profile-form');
+if (bizProfileForm) {
+    bizProfileForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const currentToken = localStorage.getItem('admin_token');
+        const statusEl = document.getElementById('profile-status');
 
-    const res = await fetch(`/api/services/admin/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${currentToken}` }
+        const payload = {
+            phone: document.getElementById('biz-phone').value.trim(),
+            hours: {
+                mon_fri: document.getElementById('biz-hours-wkday').value.trim(),
+                sat_sun: document.getElementById('biz-hours-wknd').value.trim()
+            }
+        };
+
+        const res = await fetch('/api/settings/profile', {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentToken}` 
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            if (statusEl) statusEl.textContent = "Profile updated successfully!";
+            if (statusEl) setTimeout(() => statusEl.textContent = "", 3000);
+        }
     });
-    if (res.ok) loadAdminServices();
-});
+}
+
+const addServiceForm = document.getElementById('add-service-form');
+if (addServiceForm) {
+    addServiceForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const currentToken = localStorage.getItem('admin_token');
+        const title = document.getElementById('service-title').value.trim();
+        const description = document.getElementById('service-desc').value.trim();
+        const price = document.getElementById('service-price').value.trim();
+
+        const res = await fetch('/api/services/admin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify({ title, description, price })
+        });
+
+        if (res.ok) {
+            e.target.reset();
+            loadAdminServices();
+        } else {
+            alert("Could not commit new treatment asset profile.");
+        }
+    });
+}
+
+const servicesBody = document.getElementById('services-body');
+if (servicesBody) {
+    servicesBody.addEventListener('click', async (e) => {
+        if (!e.target.classList.contains('delete-service-btn')) return;
+        if (!confirm('Permanently wipe out this active service profile?')) return;
+        
+        const currentToken = localStorage.getItem('admin_token');
+        const id = e.target.dataset.id;
+
+        const res = await fetch(`/api/services/admin/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (res.ok) loadAdminServices();
+    });
+}
 
 
 // ==========================================
@@ -208,6 +288,7 @@ async function loadBookings() {
 
     const bookings = await res.json();
     const tbody = document.getElementById('bookings-body');
+    if (!tbody) return;
 
     tbody.innerHTML = bookings.map(b => `
         <tr>
@@ -251,6 +332,8 @@ async function loadAdminReviews() {
     if (!res.ok) return;
     const reviews = await res.json();
     const tbody = document.getElementById('reviews-body');
+    if (!tbody) return;
+
     if (reviews.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5">No reviews yet.</td></tr>';
         return;
@@ -259,8 +342,9 @@ async function loadAdminReviews() {
         <tr>
             <td>${escapeHtml(r.name)}</td>
             <td>${escapeHtml(String(r.rating))}/5</td>
-            <td>${escapeHtml(r.body.length > 80 ? r.body.slice(0, 80) + '…' : r.body)}</td>
-            <td>${r.approved ? 'Approved' : 'Pending'}</td>
+
+<td>${escapeHtml(r.body)}</td>            
+<td>${r.approved ? 'Approved' : 'Pending'}</td>
             <td>
                 ${!r.approved ? `<button onclick="approveReview('${escapeHtml(r.id)}')">Approve</button>` : ''}
                 <button onclick="deleteReview('${escapeHtml(r.id)}')">Delete</button>
@@ -287,35 +371,204 @@ async function deleteReview(id) {
     if (res.ok) loadAdminReviews();
 }
 
-document.getElementById('add-review-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const currentToken = localStorage.getItem('admin_token');
-    const name = document.getElementById('review-name').value.trim();
-    const rating = document.getElementById('review-rating').value;
-    const body = document.getElementById('review-body').value.trim();
+const addReviewForm = document.getElementById('add-review-form');
+if (addReviewForm) {
+    addReviewForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const currentToken = localStorage.getItem('admin_token');
+        const name = document.getElementById('review-name').value.trim();
+        const rating = document.getElementById('review-rating').value;
+        const body = document.getElementById('review-body').value.trim();
 
-    const res = await fetch('/api/admin/reviews', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentToken}`
-        },
-        body: JSON.stringify({ name, rating, body })
+        const res = await fetch('/api/admin/reviews', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify({ name, rating, body })
+        });
+
+        const successEl = document.getElementById('review-success');
+        const errorEl = document.getElementById('review-error');
+
+        if (res.ok) {
+            e.target.reset();
+            if (successEl) successEl.style.display = 'block';
+            if (errorEl) errorEl.style.display = 'none';
+            if (successEl) setTimeout(() => successEl.style.display = 'none', 3000);
+            loadAdminReviews();
+        } else {
+            const data = await res.json();
+            if (errorEl) {
+                errorEl.textContent = data.error || 'Something went wrong.';
+                errorEl.style.display = 'block';
+            }
+            if (successEl) successEl.style.display = 'none';
+        }
     });
+}
 
-    const successEl = document.getElementById('review-success');
-    const errorEl = document.getElementById('review-error');
+// Add inside your dashboard initializers: loadAvailabilitySettings();
 
-    if (res.ok) {
-        e.target.reset();
-        successEl.style.display = 'block';
-        errorEl.style.display = 'none';
-        setTimeout(() => successEl.style.display = 'none', 3000);
-        loadAdminReviews();
-    } else {
-        const data = await res.json();
-        errorEl.textContent = data.error || 'Something went wrong.';
-        errorEl.style.display = 'block';
-        successEl.style.display = 'none';
+const daysMapping = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+// Ensure this function matches exactly in public/admin.js
+async function loadAvailabilitySettings() {
+    const tbody = document.getElementById('availability-rows');
+    if (!tbody) {
+        console.error("❌ DOM element 'availability-rows' not found in HTML!");
+        return;
     }
-});
+
+    const daysMapping = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+    try {
+        const res = await fetch('/api/settings/availability');
+        
+        // Safe check: handle potential empty database tables or failed calls
+        let rules = [];
+        if (res.ok) {
+            rules = await res.json();
+        } else {
+            console.warn("⚠️ API fallback activated. Generating raw scheduling defaults.");
+        }
+
+        // Helper to generate explicit time selections safely
+        const generateTimeOptions = (selectedTime) => {
+            let optionsHtml = '';
+            // Handle fallbacks if database time string arrives formatted oddly
+            const currentSelected = selectedTime ? selectedTime.substring(0, 5) : "09:00";
+            
+            for (let hour = 0; hour < 24; hour++) {
+                for (let min of ['00', '30']) {
+                    const formattedHour = String(hour).padStart(2, '0');
+                    const timeValue = `${formattedHour}:${min}`;
+                    
+                    const ampm = hour >= 12 ? 'PM' : 'AM';
+                    const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+                    const displayLabel = `${displayHour}:${min} ${ampm}`;
+                    
+                    const isSelected = timeValue === currentSelected ? 'selected' : '';
+                    optionsHtml += `<option value="${timeValue}" ${isSelected}>${displayLabel}</option>`;
+                }
+            }
+            return optionsHtml;
+        };
+
+        // Re-draw rows and insert them explicitly into the DOM element view
+        tbody.innerHTML = daysMapping.map((day, index) => {
+            // Safe array extraction with absolute default rollbacks
+            const currentRule = (Array.isArray(rules) ? rules : []).find(r => r.day_of_week === index) || {
+                start_time: "09:00", end_time: "17:00", is_active: true
+            };
+
+            return `
+                <tr data-day="${index}" style="border-bottom: 1px solid #eee; text-align: left;">
+                    <td style="padding: 12px 10px; font-weight: 500; color: var(--text);">${day}</td>
+                    <td style="padding: 12px 10px;">
+                        <input type="checkbox" class="avail-active" ${currentRule.is_active ? 'checked' : ''}> Open
+                    </td>
+                    <td style="padding: 12px 10px;">
+                        <select class="avail-start" style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                            ${generateTimeOptions(currentRule.start_time)}
+                        </select>
+                    </td>
+                    <td style="padding: 12px 10px;">
+                        <select class="avail-end" style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                            ${generateTimeOptions(currentRule.end_time)}
+                        </select>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+    } catch (err) {
+        console.error("❌ Critical exception during scheduling rendering operation:", err);
+    }
+}
+
+const availForm = document.getElementById('availability-form');
+if (availForm) {
+    availForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const currentToken = localStorage.getItem('admin_token');
+        const statusEl = document.getElementById('avail-status');
+        
+        const rulesArray = [];
+        document.querySelectorAll('#availability-rows tr').forEach(row => {
+            rulesArray.push({
+                day_of_week: row.dataset.day,
+                is_active: row.querySelector('.avail-active').checked,
+                start_time: row.querySelector('.avail-start').value,
+                end_time: row.querySelector('.avail-end').value
+            });
+        });
+
+        const res = await fetch('/api/settings/availability', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify({ rules: rulesArray })
+        });
+
+        if (res.ok) {
+            if (statusEl) statusEl.textContent = "Availability profiles synced successfully!";
+            loadAvailabilitySettings();
+            if (statusEl) setTimeout(() => statusEl.textContent = "", 3000);
+        }
+    });
+}
+
+// ==========================================
+// 6. WEBSITE CUSTOMIZER (ABOUT PAGE)
+// ==========================================
+
+async function loadAboutContent() {
+    try {
+        const res = await fetch('/api/site-settings');
+        if (res.ok) {
+            const data = await res.json();
+            const headingEl = document.getElementById('about-heading');
+            const bodyEl = document.getElementById('about-body');
+            
+            if (headingEl) headingEl.value = data.about_heading || '';
+            if (bodyEl) bodyEl.value = data.about_body || '';
+        }
+    } catch (err) {
+        console.error("Failed to load about settings:", err);
+    }
+}
+
+const aboutForm = document.getElementById('about-form');
+if (aboutForm) {
+    aboutForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const currentToken = localStorage.getItem('admin_token');
+        const statusEl = document.getElementById('about-status');
+
+        const payload = {
+            about_heading: document.getElementById('about-heading').value.trim(),
+            about_body: document.getElementById('about-body').value.trim()
+        };
+
+        const res = await fetch('/api/site-settings', {
+            method: 'PATCH',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentToken}` 
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            if (statusEl) statusEl.textContent = "About page saved successfully!";
+            loadAboutContent();
+            if (statusEl) setTimeout(() => statusEl.textContent = "", 3000);
+        } else {
+            alert("Failed to update About page settings.");
+        }
+    });
+}

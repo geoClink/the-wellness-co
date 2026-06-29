@@ -8,8 +8,9 @@ const helmet = require("helmet");
 
 const app = express();
 app.set("trust proxy", 1);
-app.use(helmet({ contentSecurityPolicy: false, frameguard: false }));
 
+// --- 1. GLOBAL SECURITY HEADERS & CORS ---
+app.use(helmet({ contentSecurityPolicy: false, frameguard: false }));
 app.use(cors({
     origin: [
         "http://localhost:3000",
@@ -20,7 +21,15 @@ app.use(cors({
     ]
 }));
 
-// --- RATE LIMITERS ---
+// --- 2. STRIPE WEBHOOK (CRITICAL: Must sit BEFORE express.json) ---
+// If your webhook route needs raw request bodies, keep it up here.
+app.use(require("./routes/webhook"));
+
+// --- 3. CORE PLUGINS & BODY PARSERS (MUST RUN BEFORE RATE LIMITS & ROUTERS) ---
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// --- 4. RATE LIMITERS ---
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
@@ -39,18 +48,12 @@ const loginLimiter = rateLimit({
     message: { error: "Too many login attempts, please try again later." }
 });
 
+// Apply limiting proxies
 app.use("/api/", generalLimiter);
 app.use("/api/checkout", checkoutLimiter);
 app.use("/api/login", loginLimiter);
 
-// --- CORE INITIALIZATIONS ---
-const supabase = require("./lib/supabase");
-const resolveTenant = require("./middleware/resolveTenant");
-
-app.use(require("./routes/webhook"));
-app.use(express.json());
-
-// 1. SERVE STATIC FILES & DIRECT HTML VIEWS
+// --- 5. SERVE STATIC ASSETS ---
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
@@ -61,12 +64,15 @@ app.get("/admin.html", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
-// 2. 🔓 OPEN API ENDPOINTS (Bypasses Tenant Restrictions)
-app.get("/api/test", (req, res) => res.json({ message: "Server is running!" }));
-app.use("/", require("./routes/auth")); 
+// --- 6. CORE INITIALIZATIONS ---
+const supabase = require("./lib/supabase");
+const resolveTenant = require("./middleware/resolveTenant");
 
-// 3. 🔒 SECURED API DATA ENDPOINTS
-// Routed through "/" because your route files already include the "/api" prefix internally
+// --- 7. API ENDPOINTS ---
+app.get("/api/test", (req, res) => res.json({ message: "Server is running!" }));
+
+// 🎯 FIXED: Auth route now passes through resolveTenant so req.tenant is available on login!
+app.use("/", resolveTenant, require("./routes/auth")); 
 app.use("/", resolveTenant, require("./routes/services"));
 app.use("/", resolveTenant, require("./routes/appointments"));
 app.use("/", resolveTenant, require("./routes/contact"));
@@ -75,7 +81,7 @@ app.use("/", resolveTenant, require("./routes/gift-cards"));
 app.use("/", resolveTenant, require("./routes/coupons"));
 app.use("/", resolveTenant, require("./routes/reviews"));
 
-// --- ERROR FALLBACK HANDLERS ---
+// --- 8. ERROR FALLBACK HANDLERS ---
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
 });
@@ -85,7 +91,7 @@ app.use((err, req, res, next) => {
     res.status(500).sendFile(path.join(__dirname, "public", "500.html"));
 });
 
-// --- LIFECYCLE INITIALIZER ---
+// --- 9. LIFECYCLE INITIALIZER ---
 const PORT = process.env.PORT || 3000;
 
 if (process.env.NODE_ENV !== 'production') {

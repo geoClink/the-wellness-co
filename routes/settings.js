@@ -3,6 +3,11 @@ const router = express.Router();
 const supabase = require("../lib/supabase");
 const { adminAuth } = require("../middleware/auth");
 
+// ==========================================
+// 1. CORE SITE & HERO SETTINGS ENDPOINTS
+// ==========================================
+
+// Fetch ALL Site Settings Profile Metrics
 router.get("/api/site-settings", async (req, res) => {
     const { data, error } = await supabase.from("site_settings").select("*")
         .eq("tenant_id", req.tenant.id).maybeSingle();
@@ -10,9 +15,11 @@ router.get("/api/site-settings", async (req, res) => {
     res.json(data ?? {});
 });
 
+// Comprehensive Patch Route (Handles Hero Updates + Banners + General Hours)
 router.patch("/api/site-settings", adminAuth, async (req, res) => {
-    const { hero_heading, hero_subtext, hero_image_url, hours, hours_note, banner_visible, banner_text } = req.body
+    const { hero_heading, hero_subtext, hero_image_url, hours, hours_note, banner_visible, banner_text } = req.body;
     const updates = { tenant_id: req.tenant.id };
+    
     if (hero_heading !== undefined) updates.hero_heading = hero_heading;
     if (hero_subtext !== undefined) updates.hero_subtext = hero_subtext;
     if (hero_image_url !== undefined) updates.hero_image_url = hero_image_url;
@@ -20,6 +27,7 @@ router.patch("/api/site-settings", adminAuth, async (req, res) => {
     if (hours_note !== undefined) updates.hours_note = hours_note;
     if (banner_visible !== undefined) updates.banner_visible = banner_visible;
     if (banner_text !== undefined) updates.banner_text = banner_text;
+    
     const { error } = await supabase.from("site_settings").upsert(updates, {
         onConflict: "tenant_id"
     });
@@ -27,9 +35,10 @@ router.patch("/api/site-settings", adminAuth, async (req, res) => {
     res.json({ success: true });
 });
 
+// Dedicated Hero Customizer Data Bridge 
 router.get("/api/settings/hero", async (req, res) => {
     const { data, error } = await supabase.from("site_settings")
-        .select("hero_heading, hero_image_url")
+        .select("hero_heading, hero_subtext, hero_image_url")
         .eq("tenant_id", req.tenant.id)
         .maybeSingle();
         
@@ -37,8 +46,116 @@ router.get("/api/settings/hero", async (req, res) => {
     
     res.json({
         title: data?.hero_heading || "",
+        description: data?.hero_subtext || "", 
         imageUrl: data?.hero_image_url || ""
     });
+});
+
+// ==========================================
+// 2. TENANT BUSINESS PROFILE ENDPOINTS
+// ==========================================
+
+// GET current profile settings
+router.get("/api/settings/profile", async (req, res) => {
+    const { data, error } = await supabase
+        .from("tenants")
+        .select("phone, business_hours")
+        .eq("id", req.tenant.id)
+        .single();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+});
+
+// PUT updated profile configurations
+router.put("/api/settings/profile", adminAuth, async (req, res) => {
+    const { phone, hours } = req.body;
+    
+    const { data, error } = await supabase
+        .from("tenants")
+        .update({ phone, business_hours: hours })
+        .eq("id", req.tenant.id);
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ success: true });
+});
+
+// ==========================================
+// 3. CALENDAR AVAILABILITY ENDPOINTS (CLEANED)
+// ==========================================
+
+// GET Availability Configuration Matrix
+router.get("/api/settings/availability", async (req, res) => {
+    try {
+        if (!req.tenant || !req.tenant.id) {
+            return res.status(400).json({ error: "Tenant context could not be resolved." });
+        }
+
+        const { data, error } = await supabase
+            .from("availability_rules")
+            .select("*")
+            .eq("tenant_id", req.tenant.id)
+            .order("day_of_week");
+
+        if (error) {
+            console.error("❌ SUPABASE GET AVAILABILITY ERROR:", error.message);
+            return res.status(500).json({ error: error.message });
+        }
+
+        // Clean output strings to safe display values (e.g., "09:00:00" -> "09:00")
+        const formattedData = (data || []).map(r => ({
+            ...r,
+            start_time: r.start_time ? r.start_time.substring(0, 5) : "09:00",
+            end_time: r.end_time ? r.end_time.substring(0, 5) : "17:00"
+        }));
+
+        return res.json(formattedData);
+
+    } catch (err) {
+        console.error("❌ Critical exception inside GET availability runtime:", err);
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+// POST/UPSERT Bulk Availability Customization Array
+router.post("/api/settings/availability", adminAuth, async (req, res) => {
+    try {
+        const { rules } = req.body;
+        if (!rules || !Array.isArray(rules)) {
+            return res.status(400).json({ error: "Invalid rules payload configuration." });
+        }
+
+        // Format short front-end string variables into true database-compliant TIME indicators
+        const payload = rules.map(r => {
+            const padTime = (t) => {
+                if (!t) return "00:00:00";
+                const parts = t.split(':');
+                return parts.length === 2 ? `${t}:00` : t;
+            };
+
+            return {
+                tenant_id: req.tenant.id,
+                day_of_week: parseInt(r.day_of_week),
+                start_time: padTime(r.start_time),
+                end_time: padTime(r.end_time),
+                is_active: !!r.is_active
+            };
+        });
+
+        const { error } = await supabase
+            .from("availability_rules")
+            .upsert(payload, { onConflict: "tenant_id,day_of_week" });
+
+        if (error) {
+            console.error("❌ SUPABASE POST AVAILABILITY ERROR:", error.message, error.details);
+            return res.status(500).json({ error: error.message });
+        }
+
+        return res.json({ success: true });
+
+    } catch (err) {
+        console.error("❌ Critical exception inside POST availability runtime:", err);
+        return res.status(500).json({ error: err.message });
+    }
 });
 
 module.exports = router;

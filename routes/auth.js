@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { createClient } = require("@supabase/supabase-js");
 
-router.post("/login", async (req, res) => {
+router.post("/api/login", async (req, res) => {
     try {
         const { email, password } = req.body;
 

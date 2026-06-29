@@ -1,20 +1,6 @@
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    background: var(--bg);
-    font-family: 'Hanken Grotesk', sans-serif;
-    color: var(--ink);
-    -webkit-font-smoothing: antialiased;
-}
-
-::selection {
-    background: var(--selection);
-}
+/* ==========================================================================
+   1. ROOT VARIABLES & ARCHITECTURE BASE
+   ========================================================================== */
 
 :root {
     --bg: #f4eee4;
@@ -45,24 +31,30 @@ body {
     --placeholder-dark: #e2d7c2;
     --selection: #d8c4a8;
     --header-bg: rgba(244, 238, 228, 0.86);
+    
+    /* System alert parameters normalized to your color theme */
+    --error-bg: #fdf0ee;
+    --error-border: #e8b4a8;
+    --error-text: #8a2a1a;
+    --error-input: #c0392b;
 }
 
-@keyframes qf-spin {
-    to {
-        transform: rotate(360deg);
-    }
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
-@keyframes qf-float {
+body {
+    margin: 0;
+    background: var(--bg);
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+}
 
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-16px);
-    }
+::selection {
+    background: var(--selection);
 }
 
 main {
@@ -75,11 +67,71 @@ main {
     padding: 0 32px;
 }
 
+.page-section {
+    padding: 74px 0 90px;
+}
+
+/* ==========================================================================
+   2. TYPOGRAPHY ELEMENTS
+   ========================================================================== */
+
+h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 72px;
+    line-height: 1.02;
+    margin: 0 0 26px;
+    letter-spacing: -0.5px;
+}
+
+h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 42px;
+    line-height: 1.1;
+    margin: 0;
+}
+
+.eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--clay-text);
+    margin-bottom: 22px;
+}
+
+.hero-text {
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--muted);
+    margin: 0;
+}
+
+.hero-body {
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0 0 36px;
+}
+
+.hero-italic {
+    font-style: italic;
+    color: var(--sage-deep);
+}
+
+/* ==========================================================================
+   3. STRUCTURAL HEADER & GLOBAL NAVIGATION
+   ========================================================================== */
+
+/* 🎯 Update this block inside public/css/styles.css: */
+
 header {
     display: flex;
     position: sticky;
     top: 0;
-    z-index: 50;
+    z-index: 99999 !important; /* 🌟 FORCE it above absolutely everything else on the screen */
     background: var(--header-bg);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--line);
@@ -93,25 +145,21 @@ header .container {
     justify-content: space-between;
 }
 
+/* 🎯 Update the nav rule inside the @media (max-width: 768px) block: */
+
 nav {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    color: var(--ink);
-}
-
-.logo span {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
+    display: none;
+    position: absolute;
+    top: 74px;
+    left: 0;
+    right: 0;
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    flex-direction: column;
+    padding: 24px 32px;
+    gap: 20px;
+    z-index: 99999 !important; /* 🌟 Keeps the drop-down menu links crisp and clickable */
 }
 
 nav a {
@@ -132,91 +180,43 @@ nav a.active {
     border-bottom-color: var(--clay);
 }
 
-.nav-book-btn {
-    background-color: var(--sage-deep);
-    color: var(--white) !important;
-    padding: 11px 22px;
-    border-radius: 999px;
-    font-size: 14px;
-    font-weight: 600;
-    border-bottom: none !important;
-}
-
-.nav-book-btn:hover {
-    background: var(--sage-deep-hover);
-}
-
-.page-section {
-    padding: 74px 0 90px;
-}
-
-.hero .container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 64px;
+.logo {
+    display: flex;
     align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--ink);
 }
 
-.hero-ring {
-    position: absolute;
-    animation: qf-spin 80s linear infinite;
-    opacity: 0.55;
-    z-index: 0;
-}
-
-.hero-portrait {
-    z-index: 1;
-    position: relative;
-    width: 300px;
-    height: 380px;
-    border-radius: 200px 200px 12px 12px;
-    overflow: hidden;
-    background: repeating-linear-gradient(48deg, var(--placeholder-light), var(--placeholder-light) 11px, var(--placeholder-dark) 11px, var(--placeholder-dark) 22px);
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding: 18px;
-    box-shadow: 0 24px 60px -28px rgba(63, 55, 40, 0.5);
-    font-size: 11px;
-    color: var(--muted-2);
-}
-
-.eyebrow {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: var(--clay-text);
-    margin-bottom: 22px;
-}
-
-h1 {
+.logo span {
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 500;
-    font-size: 72px;
-    line-height: 1.02;
-    margin: 0 0 26px;
-    letter-spacing: -0.5px;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
 }
 
-.hero-italic {
-    font-style: italic;
-    color: var(--sage-deep);
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
 }
 
-.hero-body {
-    font-size: 18px;
-    line-height: 1.7;
-    color: var(--muted);
-    max-width: 480px;
-    margin: 0 0 36px;
+.hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--ink);
+    border-radius: 2px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.hero-btns {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-}
+/* ==========================================================================
+   4. BUTTON STYLES
+   ========================================================================== */
 
 .btn-primary {
     background: var(--sage-deep);
@@ -252,98 +252,59 @@ h1 {
     background: var(--btn-outline-hover);
 }
 
-.modalities {
-    background: var(--bg-alt);
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    padding: 74px 0;
+.nav-book-btn {
+    background-color: var(--sage-deep);
+    color: var(--white) !important;
+    padding: 11px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: none !important;
 }
 
-.modalities-header {
+.nav-book-btn:hover {
+    background: var(--sage-deep-hover);
+}
+
+/* ==========================================================================
+   5. LANDING & CONTENT MODULES (HERO, MEET, TESTIMONIAL)
+   ========================================================================== */
+
+.hero .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+}
+
+.hero-ring {
+    position: absolute;
+    animation: qf-spin 80s linear infinite;
+    opacity: 0.55;
+    z-index: 0;
+}
+
+.hero-portrait {
+    z-index: 1;
+    position: relative;
+    width: 300px;
+    height: 380px;
+    border-radius: 200px 200px 12px 12px;
+    overflow: hidden;
+    background: repeating-linear-gradient(48deg, var(--placeholder-light), var(--placeholder-light) 11px, var(--placeholder-dark) 11px, var(--placeholder-dark) 22px);
     display: flex;
     align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 42px;
+    justify-content: center;
+    padding: 18px;
+    box-shadow: 0 24px 60px -28px rgba(63, 55, 40, 0.5);
+    font-size: 11px;
+    color: var(--muted-2);
 }
 
-h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 500;
-    font-size: 42px;
-    line-height: 1.1;
-    margin: 0;
-}
-
-.hero-text {
-    font-size: 17px;
-    line-height: 1.7;
-    color: var(--muted);
-    margin: 0;
-}
-
-.modalities-all {
-    color: var(--sage-deep-hover);
-    font-size: 15px;
-    font-weight: 600;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.modalities-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-}
-
-.service-card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 24px;
-    cursor: pointer;
+.hero-btns {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    text-decoration: none;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.service-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--clay);
-}
-
-.service-tag {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--sage-deep);
-}
-
-.service-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 27px;
-    font-weight: 600;
-    line-height: 1.1;
-    color: var(--ink);
-}
-
-.service-short {
-    font-size: 14.5px;
-    line-height: 16px;
-    color: var(--muted);
-}
-
-.service-meta {
-    font-size: 14px;
-    color: var(--muted);
-    margin-top: 6px;
-}
-
-.service-price {
-    color: var(--clay-text);
-    font-weight: 600;
+    gap: 14px;
+    flex-wrap: wrap;
 }
 
 .meet-practitioner {
@@ -445,73 +406,195 @@ h2 {
     margin: 0 auto;
 }
 
-footer {
-    background: var(--ink);
-    padding: 64px 0 0;
+/* ==========================================================================
+   6. SERVICES GRID & DYNAMIC MODALITY CARDS
+   ========================================================================== */
+
+.modalities {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 74px 0;
 }
 
-.footer-grid {
+.modalities-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 42px;
+}
+
+.modalities-all {
+    color: var(--sage-deep-hover);
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.modalities-grid,
+.services-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 48px;
-    padding-bottom: 48px;
-    border-bottom: 1px solid var(--footer-divider);
+    gap: 18px;
 }
 
-.footer-brand p,
-.footer-explore a,
-.footer-contact a,
-.footer-contact p {
-    color: var(--footer-text);
-    font-size: 15px;
-    line-height: 1.7;
+.service-body .container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.service-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     text-decoration: none;
-    display: block;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    margin-bottom: 20px;
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--clay);
+}
+
+.service-tag {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--sage-deep);
+}
+
+.service-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 27px;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--ink);
+}
+
+.service-short {
+    font-size: 14.5px;
+    line-height: 16px;
+    color: var(--muted);
+}
+
+.service-meta {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 6px;
+}
+
+.service-price {
+    color: var(--clay-text);
+    font-weight: 600;
+}
+
+.service {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px;
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.service:hover {
+    transform: translateY(-4px);
+    border-color: var(--clay);
+}
+
+.service .eyebrow {
+    color: var(--sage);
+}
+
+.service-description {
+    flex: 1;
+}
+
+.service-description .hero-text {
+    max-width: 65%;
+}
+
+.service-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.service-duration {
+    color: var(--muted);
     margin: 0;
 }
 
-.footer-brand .logo span {
-    color: var(--surface);
+.service-details .btn-primary {
+    padding: 10px 24px;
 }
 
-.footer-explore p,
-.footer-contact p {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--footer-muted);
-    margin-bottom: 16px;
-}
+/* ==========================================================================
+   7. INTERACTION ELEMENTS (FAQ & ABOUT FLEX MODULES)
+   ========================================================================== */
 
-.footer-explore {
+.faq-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    margin-top: 48px;
 }
 
-.footer-contact {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
+.faq-item {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
 }
 
-.footer-contact a:first-of-type {
-    color: var(--clay-soft);
-}
-
-.footer-bottom {
+.faq-question {
+    width: 100%;
     display: flex;
     justify-content: space-between;
-    padding: 20px 0;
-    border-top: 1px solid var(--footer-divider);
+    align-items: center;
+    padding: 24px 28px;
+    background: none;
+    border: none;
+    text-align: left;
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--ink);
+    cursor: pointer;
 }
 
-.footer-bottom p {
-    font-size: 13px;
-    color: var(--footer-muted);
+.faq-icon {
+    font-size: 22px;
+    color: var(--clay);
+    flex-shrink: 0;
+}
+
+.faq-answer {
+    display: none;
+    padding: 0 28px 24px;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.faq-answer p {
     margin: 0;
+}
+
+.faq-item.open .faq-answer {
+    display: block;
 }
 
 .about-flex {
@@ -593,56 +676,6 @@ footer {
     margin: 0 0 20px;
 }
 
-.service {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 28px;
-    display: flex;
-    gap: 40px;
-    align-items: flex-start;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.service:hover {
-    transform: translateY(-4px);
-    border-color: var(--clay);
-}
-
-.service-body .container {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-
-.service .eyebrow {
-    color: var(--sage);
-}
-
-.service-description .hero-text {
-    max-width: 65%;
-}
-
-.service-description {
-    flex: 1;
-}
-
-.service-details {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 12px;
-}
-
-.service-duration {
-    color: var(--muted);
-    margin: 0;
-}
-
-.service-details .btn-primary {
-    padding: 10px 24px;
-}
-
 .stories-hero .hero-text {
     max-width: 45%;
 }
@@ -661,7 +694,6 @@ footer {
     padding: 28px;
     margin-top: 24px;
 }
-
 
 .testimonial blockquote {
     font-family: 'Cormorant Garamond', serif;
@@ -682,73 +714,23 @@ footer {
     margin-top: 16px;
 }
 
-.faq-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 48px;
+/* ==========================================================================
+   8. ADMIN INTERFACE TABLE VIEWS
+   ========================================================================== */
+
+#reviews-body tr, 
+#reviews-body td {
+    height: auto !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    word-break: break-word !important;
+    padding: 12px 10px !important;
+    vertical-align: top !important;
 }
 
-.faq-item {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    overflow: hidden;
-}
-
-.faq-question {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 28px;
-    background: none;
-    border: none;
-    text-align: left;
-    font-family: 'Hanken Grotesk', sans-serif;
-    font-size: 17px;
-    font-weight: 500;
-    color: var(--ink);
-    cursor: pointer;
-}
-
-.faq-icon {
-    font-size: 22px;
-    color: var(--clay);
-    flex-shrink: 0;
-}
-
-.faq-answer {
-    display: none;
-    padding: 0 28px 24px;
-    color: var(--muted);
-    font-size: 16px;
-    line-height: 1.7;
-}
-
-.faq-answer p {
-    margin: 0;
-}
-
-.faq-item.open .faq-answer {
-    display: block;
-}
-
-.contact-content {
-    margin: 0;
-    font-size: 15px;
-}
-
-.contact-text {
-    max-width: 420px;
-}
-
-.contact-details {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 32px;
-}
+/* ==========================================================================
+   9. FORMS & INPUT FRAMEWORKS
+   ========================================================================== */
 
 .contact-section .container {
     display: flex;
@@ -760,10 +742,6 @@ footer {
     padding-bottom: 16px;
 }
 
-.contact-text {
-    flex: 1;
-}
-
 .contact-section .contact-label {
     text-transform: uppercase;
     color: var(--sage-deep);
@@ -771,6 +749,23 @@ footer {
     font-weight: 500;
     margin: 0;
     padding-bottom: 0;
+}
+
+.contact-content {
+    margin: 0;
+    font-size: 15px;
+}
+
+.contact-text {
+    flex: 1;
+    max-width: 420px;
+}
+
+.contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 32px;
 }
 
 .contact-hours {
@@ -785,15 +780,6 @@ footer {
 .contact-hours dt {
     font-weight: 500;
     color: var(--ink);
-}
-
-.contact-form-fields {
-    flex: 1.5;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
 }
 
 #contact-form {
@@ -816,6 +802,15 @@ footer {
     width: 100%;
 }
 
+.contact-form-fields {
+    flex: 1.5;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
 .form-group {
     display: flex;
     flex-direction: column;
@@ -833,7 +828,7 @@ footer {
     padding: 12px 16px;
     border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--white);
     font-family: 'Hanken Grotesk', sans-serif;
     font-size: 15px;
     color: var(--ink);
@@ -842,7 +837,7 @@ footer {
 
 .form-group input.error,
 .form-group textarea.error {
-    border-color: #c0392b
+    border-color: var(--error-input);
 }
 
 .form-group input:focus,
@@ -853,6 +848,24 @@ footer {
 .form-group textarea {
     resize: vertical;
 }
+
+.form-error {
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    color: var(--error-text);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.email-phone {
+    display: flex;
+    gap: 12px;
+}
+
+/* ==========================================================================
+   10. APPOINTMENTS SCHEDULER ENGINE & MATRIX CALENDAR
+   ========================================================================== */
 
 .appointment-content {
     display: flex;
@@ -865,6 +878,15 @@ footer {
     gap: 24px;
 }
 
+.appointment-step-2 {
+    flex: 1;
+    min-width: 0;
+}
+
+.appointment-step-3 .contact-form {
+    margin-top: 0;
+}
+
 .step-num {
     display: inline-flex;
     align-items: center;
@@ -873,7 +895,7 @@ footer {
     height: 24px;
     border-radius: 50%;
     background: var(--sage-deep);
-    color: white;
+    color: var(--white);
     font-size: 13px;
     font-weight: 600;
 }
@@ -891,50 +913,10 @@ footer {
     border: 1px solid var(--line);
     border-radius: 14px;
     padding: 24px;
-}
-
-.cal-weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    text-align: center;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 8px;
-}
-
-#cal-days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-}
-
-.cal-day {
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.cal-day.selected {
-    background: var(--sage-deep);
-    color: white;
-}
-
-.cal-day:hover {
-    background: var(--bg-alt);
-}
-
-.cal-day.empty {
-    cursor: default;
-    pointer-events: none;
-}
-
-.cal-month {
-    font-weight: 600;
-    font-size: 15px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .cal-nav {
@@ -942,6 +924,8 @@ footer {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16px;
+    position: relative;
+    z-index: 10;
 }
 
 .cal-nav button {
@@ -951,20 +935,77 @@ footer {
     font-size: 18px;
     color: var(--ink);
     padding: 4px 8px;
+    pointer-events: auto;
 }
 
 .cal-nav button:hover {
     color: var(--clay);
 }
 
-.appointment-step-2 {
-    flex: 1;
-    min-width: 0;
+.cal-month {
+    font-weight: 600;
+    font-size: 15px;
 }
 
-.email-phone {
+.cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    gap: 4px;
+}
+
+#cal-days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+    margin-top: 12px;
+    min-height: 240px;
+    width: 100%;
+}
+
+.cal-day {
+    aspect-ratio: 1 / 1;
     display: flex;
-    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'Hanken Grotesk', sans-serif;
+    color: var(--ink-soft);
+    user-select: none;
+    transition: background-color 0.2s, color 0.2s;
+    width: 100%;
+    height: auto;
+}
+
+.cal-day:not(.empty):not(.disabled):hover {
+    background-color: var(--sage);
+    color: var(--white);
+}
+
+.cal-day.selected {
+    background-color: var(--clay) !important;
+    color: var(--white) !important;
+    font-weight: 600;
+}
+
+.cal-day.empty {
+    background: transparent !important;
+    cursor: default !important;
+    pointer-events: none;
+}
+
+.cal-day.disabled {
+    color: var(--faint) !important;
+    background-color: var(--bg-alt) !important;
+    text-decoration: line-through !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    opacity: 0.4;
 }
 
 #time-slots {
@@ -992,7 +1033,7 @@ footer {
 
 .time-slot.active {
     background: var(--sage-deep);
-    color: white;
+    color: var(--white);
     border-color: var(--sage-deep);
 }
 
@@ -1016,7 +1057,7 @@ footer {
 
 .service-pill.active {
     background: var(--sage-deep);
-    color: white;
+    color: var(--white);
     border-color: var(--sage-deep);
 }
 
@@ -1068,9 +1109,9 @@ footer {
     font-weight: 500;
 }
 
-.appointment-step-3 .contact-form {
-    margin-top: 0;
-}
+/* ==========================================================================
+   11. CHECKOUT CONFIRMATION STATE
+   ========================================================================== */
 
 .confirmation {
     text-align: center;
@@ -1104,47 +1145,108 @@ footer {
         transform: rotate(-90deg) scale(0.8);
         opacity: 0;
     }
-
     to {
         transform: rotate(0deg) scale(1);
         opacity: 1;
     }
 }
 
+/* ==========================================================================
+   12. FOOTER LAYOUT MODULES
+   ========================================================================== */
 
-.hamburger {
-    display: none;
-    flex-direction: column;
-    gap: 5px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-}
-
-.hamburger span {
-    display: block;
-    width: 24px;
-    height: 2px;
+footer {
     background: var(--ink);
-    border-radius: 2px;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    padding: 64px 0 0;
 }
 
-.form-error {
-    background: #fdf0ee;
-    border: 1px solid #e8b4a8;
-    color: #8a2a1a;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 14px;
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--footer-divider);
+}
+
+.footer-brand p,
+.footer-explore a,
+.footer-contact a,
+.footer-contact p {
+    color: var(--footer-text);
+    font-size: 15px;
+    line-height: 1.7;
+    text-decoration: none;
+    display: block;
+    margin: 0;
+}
+
+.footer-brand .logo span {
+    color: var(--surface);
+}
+
+.footer-explore p,
+.footer-contact p {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--footer-muted);
+    margin-bottom: 16px;
+}
+
+.footer-explore {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.footer-contact a:first-of-type {
+    color: var(--clay-soft);
+}
+
+.footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 0;
+    border-top: 1px solid var(--footer-divider);
+}
+
+.footer-bottom p {
+    font-size: 13px;
+    color: var(--footer-muted);
+    margin: 0;
+}
+
+/* ==========================================================================
+   13. ANIMATIONS & LOADER ASSETS
+   ========================================================================== */
+
+@keyframes qf-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes qf-float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-16px);
+    }
 }
 
 @keyframes shimmer {
     0% {
         background-position: -400px 0;
     }
-
     100% {
         background-position: 400px 0;
     }
@@ -1160,6 +1262,10 @@ footer {
     opacity: 0;
     transition: opacity 0.3s ease;
 }
+
+/* ==========================================================================
+   14. RESPONSIVE MEDIA QUERIES (TABLETS & MOBILE DEVICES)
+   ========================================================================== */
 
 @media (max-width: 768px) {
     .hamburger {
@@ -1196,7 +1302,8 @@ footer {
         max-width: 100%;
     }
 
-    .modalities-grid {
+    .modalities-grid,
+    .services-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1300,7 +1407,7 @@ footer {
 
     .cal-day.selected {
         background: var(--sage-deep) !important;
-        color: white !important;
+        color: var(--white) !important;
     }
 
     .meet-image {
@@ -1317,5 +1424,30 @@ footer {
     .footer-contact .btn-primary {
         width: auto;
         align-self: flex-start;
+    }
+    
+    /* 🌟 COMPACT MOBILE MATRIX CALENDAR SETTINGS */
+    .appointment-calendar {
+        padding: 12px !important;
+    }/* 🎯 Update this block inside public/css/styles.css: */
+
+header {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 99999 !important; /* 🌟 FORCE it above absolutely everything else on the screen */
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+}
+
+    #cal-days,
+    .cal-weekdays {
+        grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+        gap: 4px !important;
+    }
+
+    .cal-day {
+        font-size: 13px !important;
     }
 }

@@ -1,70 +1,30 @@
+// 🎯 ADD THIS TO THE ABSOLUTE TOP (LINE 1) OF public/js/script.js:
+
 function escapeHtml(str) {
+    if (!str) return '';
     return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
-async function loadServices() {
-    const grid = document.getElementById("modalities-grid");
-    if (!grid) return;
+// ==========================================
+// CALENDAR & AVAILABILITY LOGIC
+// ==========================================
 
-    grid.innerHTML = '<p style="color:var(--muted);font-size:14px;">Loading services…</p>';
-
-    let services;
-    try {
-        const res = await fetch("/api/services");
-        if (!res.ok) throw new Error();
-        services = await res.json();
-    } catch {
-        grid.innerHTML = '<p style="color:var(--muted);font-size:14px;">Unable to load services. Please refresh the page.</p>';
-        return;
-    }
-
-    const tags = {
-        "qhht": "Quantum Hypnosis",
-        "cognomovement": "Nervous System",
-        "biofield-tuning": "Sound Therapy",
-        "acupuncture": "Traditional Medicine",
-        "reiki": "Energy Healing"
-    };
-
-    grid.innerHTML = services.map(s => `
-        <a href="appointments.html?service=${s.id}" class="service-card">
-        <span class="service-tag">${tags[s.slug] || s.name}</span>
-        <span class="service-name">${s.name}</span>
-        <span class="service-short">${s.description}</span>
-        <span class="service-meta">${s.duration_minutes} min · <span class="service-price">$${s.price}</span></span>
-        </a>
-    `).join("");
-}
-
-loadServices();
-
-document.querySelectorAll('.faq-question').forEach(button => {
-    button.addEventListener('click', () => {
-        const item = button.closest('.faq-item');
-        const isOpen = item.classList.contains('open');
-
-        document.querySelectorAll('.faq-item').forEach(i => {
-            i.classList.remove('open');
-            i.querySelector('.faq-icon').textContent = "+"
-        });
-        if (!isOpen) {
-            item.classList.add('open');
-            button.querySelector('.faq-icon').textContent = "×"
-        }
-    });
-});
-
-//Calender Logic
+// ==========================================
+// CALENDAR & AVAILABILITY LOGIC
+// ==========================================
 
 let currentDate = new Date();
 let selectedServiceId = null;
 let selectedDate = null;
 let selectedTime = null;
+let businessAvailabilityRules = []; 
 
+// 🌟 CRITICAL FIX: Re-added the missing calculation helpers!
 function getDaysOfMonth(year, month) {
     return new Date(year, month + 1, 0).getDate();
 }
@@ -73,89 +33,66 @@ function getFirstDay(year, month) {
     return new Date(year, month, 1).getDay();
 }
 
-async function loadServicePills() {
-    const pillsContainer = document.getElementById("service-pills");
-    if (!pillsContainer) return;
+async function initializeBookingPage() {
+    // 1. Fire off the availability rule fetch safely
+    try {
+        const res = await fetch('/api/settings/availability');
+        if (res.ok) {
+            businessAvailabilityRules = await res.json();
+        }
+    } catch (err) {
+        console.error("Failed to fetch availability profiles:", err);
+    }
+    
+    // 2. 🌟 FIXED: Load the service pills wrapped in their own try/catch block
+    // This prevents a pill loading crash from killing your calendar generation!
+    try {
+        await loadServicePills();
+    } catch (pillError) {
+        console.error("Non-fatal: Could not load service pills:", pillError);
+    }
+    
+    // 3. Render the calendar grid independently
+    renderCalendar();
+}
 
-    pillsContainer.innerHTML = '<p style="color:var(--muted);font-size:14px;">Loading services…</p>';
+// 🎯 Ensure this function is inside public/js/script.js to populate services.html:
+async function loadServices() {
+    const grid = document.getElementById("modalities-grid");
+    
+    // 🌟 THE PROTECTION GUARD: If this element doesn't exist on the current page, exit safely without crashing!
+    if (!grid) return; 
 
-    let services;
+    grid.innerHTML = '<p style="color:var(--muted);font-size:14px;">Loading services…</p>';
+
     try {
         const res = await fetch("/api/services");
         if (!res.ok) throw new Error();
-        services = await res.json();
-    } catch {
-        pillsContainer.innerHTML = '<p style="color:var(--muted);font-size:14px;">Unable to load services. Please refresh.</p>';
-        return;
-    }
-
-    pillsContainer.innerHTML = services.map(s => `
-        <button class="service-pill" data-id="${s.id}" data-price="${s.price}" data-slug="${s.id}">${s.name} · $${s.price}</button>
+        const services = await res.json();
+        
+        // Render cards into the layout
+        grid.innerHTML = services.map(s => `
+            <a href="appointments.html?service=${s.slug}" class="service-card">
+                <span class="service-name">${escapeHtml(s.name)}</span>
+                <span class="service-short">${escapeHtml(s.description)}</span>
+                <span class="service-meta">${s.duration_minutes} min · <span class="service-price">$${s.price}</span></span>
+            </a>
         `).join("");
-
-    pillsContainer.querySelectorAll('.service-pill').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.service-pill').forEach(i => {
-                i.classList.remove('active');
-            })
-            btn.classList.add('active');
-            selectedServiceId = btn.dataset.id;
-            document.getElementById('sum-service').textContent = btn.textContent;
-            document.getElementById('sum-service').classList.add('has-value');
-        });
-    });
-
-    const params = new URLSearchParams(window.location.search);
-    const preselect = params.get('service');
-    if (preselect) {
-        const match = pillsContainer.querySelector(`[data-slug="${preselect}"]`);
-        if (match) match.click();
+        
+    } catch (err) {
+        grid.innerHTML = '<p style="color:var(--muted);font-size:14px;">Unable to load services. Please refresh the page.</p>';
     }
-};
+}
 
-async function selectDate(day) {
-    document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('selected'));
+// Fire the loader call automatically
+loadServices();
 
-    day.classList.add('selected');
-
-    selectedDate = day.dataset.date;
-
-    const [year, month, dayNum] = selectedDate.split('-');
-    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    document.getElementById('sum-date').textContent = `${monthNames[month - 1]} ${parseInt(dayNum)}`;
-    document.getElementById('sum-date').classList.add('has-value');
-
-    const timeSlotsContainer = document.getElementById('time-slots');
-    timeSlotsContainer.innerHTML = '<p style="color:var(--muted);font-size:14px;">Loading times…</p>';
-
-    let available;
-    try {
-        const res = await fetch(`/api/availability?date=${selectedDate}`);
-        if (!res.ok) throw new Error();
-        ({ available } = await res.json());
-    } catch {
-        timeSlotsContainer.innerHTML = '<p style="color:var(--muted);font-size:14px;">Unable to load times. Please try again.</p>';
-        return;
-    }
-
-    timeSlotsContainer.innerHTML = available.map(slot => `
-        <button class="time-slot" data-time="${slot}">${slot}</button>
-        `).join("");
-
-    timeSlotsContainer.querySelectorAll('.time-slot').forEach(btn => {
-        btn.addEventListener('click', () => {
-            timeSlotsContainer.querySelectorAll('.time-slot').forEach(t => t.classList.remove('active'));
-            btn.classList.add('active');
-            selectedTime = btn.dataset.time;
-            document.getElementById('sum-time').textContent = selectedTime;
-            document.getElementById('sum-time').classList.add('has-value');
-        });
-    });
-};
-
-async function renderCalendar() {
+function renderCalendar() {
     const daysContainer = document.getElementById('cal-days');
-    if (!daysContainer) return;
+    if (!daysContainer) {
+        console.error("❌ CRITICAL HTML ERROR: Could not find an element with id='cal-days' on this page!");
+        return;
+    }
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -164,19 +101,46 @@ async function renderCalendar() {
 
     let html = '';
     
+    // Create alignment spacing blocks
     for (let i = 0; i < firstDay; i++) {
         html += '<div class="cal-day empty"></div>';
     }
 
+    // Set time-agnostic midnight baseline parameters
+    const exactToday = new Date();
+    exactToday.setHours(0, 0, 0, 0);
+
+    // Ensure our business availability rules array exists safely
+    const activeRules = Array.isArray(businessAvailabilityRules) ? businessAvailabilityRules : [];
+
     for (let d = 1; d <= days; d++) {
-        html += `<div class="cal-day" data-date="${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}">${d}</div>`
+        const formattedMonth = String(month + 1).padStart(2, '0');
+        const formattedDay = String(d).padStart(2, '0');
+        const dateString = `${year}-${formattedMonth}-${formattedDay}`;
+        
+        // Timezone-safe baseline instantiator string format syntax
+        const compareLoopDate = new Date(`${year}/${formattedMonth}/${formattedDay} 00:00:00`);
+        const dayOfWeek = compareLoopDate.getDay(); 
+        
+        // 🌟 FIXED: Fallback added. If database rules fail to fetch, default all days to open instead of crashing!
+        const rule = activeRules.find(r => r.day_of_week === dayOfWeek);
+        const isClosed = rule ? rule.is_active === false : false; 
+        const isPast = compareLoopDate < exactToday;
+
+        if (isClosed || isPast) {
+            html += `<div class="cal-day disabled" data-date="${dateString}">${d}</div>`;
+        } else {
+            html += `<div class="cal-day" data-date="${dateString}">${d}</div>`;
+        }
     }
 
+    // Explicitly update DOM container string content tree
     daysContainer.innerHTML = html;
-    document.querySelectorAll('.cal-day:not(.empty)').forEach(day => {
+    
+    // Attach listener triggers strictly to active display cells
+    document.querySelectorAll('.cal-day:not(.empty):not(.disabled)').forEach(day => {
         day.addEventListener('click', () => selectDate(day));
     });
-
 
     const calMonth = document.getElementById('cal-month');
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -184,184 +148,28 @@ async function renderCalendar() {
     if (calMonth) calMonth.textContent = `${monthNames[month]} ${year}`;
 }
 
-document.getElementById('cal-prev')?.addEventListener('click', () => {
-    currentDate.setMonth(currentDate.getMonth() - 1);
-    renderCalendar();
-});    
+// ==========================================
+// MOBILE HAMBURGER NAVIGATION TOGGLER
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.querySelector('nav');
 
-document.getElementById('cal-next')?.addEventListener('click', () => {
-    currentDate.setMonth(currentDate.getMonth() + 1)
-    renderCalendar();
-});
-    
+    if (hamburger && navMenu) {
+        hamburger.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation(); // Prevents instant bubbling close
+            
+            navMenu.classList.toggle('open');
+            hamburger.classList.toggle('active');
+        });
 
-loadServicePills();
-renderCalendar();
-
-
-
-document.getElementById('booking-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const phone = document.getElementById('tel').value.trim();
-
-    let valid = true;
-
-        ['name', 'email', 'tel'].forEach(id => {
-            const input = document.getElementById(id);
-            if (!input.value.trim()) {
-                input.classList.add('error');
-                valid = false;
-            } else {
-                input.classList.remove('error');
+        // Safe UX touch: Close the menu if a user clicks anywhere outside of it
+        document.addEventListener('click', (event) => {
+            if (!navMenu.contains(event.target) && !hamburger.contains(event.target)) {
+                navMenu.classList.remove('open');
+                hamburger.classList.remove('active');
             }
         });
-
-        if (!selectedServiceId || !selectedDate || !selectedTime || !valid) return;
-
-    const payload = {
-        service_id: selectedServiceId,
-        guest_name: name,
-        email: email,
-        phone: phone,
-        date: selectedDate,
-        time: selectedTime,
-        notes: document.getElementById('message').value
-    };
-
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Processing…';
-
-    try {
-        const res = await fetch('/api/appointments', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error();
-        const { url } = await res.json();
-        window.location.href = url;
-    } catch {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Request appointment';
-        const err = document.getElementById('booking-error');
-        err.textContent = 'Something went wrong. Please try again or contact us directly.';
-        err.style.display = 'block';
     }
 });
-
-['name', 'email', 'tel'].forEach(id => {
-    document.getElementById(id)?.addEventListener('input', () => {
-        document.getElementById(id).classList.remove('error');
-    });
-});
-
-document.getElementById('contact-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const message = document.getElementById('message').value.trim();
-
-    let valid = true;
-    ['name', 'email', 'message'].forEach(id => {
-        const input = document.getElementById(id);
-        if (!input.value.trim()) {
-            input.classList.add('error');
-            valid = false;
-        } else {
-            input.classList.remove('error');
-        }
-    });
-    
-    if (!valid) return; 
-
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending…';
-
-    try {
-        const res = await fetch('/api/contact', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, message })
-        });
-        const data = await res.json();
-        if (data.success) {
-            e.target.reset();
-            document.getElementById('contact-success').style.display = 'block';
-        } else {
-            throw new Error();
-        }
-    } catch {
-       const err = document.getElementById('contact-error');
-       err.textContent = 'Something went wrong. Please try again or contact us directly.';
-       err.style.display = 'block';
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send message';
-    }
-});
-
-
-
-//hamburger menu
-
-document.getElementById('hamburger')?.addEventListener('click', () => {
-    document.querySelector('nav').classList.toggle('open');
-});
-
-async function loadReviews() {
-    const list = document.getElementById('reviews-list');
-    if (!list) return;
-
-    list.innerHTML = '<p style="color:var(--muted);font-size:14px;">Loading stories…</p>';
-
-    let reviews;
-    try {
-        const res = await fetch('/api/reviews');
-        if (!res.ok) throw new Error();
-        reviews = await res.json();
-    } catch {
-        list.innerHTML = '<p style="color:var(--muted);font-size:14px;">Unable to load stories. Please refresh the page.</p>';
-        return;
-    }
-
-    if (reviews.length === 0) {
-        list.innerHTML = '<p style="color:var(--muted);font-size:14px;">No stories yet.</p>';
-        return;
-    }
-
-    list.innerHTML = reviews.map(r => `
-        <div class="testimonial">
-            <blockquote>"${escapeHtml(r.body)}"</blockquote>
-            <cite>${escapeHtml(r.name)}</cite>
-        </div>
-    `).join('');
-}
-
-async function loadFeaturedTestimonial() {
-    const blockquote = document.getElementById('featured-blockquote');
-    if (!blockquote) return;
-
-    let reviews;
-    try {
-        const res = await fetch('/api/reviews');
-        if (!res.ok) throw new Error();
-        reviews = await res.json();
-    } catch {
-        return;
-    }
-
-    if (reviews.length === 0) return;
-
-    const r = reviews[0];
-    blockquote.textContent = `"${r.body}"`;
-    document.getElementById('featured-name').textContent = r.name.toUpperCase();
-}
-
-loadReviews();
-loadFeaturedTestimonial();
