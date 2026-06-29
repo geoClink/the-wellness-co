@@ -47,6 +47,7 @@ const loginLimiter = rateLimit({
     max: 10,
     message: { error: "Too many login attempts, please try again later." }
 });
+const PORT = process.env.PORT || 3000;
 
 // Apply limiting proxies
 app.use("/api/", generalLimiter);
@@ -71,10 +72,10 @@ const resolveTenant = require("./middleware/resolveTenant");
 // --- 7. API ENDPOINTS ---
 app.get("/api/test", (req, res) => res.json({ message: "Server is running!" }));
 
-// 🎯 FIXED: Auth route now passes through resolveTenant so req.tenant is available on login!
+// Auth & Resource routes passing through resolveTenant securely
 app.use("/", resolveTenant, require("./routes/auth")); 
 app.use("/", resolveTenant, require("./routes/services"));
-app.use("/", resolveTenant, require("./routes/appointments"));
+app.use("/", resolveTenant, require("./routes/appointments")); // 🌟 Correctly handled here!
 app.use("/", resolveTenant, require("./routes/contact"));
 app.use("/", resolveTenant, require("./routes/settings"));
 app.use("/", resolveTenant, require("./routes/gift-cards"));
@@ -92,8 +93,6 @@ app.use((err, req, res, next) => {
 });
 
 // --- 9. LIFECYCLE INITIALIZER ---
-const PORT = process.env.PORT || 3000;
-
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => console.log(`Server is running at http://localhost:${PORT}`));
 }
