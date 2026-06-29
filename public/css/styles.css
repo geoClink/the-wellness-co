@@ -125,8 +125,6 @@ h2 {
    3. STRUCTURAL HEADER & GLOBAL NAVIGATION
    ========================================================================== */
 
-/* 🎯 Update this block inside public/css/styles.css: */
-
 header {
     display: flex;
     position: sticky;
@@ -145,21 +143,11 @@ header .container {
     justify-content: space-between;
 }
 
-/* 🎯 Update the nav rule inside the @media (max-width: 768px) block: */
-
+/* 🎯 FIXED: Standard horizontal desktop layout rule */
 nav {
-    display: none;
-    position: absolute;
-    top: 74px;
-    left: 0;
-    right: 0;
-    background: var(--header-bg);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--line);
-    flex-direction: column;
-    padding: 24px 32px;
-    gap: 20px;
-    z-index: 99999 !important; /* 🌟 Keeps the drop-down menu links crisp and clickable */
+    display: flex;
+    align-items: center;
+    gap: 32px; 
 }
 
 nav a {
@@ -169,6 +157,7 @@ nav a {
     text-decoration: none;
     border-bottom: 2px solid transparent;
     padding-bottom: 2px;
+    transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 nav a:hover {
@@ -1272,6 +1261,7 @@ footer {
         display: flex;
     }
 
+    /* 🎯 Hidden mobile absolute overlay container block configuration */
     nav {
         display: none;
         position: absolute;
@@ -1284,6 +1274,7 @@ footer {
         flex-direction: column;
         padding: 24px 32px;
         gap: 20px;
+        z-index: 99999 !important;
     }
 
     nav.open {
@@ -1426,20 +1417,9 @@ footer {
         align-self: flex-start;
     }
     
-    /* 🌟 COMPACT MOBILE MATRIX CALENDAR SETTINGS */
     .appointment-calendar {
         padding: 12px !important;
-    }/* 🎯 Update this block inside public/css/styles.css: */
-
-header {
-    display: flex;
-    position: sticky;
-    top: 0;
-    z-index: 99999 !important; /* 🌟 FORCE it above absolutely everything else on the screen */
-    background: var(--header-bg);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--line);
-}
+    }
 
     #cal-days,
     .cal-weekdays {

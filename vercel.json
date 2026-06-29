@@ -35,6 +35,10 @@
       "handle": "filesystem"
     },
     {
+      "src": "/(.*\\.html)",
+      "dest": "public/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "public/$1"
     }

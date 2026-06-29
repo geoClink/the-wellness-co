@@ -357,6 +357,25 @@
         </div>
     </div>
 
+    <div class="panel">
+    <h2>Integrations & Payment Gateways</h2>
+    <p style="color:var(--muted); font-size:15px; margin:0 0 15px;">Connect your own Stripe account for processing secure client payments.</p>
+    <form id="integrations-form">
+        <label for="stripe-pub-key">Stripe Publishable Key</label>
+        <input type="text" id="stripe-pub-key" style="width:100%; margin-bottom:15px;" placeholder="pk_test_...">
+
+        <label for="stripe-sec-key">Stripe Secret Key</label>
+        <input type="password" id="stripe-sec-key" style="width:100%; margin-bottom:15px;" placeholder="sk_test_...">
+
+        <label for="stripe-wh-key">Stripe Webhook Signing Secret</label>
+        <input type="password" id="stripe-wh-key" style="width:100%; margin-bottom:15px;" placeholder="whsec_...">
+        <small>Provide your Webhook URL to Stripe: <code>https://the-wellness-co.vercel.app/stripe-webhook</code></small>
+
+        <button type="submit">Save Gateway Connections</button>
+        <span id="gateway-status" style="color:var(--success-green); margin-left:15px; font-weight:600;"></span>
+    </form>
+</div>
+
     <script src="/js/admin.js" defer></script>
 </body>
 </html>

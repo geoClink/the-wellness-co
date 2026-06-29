@@ -30,41 +30,46 @@ router.post("/api/appointments", async (req, res) => {
         }
 
         // 3. GENERATE STRIPE CHECKOUT SESSION
-        // We pass the booking variables into metadata so the Stripe Webhook can read them on payment success
-        // 🎯 UPDATE THIS inside routes/appointments.js:
-const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    line_items: [
-        {
-            price_data: {
-                currency: 'usd',
-                product_data: {
-                    name: serviceName, // Fetch this from your service profile
+        // Safely extract names and accurate numbers directly from your verified database service row
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: service.name, 
+                        },
+                        unit_amount: Math.round(parseFloat(service.price) * 100), // Secure conversion into standard cents
+                    },
+                    quantity: 1,
                 },
-                unit_amount: servicePrice * 100, // Stripe expects amounts in cents
+            ],
+            mode: 'payment',
+            
+            // 🌟 Metadata maps variables securely straight down to your webhook worker file
+            metadata: {
+                tenant_id: req.tenant?.id || "the-wellness-co", 
+                service_id: service_id,
+                guest_name: guest_name,
+                email: email,
+                phone: phone || "",
+                date: date,
+                time: time,
+                notes: notes || ""
             },
-            quantity: 1,
-        },
-    ],
-    mode: 'payment',
-    
-    // 🌟 THIS IS THE CRITICAL MISSING BLOCK:
-    metadata: {
-        tenant_id: req.tenant?.id || "the-wellness-co", // Match your middleware lookup strategy
-        service_id: req.body.service_id,
-        guest_name: req.body.guest_name,
-        email: req.body.email,
-        phone: req.body.phone,
-        date: req.body.date,
-        time: req.body.time,
-        notes: req.body.notes
-    },
-    
-    success_url: 'https://the-wellness-co.vercel.app/appointments.html?success=true',
-    cancel_url: 'https://the-wellness-co.vercel.app/appointments.html',
-});
+            
+            success_url: 'https://the-wellness-co.vercel.app/appointments.html?success=true',
+            cancel_url: 'https://the-wellness-co.vercel.app/appointments.html',
+        });
 
-res.json({ url: session.url });
+        return res.json({ url: session.url });
+
+    } catch (err) {
+        console.error("❌ Stripe Session Creation Crash Handler Caught:", err);
+        return res.status(500).json({ error: "Stripe initialization failed. Please try again." });
+    }
+});
 
 // ==========================================
 // 2. ADMIN ENDPOINTS: DASHBOARD HUB INTERFACE
@@ -87,7 +92,8 @@ router.get("/api/appointments", adminAuth, async (req, res) => {
 });
 
 // PATCH: Update booking status matrices (Confirm / Cancel actions)
-router.专修("/api/appointments/:id/status", adminAuth, async (req, res) => {
+// 🎯 FIXED TYPO: Replaced broken character block layout with standard clean express .patch method
+router.patch("/api/appointments/:id/status", adminAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
