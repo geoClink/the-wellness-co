@@ -351,7 +351,6 @@ tbody.innerHTML = reviews.map(r => `
                 onclick="toggleFeaturedReview('${escapeHtml(r.id)}')">
                 ${r.is_featured ? '★ Featured' : '☆ Make Featured'}
             </button>
-
             ${!r.approved ? `<button onclick="approveReview('${escapeHtml(r.id)}')">Approve</button>` : ''}
             <button onclick="deleteReview('${escapeHtml(r.id)}')">Delete</button>
         </td>

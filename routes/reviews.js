@@ -64,4 +64,44 @@ router.delete("/api/reviews/:id", adminAuth, async (req, res) => {
     res.json({ success: true });
 });
 
+// 🌟 7. Admin Toggle Feature Flag
+router.patch("/api/reviews/:id/feature", adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Step A: Turn off the featured status on ALL other reviews for this business
+        await supabase.from("reviews")
+            .update({ is_featured: false })
+            .eq("tenant_id", req.tenant.id);
+
+        // Step B: Set this specific review as the singular featured one
+        const { data, error } = await supabase.from("reviews")
+            .update({ is_featured: true })
+            .eq("id", id)
+            .eq("tenant_id", req.tenant.id)
+            .select();
+
+        if (error) return res.status(500).json({ error: error.message });
+        return res.json({ success: true, data });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+// 🌟 8. Public Fetch Single Featured Review (Used by index.html)
+router.get("/api/reviews/featured", async (req, res) => {
+    try {
+        const { data, error } = await supabase.from("reviews")
+            .select("*")
+            .eq("tenant_id", req.tenant.id)
+            .eq("is_featured", true)
+            .maybeSingle();
+
+        if (error) return res.status(500).json({ error: error.message });
+        return res.json(data || {});
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
