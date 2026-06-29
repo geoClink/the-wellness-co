@@ -1253,6 +1253,35 @@ footer {
 }
 
 /* ==========================================================================
+   15. FEATURED TESTIMONIAL BUTTON CONTROLS
+   ========================================================================== */
+
+.btn-feature {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin-right: 4px;
+}
+
+.btn-feature:hover {
+    border-color: var(--clay);
+    color: var(--clay);
+}
+
+.btn-feature.active {
+    background: var(--clay);
+    color: var(--white);
+    border-color: var(--clay);
+}
+
+/* ==========================================================================
    14. RESPONSIVE MEDIA QUERIES (TABLETS & MOBILE DEVICES)
    ========================================================================== */
 

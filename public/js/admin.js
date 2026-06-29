@@ -338,19 +338,25 @@ async function loadAdminReviews() {
         tbody.innerHTML = '<tr><td colspan="5">No reviews yet.</td></tr>';
         return;
     }
-    tbody.innerHTML = reviews.map(r => `
-        <tr>
-            <td>${escapeHtml(r.name)}</td>
-            <td>${escapeHtml(String(r.rating))}/5</td>
+    // 🎯 UPDATE THIS template block inside loadAdminReviews():
+tbody.innerHTML = reviews.map(r => `
+    <tr>
+        <td>${escapeHtml(r.name)}</td>
+        <td>${escapeHtml(String(r.rating))}/5</td>
+        <td>${escapeHtml(r.body)}</td>            
+        <td>${r.approved ? 'Approved' : 'Pending'}</td>
+        <td>
+            <button 
+                class="btn-feature ${r.is_featured ? 'active' : ''}" 
+                onclick="toggleFeaturedReview('${escapeHtml(r.id)}')">
+                ${r.is_featured ? '★ Featured' : '☆ Make Featured'}
+            </button>
 
-<td>${escapeHtml(r.body)}</td>            
-<td>${r.approved ? 'Approved' : 'Pending'}</td>
-            <td>
-                ${!r.approved ? `<button onclick="approveReview('${escapeHtml(r.id)}')">Approve</button>` : ''}
-                <button onclick="deleteReview('${escapeHtml(r.id)}')">Delete</button>
-            </td>
-        </tr>
-    `).join('');
+            ${!r.approved ? `<button onclick="approveReview('${escapeHtml(r.id)}')">Approve</button>` : ''}
+            <button onclick="deleteReview('${escapeHtml(r.id)}')">Delete</button>
+        </td>
+    </tr>
+`).join('');
 }
 
 async function approveReview(id) {
@@ -369,6 +375,30 @@ async function deleteReview(id) {
         headers: { 'Authorization': `Bearer ${currentToken}` }
     });
     if (res.ok) loadAdminReviews();
+}
+
+// 🎯 ADD THIS new function inside Section 5:
+async function toggleFeaturedReview(id) {
+    const currentToken = localStorage.getItem('admin_token');
+    
+    try {
+        const res = await fetch(`/api/reviews/${id}/feature`, {
+            method: 'PATCH',
+            headers: { 
+                'Authorization': `Bearer ${currentToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (res.ok) {
+            // Re-pull and update the reviews table layout view immediately
+            loadAdminReviews();
+        } else {
+            alert("Failed to update featured testimonial state constraints.");
+        }
+    } catch (err) {
+        console.error("❌ Review featuring connection failure:", err);
+    }
 }
 
 const addReviewForm = document.getElementById('add-review-form');
