@@ -596,7 +596,7 @@ async function loadAvailabilitySettings() {
         const generateTimeOptions = (selectedTime) => {
             let optionsHtml = '';
             // Handle fallbacks if database time string arrives formatted oddly
-            const currentSelected = selectedTime ? selectedTime.substring(0, 5) : "09:00";
+            const currentSelected = selectedTime ? selectedTime.substring(0, 5) : "";
 
             for (let hour = 0; hour < 24; hour++) {
                 for (let min of ['00', '30']) {
@@ -637,13 +637,15 @@ async function loadAvailabilitySettings() {
                             ${generateTimeOptions(currentRule.end_time)}
                         </select>
                     </td>
-                    <td style="padding: 12px 10px;>
+                    <td style="padding: 12px 10px;">
                     <select class="avail-break-start" style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                    <option value="">None</option>
                         ${generateTimeOptions(currentRule.break_start)}
                         </select>
                         </td>
-                        <td style="padding: 12px 10px;>
+                        <td style="padding: 12px 10px;">
                     <select class="avail-break-end" style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                    <option value="">None</option>
                         ${generateTimeOptions(currentRule.break_end)}
                         </select>
                         </td>
