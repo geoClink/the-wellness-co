@@ -18,6 +18,31 @@ if (token) {
     showLogin();
 }
 
+
+async function loadContacts() {
+    const currentToken = localStorage.getItem('admin_token');
+    const res = await fetch('/api/contact', {
+        headers: { 'Authorization': `Bearer ${currentToken}` }
+    });
+
+    const contacts = await res.json();
+    const tbody = document.getElementById('contact-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = contacts.map(c => `
+        <tr>
+            <td>${escapeHtml(c.name)}</td>
+            <td>${escapeHtml(c.email)}</td>
+            <td>${escapeHtml(c.subject)}</td>
+            <td>${escapeHtml(c.message)}</td>
+            <td>${c.read ? 'Read' : 'Unread'}</td>
+            <td>
+                ${!c.read ? `<button onclick="markContactRead('${escapeHtml(c.id)}')">Mark as Read</button>` : ''}
+            </td>
+        </tr>
+    `).join('');
+}
+
 function showLogin() {
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
@@ -32,6 +57,7 @@ function showDashboard() {
     
     // Core Data Fetch Operations
     loadBookings();
+    loadContacts();
     loadAdminReviews();
     loadHeroContent();     
     loadAdminServices();   
@@ -88,6 +114,14 @@ if (logoutBtn) {
 // 2. WEBSITE CUSTOMIZER (HERO SECTION)
 // ==========================================
 
+async function markContactRead(id) {
+    const currentToken = localStorage.getItem('admin_token');
+    await fetch(`/api/contact/${id}/read`, {
+        method: 'PATHC',
+        headers: { 'Authorization': `Bearer ${currentToken}` }
+    });
+    loadContacts();
+}
 async function loadHeroContent() {
     try {
         const res = await fetch('/api/settings/hero');
