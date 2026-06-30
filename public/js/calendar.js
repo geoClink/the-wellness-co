@@ -70,7 +70,7 @@ async function cl_renderServicePillsFallback() {
         if (activeIndex === -1) activeIndex = 0;
 
         pillsContainer.innerHTML = services.map((s, idx) => `
-            <button type="button" class="service-pill ${idx === activeIndex ? 'active' : ''}" data-id="${s.id}" data-price="${s.price}" data-name="${s.name}" data-duration="${$.duration_minutes}">
+            <button type="button" class="service-pill ${idx === activeIndex ? 'active' : ''}" data-id="${s.id}" data-price="${s.price}" data-name="${s.name}" data-duration="${s.duration_minutes}">
                 ${escapeHtml(s.name)} · $${s.price}
             </button>
         `).join('');
