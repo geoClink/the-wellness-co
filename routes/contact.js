@@ -5,7 +5,8 @@ const { adminAuth } = require("../middleware/auth");
 const { sendEmail, emailTemplate } = require("../lib/email");
 
 function escapeHtml(str) {
-    return str
+    if (!str) return '';
+    return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')

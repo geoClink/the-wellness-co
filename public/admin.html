@@ -6,375 +6,476 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | The Wellness Co.</title>
     <style>
-    /* ==========================================================================
+        /* ==========================================================================
        1. ROOT BRAND COLOR SCHEME UNIFICATION
        ========================================================================= */
-    :root {
-        --bg: #f4eee4;
-        --bg-alt: #efe7d8;
-        --surface: #faf6ee;
-        --white: #ffffff;
-        --ink: #2c2823;
-        --ink-soft: #4a4339;
-        --muted: #6f665a;
-        --line: #e6dcc9;
-        --sage: #8a9a7b;
-        --sage-deep: #5f6e52;
-        --sage-deep-hover: #4c5940;
-        --clay: #b5713f;
-        --clay-text: #8a4520;
-        
-        --error-bg: #fdf0ee;
-        --error-text: #8a2a1a;
-        --success-green: #28a745;
-        --danger-red: #dc3545;
-    }
+        :root {
+            --bg: #f4eee4;
+            --bg-alt: #efe7d8;
+            --surface: #faf6ee;
+            --white: #ffffff;
+            --ink: #2c2823;
+            --ink-soft: #4a4339;
+            --muted: #6f665a;
+            --line: #e6dcc9;
+            --sage: #8a9a7b;
+            --sage-deep: #5f6e52;
+            --sage-deep-hover: #4c5940;
+            --clay: #b5713f;
+            --clay-text: #8a4520;
 
-    /* 🌟 CRITICAL FIX: Ensures padding calculation doesn't stretch items past containers globally */
-    * {
-        box-sizing: border-box !important;
-    }
-
-    body { 
-        font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-        color: var(--ink); 
-        margin: 0; 
-        padding: 40px 20px; 
-        background: var(--bg); 
-        -webkit-font-smoothing: antialiased;
-    }
-
-    h1, h2, h3, h4 { 
-        font-family: 'Cormorant Garamond', serif; 
-        font-weight: 600; 
-        color: var(--ink);
-        margin-top: 0; 
-    }
-    
-    h1 { font-size: 36px; border-bottom: 2px solid var(--line); padding-bottom: 12px; margin-bottom: 30px; }
-    h2 { font-size: 26px; margin-bottom: 15px; color: var(--clay-text); }
-    h3 { font-size: 20px; margin-bottom: 12px; color: var(--muted); }
-
-    /* ==========================================================================
-       2. SECURITY LOGIN WRAPPER
-       ========================================================================== */
-    #login-view { 
-        max-width: 400px; 
-        margin: 100px auto; 
-        padding: 40px; 
-        background: var(--surface); 
-        border: 1px solid var(--line);
-        border-radius: 14px; 
-        box-shadow: 0 12px 32px -12px rgba(44, 40, 35, 0.15); 
-    }
-    
-    #login-form input { 
-        width: 100%; 
-        padding: 12px 16px; 
-        margin-bottom: 20px; 
-        border: 1px solid var(--line); 
-        border-radius: 8px; 
-        font-size: 14px; 
-        background: var(--white);
-        outline: none;
-    }
-
-    #login-form input:focus {
-        border-color: var(--sage);
-    }
-    
-    /* ==========================================================================
-       3. CENTRAL DASHBOARD GRID LAYOUT 
-       ========================================================================== */
-    #dashboard-view { 
-        max-width: 1100px; 
-        margin: 0 auto; 
-        position: relative; 
-    }
-    
-    /* Header Container to separate text from absolute layouts cleanly */
-    .dashboard-header-block {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 2px solid var(--line);
-        padding-bottom: 12px;
-        margin-bottom: 30px;
-        gap: 20px;
-    }
-
-    .dashboard-header-block h1 {
-        border: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    #logout-btn { 
-        background: var(--danger-red); 
-        color: var(--white); 
-        border: none; 
-        padding: 10px 20px; 
-        border-radius: 30px; 
-        font-weight: 600;
-        cursor: pointer; 
-        white-space: nowrap;
-    }
-    
-    .panel { 
-        background: var(--surface); 
-        padding: 30px; 
-        margin-bottom: 30px; 
-        border-radius: 14px; 
-        border: 1px solid var(--line);
-        box-shadow: 0 4px 12px -4px rgba(44, 40, 35, 0.04);
-    }
-    
-    /* ==========================================================================
-       4. FORM FIELDS & CONTENT TYPE INPUTS
-       ========================================================================== */
-    label {
-        display: block; 
-        font-weight: 600; 
-        font-size: 14px;
-        margin-bottom: 6px;
-        color: var(--ink-soft);
-    }
-
-    input[type="text"], input[type="url"], input[type="email"], input[type="password"], select, textarea { 
-        width: 100%; /* Default everything to fill its container nicely */
-        padding: 10px 14px; 
-        border: 1px solid var(--line); 
-        border-radius: 8px; 
-        font-size: 14px; 
-        font-family: inherit;
-        background: var(--white);
-        outline: none;
-        color: var(--ink);
-        margin-bottom: 15px;
-    }
-
-    input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
-        border-color: var(--sage);
-    }
-
-    textarea { 
-        resize: vertical;
-        margin-bottom: 20px;
-    }
-
-    /* ==========================================================================
-       5. DATA STORAGE GRID TABLES
-       ========================================================================== */
-    table { 
-        width: 100%; 
-        border-collapse: collapse; 
-        margin-top: 15px; 
-        background: var(--white); 
-        border-radius: 8px;
-        overflow: hidden;
-        border: 1px solid var(--line);
-    }
-    
-    th, td { 
-        padding: 14px 16px; 
-        text-align: left; 
-        border-bottom: 1px solid var(--bg); 
-        font-size: 14px;
-    }
-    
-    th { 
-        background: var(--bg-alt); 
-        font-weight: 600; 
-        color: var(--ink-soft); 
-    }
-
-    #reviews-body td {
-        height: auto !important;
-        white-space: normal !important;
-        overflow: visible !important;
-        word-break: break-word !important;
-        vertical-align: top !important;
-    }
-    
-    /* ==========================================================================
-       6. CONTROL STRIPS & TRANSACTION ACTION BUTTONS
-       ========================================================================== */
-    button { 
-        background: var(--sage-deep); 
-        color: var(--white); 
-        border: none; 
-        padding: 10px 20px; 
-        border-radius: 30px; 
-        font-weight: 600; 
-        cursor: pointer; 
-        font-size: 14px; 
-        transition: background-color 0.2s;
-    }
-    
-    button:hover { 
-        background: var(--sage-deep-hover); 
-    }
-
-    .delete-service-btn, button[onclick*="deleteReview"], button[onclick*="cancelled"] { 
-        background: var(--danger-red) !important; 
-    }
-    
-    button[onclick*="approveReview"], button[onclick*="confirmed"] { 
-        background: var(--success-green) !important; 
-        margin-right: 5px; 
-    }
-
-    .btn-feature {
-        background: transparent;
-        border: 1px solid var(--line);
-        color: var(--muted);
-        padding: 6px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        margin-right: 4px;
-    }
-    .btn-feature:hover {
-        border-color: var(--clay);
-        color: var(--clay);
-    }
-    .btn-feature.active {
-        background: var(--clay);
-        color: var(--white);
-        border-color: var(--clay);
-    }
-
-    small {
-        color: var(--muted);
-        display: block;
-        margin: 6px 0 16px;
-    }
-
-    /* ==========================================================================
-       7. MOBILE RESPONSIVE ENGINE
-       ========================================================================== */
-    @media (max-width: 768px) {
-        body {
-            padding: 16px 12px;
+            --error-bg: #fdf0ee;
+            --error-text: #8a2a1a;
+            --success-green: #28a745;
+            --danger-red: #dc3545;
         }
 
-        /* 🌟 FIX: Changes header into vertical layout so Log Out drops cleanly below the text */
-        .dashboard-header-block {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 14px;
+        /* 🌟 CRITICAL FIX: Ensures padding calculation doesn't stretch items past containers globally */
+        * {
+            box-sizing: border-box !important;
+        }
+
+        body {
+            font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--ink);
+            margin: 0;
+            padding: 40px 20px;
+            background: var(--bg);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            color: var(--ink);
+            margin-top: 0;
+        }
+
+        h1 {
+            font-size: 36px;
+            border-bottom: 2px solid var(--line);
+            padding-bottom: 12px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 26px;
+            margin-bottom: 15px;
+            color: var(--clay-text);
+        }
+
+        h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--muted);
+        }
+
+        /* ==========================================================================
+       2. SECURITY LOGIN WRAPPER
+       ========================================================================== */
+        #login-view {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 12px 32px -12px rgba(44, 40, 35, 0.15);
+        }
+
+        #login-form input {
+            width: 100%;
+            padding: 12px 16px;
             margin-bottom: 20px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--white);
+            outline: none;
+        }
+
+        #login-form input:focus {
+            border-color: var(--sage);
+        }
+
+        /* ==========================================================================
+       3. CENTRAL DASHBOARD GRID LAYOUT 
+       ========================================================================== */
+        #dashboard-view {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Header Container to separate text from absolute layouts cleanly */
+        .dashboard-header-block {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--line);
+            padding-bottom: 12px;
+            margin-bottom: 30px;
+            gap: 20px;
         }
 
         .dashboard-header-block h1 {
-            font-size: 28px;
-            text-align: center;
+            border: none;
+            padding: 0;
+            margin: 0;
         }
 
         #logout-btn {
-            width: 100%;
-            text-align: center;
-            border-radius: 8px;
-            padding: 12px;
+            background: var(--danger-red);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
         }
 
         .panel {
-            padding: 20px 14px;
+            background: var(--surface);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            box-shadow: 0 4px 12px -4px rgba(44, 40, 35, 0.04);
+        }
+
+        /* ==========================================================================
+       4. FORM FIELDS & CONTENT TYPE INPUTS
+       ========================================================================== */
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: var(--ink-soft);
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="email"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            /* Default everything to fill its container nicely */
+            padding: 10px 14px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: var(--white);
+            outline: none;
+            color: var(--ink);
+            margin-bottom: 15px;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--sage);
+        }
+
+        textarea {
+            resize: vertical;
             margin-bottom: 20px;
         }
 
-        /* 🌟 FIX: Ensures no element runs off the right side edge */
-        input[type="text"], input[type="url"], input[type="email"], input[type="password"], select, textarea {
-            width: 100% !important;
-            max-width: 100% !important;
-        }
-
-        #add-service-form, #add-review-form div {
-            flex-direction: column !important;
-            align-items: stretch !important;
-            gap: 12px !important;
-        }
-
-        #add-service-form button, #add-review-form button {
-            width: 100% !important;
-        }
-
-        /* Responsive Table Transformations */
-        table, tbody, th, td, tr { 
-            display: block; 
-        }
-        
-        thead tr { 
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-        }
-        
-        tr { 
-            border: 1px solid var(--line);
-            border-radius: 8px;
-            margin-bottom: 15px;
-            background: var(--white);
-            padding: 8px;
-        }
-        
-        td { 
-            border: none;
-            border-bottom: 1px dashed var(--bg); 
-            position: relative;
-            padding-left: 45% !important; 
-            text-align: right !important;
-            white-space: normal;
-        }
-
-        td:last-child {
-            border-bottom: none;
-        }
-        
-        td:before { 
-            position: absolute;
-            top: 14px;
-            left: 12px;
-            width: 40%; 
-            padding-right: 10px; 
-            white-space: nowrap;
-            text-align: left;
-            font-weight: 600;
-            color: var(--clay-text);
-        }
-        
-        #availability-rows td:nth-of-type(1):before { content: "Day"; }
-        #availability-rows td:nth-of-type(2):before { content: "Status"; }
-        #availability-rows td:nth-of-type(3):before { content: "Start Time"; }
-        #availability-rows td:nth-of-type(4):before { content: "End Time"; }
-
-        #services-body td:nth-of-type(1):before { content: "Service"; }
-        #services-body td:nth-of-type(2):before { content: "Description"; }
-        #services-body td:nth-of-type(3):before { content: "Rate"; }
-        #services-body td:nth-of-type(4):before { content: "Action"; }
-
-        #bookings-body td:nth-of-type(1):before { content: "Date"; }
-        #bookings-body td:nth-of-type(2):before { content: "Time"; }
-        #bookings-body td:nth-of-type(3):before { content: "Client"; }
-        #bookings-body td:nth-of-type(4):before { content: "Email"; }
-        #bookings-body td:nth-of-type(5):before { content: "Phone"; }
-        #bookings-body td:nth-of-type(6):before { content: "Status"; }
-        #bookings-body td:nth-of-type(7):before { content: "Action"; }
-
-        #reviews-body td:nth-of-type(1):before { content: "Name"; }
-        #reviews-body td:nth-of-type(2):before { content: "Rating"; }
-        #reviews-body td:nth-of-type(3):before { content: "Quote"; }
-        #reviews-body td:nth-of-type(4):before { content: "Status"; }
-        #reviews-body td:nth-of-type(5):before { content: "Action"; }
-
-        td button {
+        /* ==========================================================================
+       5. DATA STORAGE GRID TABLES
+       ========================================================================== */
+        table {
             width: 100%;
-            margin: 4px 0 !important;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--line);
         }
-    }
-</style>
+
+        th,
+        td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--bg);
+            font-size: 14px;
+        }
+
+        th {
+            background: var(--bg-alt);
+            font-weight: 600;
+            color: var(--ink-soft);
+        }
+
+        #reviews-body td {
+            height: auto !important;
+            white-space: normal !important;
+            overflow: visible !important;
+            word-break: break-word !important;
+            vertical-align: top !important;
+        }
+
+        /* ==========================================================================
+       6. CONTROL STRIPS & TRANSACTION ACTION BUTTONS
+       ========================================================================== */
+        button {
+            background: var(--sage-deep);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: var(--sage-deep-hover);
+        }
+
+        .delete-service-btn,
+        button[onclick*="deleteReview"],
+        button[onclick*="cancelled"] {
+            background: var(--danger-red) !important;
+        }
+
+        button[onclick*="approveReview"],
+        button[onclick*="confirmed"] {
+            background: var(--success-green) !important;
+            margin-right: 5px;
+        }
+
+        .btn-feature {
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--muted);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-right: 4px;
+        }
+
+        .btn-feature:hover {
+            border-color: var(--clay);
+            color: var(--clay);
+        }
+
+        .btn-feature.active {
+            background: var(--clay);
+            color: var(--white);
+            border-color: var(--clay);
+        }
+
+        small {
+            color: var(--muted);
+            display: block;
+            margin: 6px 0 16px;
+        }
+
+        /* ==========================================================================
+       7. MOBILE RESPONSIVE ENGINE
+       ========================================================================== */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px 12px;
+            }
+
+            /* 🌟 FIX: Changes header into vertical layout so Log Out drops cleanly below the text */
+            .dashboard-header-block {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 14px;
+                margin-bottom: 20px;
+            }
+
+            .dashboard-header-block h1 {
+                font-size: 28px;
+                text-align: center;
+            }
+
+            #logout-btn {
+                width: 100%;
+                text-align: center;
+                border-radius: 8px;
+                padding: 12px;
+            }
+
+            .panel {
+                padding: 20px 14px;
+                margin-bottom: 20px;
+            }
+
+            /* 🌟 FIX: Ensures no element runs off the right side edge */
+            input[type="text"],
+            input[type="url"],
+            input[type="email"],
+            input[type="password"],
+            select,
+            textarea {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            #add-service-form,
+            #add-review-form div {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px !important;
+            }
+
+            #add-service-form button,
+            #add-review-form button {
+                width: 100% !important;
+            }
+
+            /* Responsive Table Transformations */
+            table,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+            }
+
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tr {
+                border: 1px solid var(--line);
+                border-radius: 8px;
+                margin-bottom: 15px;
+                background: var(--white);
+                padding: 8px;
+            }
+
+            td {
+                border: none;
+                border-bottom: 1px dashed var(--bg);
+                position: relative;
+                padding-left: 45% !important;
+                text-align: right !important;
+                white-space: normal;
+            }
+
+            td:last-child {
+                border-bottom: none;
+            }
+
+            td:before {
+                position: absolute;
+                top: 14px;
+                left: 12px;
+                width: 40%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 600;
+                color: var(--clay-text);
+            }
+
+            #availability-rows td:nth-of-type(1):before {
+                content: "Day";
+            }
+
+            #availability-rows td:nth-of-type(2):before {
+                content: "Status";
+            }
+
+            #availability-rows td:nth-of-type(3):before {
+                content: "Start Time";
+            }
+
+            #availability-rows td:nth-of-type(4):before {
+                content: "End Time";
+            }
+
+            #services-body td:nth-of-type(1):before {
+                content: "Service";
+            }
+
+            #services-body td:nth-of-type(2):before {
+                content: "Description";
+            }
+
+            #services-body td:nth-of-type(3):before {
+                content: "Rate";
+            }
+
+            #services-body td:nth-of-type(4):before {
+                content: "Action";
+            }
+
+            #bookings-body td:nth-of-type(1):before {
+                content: "Date";
+            }
+
+            #bookings-body td:nth-of-type(2):before {
+                content: "Time";
+            }
+
+            #bookings-body td:nth-of-type(3):before {
+                content: "Client";
+            }
+
+            #bookings-body td:nth-of-type(4):before {
+                content: "Email";
+            }
+
+            #bookings-body td:nth-of-type(5):before {
+                content: "Phone";
+            }
+
+            #bookings-body td:nth-of-type(6):before {
+                content: "Status";
+            }
+
+            #bookings-body td:nth-of-type(7):before {
+                content: "Action";
+            }
+
+            #reviews-body td:nth-of-type(1):before {
+                content: "Name";
+            }
+
+            #reviews-body td:nth-of-type(2):before {
+                content: "Rating";
+            }
+
+            #reviews-body td:nth-of-type(3):before {
+                content: "Quote";
+            }
+
+            #reviews-body td:nth-of-type(4):before {
+                content: "Status";
+            }
+
+            #reviews-body td:nth-of-type(5):before {
+                content: "Action";
+            }
+
+            td button {
+                width: 100%;
+                margin: 4px 0 !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -388,18 +489,19 @@
         </form>
     </div>
 
-   <div id="dashboard-view" style="display:none;">
-    
-    <div class="dashboard-header-block">
-        <h1>The Wellness Co. Command Panel</h1>
-        <button id="logout-btn">Log out</button>
-    </div>
+    <div id="dashboard-view" style="display:none;">
 
-    <div class="panel">
-        <h2>Website Customizer (Hero Section)</h2>
+        <div class="dashboard-header-block">
+            <h1>The Wellness Co. Command Panel</h1>
+            <button id="logout-btn">Log out</button>
+        </div>
+
+        <div class="panel">
+            <h2>Website Customizer (Hero Section)</h2>
             <form id="hero-form">
                 <label for="hero-title">Hero Title (Use &lt;em&gt;text&lt;/em&gt; for italics)</label>
-                <input type="text" id="hero-title" style="width:100%; margin-bottom:15px;" placeholder="e.g., Choose the work that &lt;em&gt;calls you&lt;/em&gt;.">
+                <input type="text" id="hero-title" style="width:100%; margin-bottom:15px;"
+                    placeholder="e.g., Choose the work that &lt;em&gt;calls you&lt;/em&gt;.">
 
                 <label for="hero-desc">Hero Description</label>
                 <textarea id="hero-desc" rows="3" placeholder="Enter your website introduction text..."></textarea>
@@ -417,10 +519,12 @@
             <h2>Website Customizer (About Page)</h2>
             <form id="about-form">
                 <label for="about-heading">About Heading (Use &lt;em&gt;text&lt;/em&gt; for italics)</label>
-                <input type="text" id="about-heading" style="width:100%; margin-bottom:15px;" placeholder="e.g., Who <em>We</em> Are">
+                <input type="text" id="about-heading" style="width:100%; margin-bottom:15px;"
+                    placeholder="e.g., Who <em>We</em> Are">
 
                 <label for="about-body">About Body Story Content</label>
-                <textarea id="about-body" rows="6" placeholder="Tell your customers your business story, values, and mission..."></textarea>
+                <textarea id="about-body" rows="6"
+                    placeholder="Tell your customers your business story, values, and mission..."></textarea>
 
                 <button type="submit">Save About Page Content</button>
                 <span id="about-status" style="color:var(--success-green); margin-left:15px; font-weight:600;"></span>
@@ -429,7 +533,8 @@
 
         <div class="panel">
             <h2>Weekly Calendar Availability</h2>
-            <p style="color:var(--muted); font-size:15px; margin:0 0 15px;">Set your active operational windows for each day of the week.</p>
+            <p style="color:var(--muted); font-size:15px; margin:0 0 15px;">Set your active operational windows for each
+                day of the week.</p>
             <form id="availability-form">
                 <table>
                     <thead>
@@ -444,20 +549,24 @@
                 </table>
                 <div style="margin-top: 20px;">
                     <button type="submit">Save Weekly Schedule</button>
-                    <span id="avail-status" style="color:var(--success-green); margin-left:15px; font-weight:600;"></span>
+                    <span id="avail-status"
+                        style="color:var(--success-green); margin-left:15px; font-weight:600;"></span>
                 </div>
             </form>
         </div>
 
         <div class="panel">
             <h2>Manage Services Menu</h2>
-            <form id="add-service-form" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 25px;">
-                <input type="text" id="service-title" placeholder="Service Title (e.g., Deep Tissue)" style="flex: 1; min-width: 200px;" required>
-                <input type="text" id="service-desc" placeholder="Brief Description Details" style="flex: 2; min-width: 300px;" required>
+            <form id="add-service-form"
+                style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 25px;">
+                <input type="text" id="service-title" placeholder="Service Title (e.g., Deep Tissue)"
+                    style="flex: 1; min-width: 200px;" required>
+                <input type="text" id="service-desc" placeholder="Brief Description Details"
+                    style="flex: 2; min-width: 300px;" required>
                 <input type="text" id="service-price" placeholder="Price (e.g., 110)" style="width: 120px;" required>
                 <button type="submit">Add Item</button>
             </form>
-            
+
             <table>
                 <thead>
                     <tr>
@@ -491,7 +600,8 @@
 
         <div class="panel">
             <h2>Customer Reviews & Testimonials</h2>
-            <form id="add-review-form" style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed var(--line);">
+            <form id="add-review-form"
+                style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px dashed var(--line);">
                 <h3 style="margin: 0 0 15px 0; font-size:18px;">Manually Inject Review Asset</h3>
                 <div style="margin-bottom: 15px; display:flex; gap:10px;">
                     <input type="text" id="review-name" placeholder="Client Name" style="flex:1;" required>
@@ -504,10 +614,14 @@
                         <option value="1">1 star</option>
                     </select>
                 </div>
-                <textarea id="review-body" placeholder="Write full testimonial description..." rows="3" required></textarea>
+                <textarea id="review-body" placeholder="Write full testimonial description..." rows="3"
+                    required></textarea>
                 <button type="submit">Submit Review Entry</button>
-                <div id="review-success" style="display:none; color:var(--success-green); margin-top:10px; font-weight:600;">Review appended successfully.</div>
-                <div id="review-error" style="display:none; color:var(--danger-red); margin-top:10px; font-weight:600;"></div>
+                <div id="review-success"
+                    style="display:none; color:var(--success-green); margin-top:10px; font-weight:600;">Review appended
+                    successfully.</div>
+                <div id="review-error" style="display:none; color:var(--danger-red); margin-top:10px; font-weight:600;">
+                </div>
             </form>
 
             <table>
@@ -526,53 +640,66 @@
 
         <div class="panel">
             <h2>Integrations & Payment Gateways</h2>
-            <p style="color:var(--muted); font-size:15px; margin:0 0 15px;">Connect your own Stripe account for processing secure client payments.</p>
+            <p style="color:var(--muted); font-size:15px; margin:0 0 15px;">Connect your own Stripe account for
+                processing secure client payments.</p>
             <form id="integrations-form">
                 <label for="stripe-pub-key">Stripe Publishable Key</label>
-                <input type="text" id="stripe-pub-key" style="width:100%; margin-bottom:15px;" placeholder="pk_test_...">
+                <input type="text" id="stripe-pub-key" style="width:100%; margin-bottom:15px;"
+                    placeholder="pk_test_...">
 
                 <label for="stripe-sec-key">Stripe Secret Key</label>
-                <input type="password" id="stripe-sec-key" style="width:100%; margin-bottom:15px;" placeholder="sk_test_...">
+                <input type="password" id="stripe-sec-key" style="width:100%; margin-bottom:15px;"
+                    placeholder="sk_test_...">
 
                 <label for="stripe-wh-key">Stripe Webhook Signing Secret</label>
-                <input type="password" id="stripe-wh-key" style="width:100%; margin-bottom:15px;" placeholder="whsec_...">
-                <small>Provide your Webhook URL to Stripe: <code>https://the-wellness-co.vercel.app/stripe-webhook</code></small>
+                <input type="password" id="stripe-wh-key" style="width:100%; margin-bottom:15px;"
+                    placeholder="whsec_...">
+                <small>Provide your Webhook URL to Stripe:
+                    <code>https://the-wellness-co.vercel.app/stripe-webhook</code></small>
 
                 <button type="submit">Save Gateway Connections</button>
                 <span id="gateway-status" style="color:var(--success-green); margin-left:15px; font-weight:600;"></span>
+                <hr style="border: 0; border-top: 1px dashed var(--line); margin: 25px 0;">
+
+                <h3>Email Notifications Gateway (Resend)</h3>
+                <p style="color:var(--muted); font-size:15px; margin:0 0 15px;">Input your Resend API key to automate
+                    transactional client booking emails.</p>
+
+                <label for="resend-api-key">Resend API Key</label>
+                <input type="password" id="resend-api-key" style="width:100%; margin-bottom:15px;" placeholder="re_...">
+                <small>Generate this key inside your Resend dashboard under API Keys (ensure it has sending
+                    permissions).</small>
             </form>
-            <hr style="border: 0; border-top: 1px dashed var(--line); margin: 25px 0;">
-
-<h3>Email Notifications Gateway (Resend)</h3>
-<p style="color:var(--muted); font-size:15px; margin:0 0 15px;">Input your Resend API key to automate transactional client booking emails.</p>
-
-<label for="resend-api-key">Resend API Key</label>
-<input type="password" id="resend-api-key" style="width:100%; margin-bottom:15px;" placeholder="re_...">
-<small>Generate this key inside your Resend dashboard under API Keys (ensure it has sending permissions).</small>
         </div>
 
         <div class="panel">
             <h2>Footer Customization</h2>
             <form id="footer-form">
                 <label for="footer-bio-input">Footer Brand Bio Summary</label>
-                <textarea id="footer-bio-input" rows="3" placeholder="Brief summary of company vision statement..."></textarea>
+                <textarea id="footer-bio-input" rows="3"
+                    placeholder="Brief summary of company vision statement..."></textarea>
 
                 <label for="footer-email-input">Public Contact Email</label>
-                <input type="email" id="footer-email-input" style="width:100%; margin-bottom:15px;" placeholder="hello@thewellnessco.com">
+                <input type="email" id="footer-email-input" style="width:100%; margin-bottom:15px;"
+                    placeholder="hello@thewellnessco.com">
 
                 <label for="footer-phone-input">Public Business Phone</label>
-                <input type="text" id="footer-phone-input" style="width:100%; margin-bottom:15px;" placeholder="(777) 777-7777">
+                <input type="text" id="footer-phone-input" style="width:100%; margin-bottom:15px;"
+                    placeholder="(777) 777-7777">
 
                 <label for="footer-address-input">Business Location / City</label>
-                <input type="text" id="footer-address-input" style="width:100%; margin-bottom:15px;" placeholder="AnyTown, MI">
+                <input type="text" id="footer-address-input" style="width:100%; margin-bottom:15px;"
+                    placeholder="AnyTown, MI">
 
                 <button type="submit">Update Footer Layout</button>
-                <span id="footer-status" style="color: var(--success-green); margin-left: 10px; font-weight:600;"></span>
+                <span id="footer-status"
+                    style="color: var(--success-green); margin-left: 10px; font-weight:600;"></span>
             </form>
         </div>
-        
+
     </div>
 
     <script src="/js/admin.js" defer></script>
 </body>
+
 </html>

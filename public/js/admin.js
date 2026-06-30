@@ -18,22 +18,6 @@ if (token) {
     showLogin();
 }
 
-function showDashboard() {
-    document.getElementById('login-view').style.display = 'none';
-    document.getElementById('dashboard-view').style.display = 'block';
-    
-    // Core Data Fetch Operations
-    loadBookings();
-    loadAdminReviews();
-    loadHeroContent();     
-    loadAdminServices();   
-    loadBusinessProfile();
-    loadAboutContent();
-    
-    // 🎯 CRITICAL: Verify this line is explicitly typed out here!
-    loadAvailabilitySettings(); 
-}
-
 function showLogin() {
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
@@ -131,30 +115,24 @@ if (heroForm) {
         const currentToken = localStorage.getItem('admin_token');
         const statusEl = document.getElementById('hero-status');
 
-        const formData = new FormData();
-        formData.append('title', document.getElementById('hero-title').value.trim());
-        
-        const descEl = document.getElementById('hero-desc');
-        if (descEl) formData.append('description', descEl.value.trim()); // 🌟 Dynamic Tracking
-        
-        const fileInput = document.getElementById('hero-image-file');
-        if (fileInput && fileInput.files[0]) {
-            formData.append('heroImage', fileInput.files[0]);
-        }
-
-        const res = await fetch('/api/settings/hero', {
-            method: 'PUT',
-            headers: { 'Authorization': `Bearer ${currentToken}` },
-            body: formData 
+        const res = await fetch('/api/site-settings', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify({
+                hero_heading: document.getElementById('hero-title').value.trim(),
+                hero_subtext: document.getElementById('hero-desc').value.trim()
+            })
         });
 
         if (res.ok) {
             if (statusEl) statusEl.textContent = "Saved successfully!";
-            if (fileInput) fileInput.value = ""; 
             loadHeroContent();
             if (statusEl) setTimeout(() => statusEl.textContent = "", 3000);
         } else {
-            alert("Failed to sync hero asset update configurations.");
+            alert("Failed to save hero content.");
         }
     });
 }

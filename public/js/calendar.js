@@ -152,7 +152,7 @@ function cl_buildCalendarGrid() {
     daysContainer.innerHTML = gridHtml;
     
     document.querySelectorAll('.clickable-day').forEach(day => {
-        day.addEventListener('click', () => {
+        day.addEventListener('click', async () => {
             document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('selected'));
             day.classList.add('selected');
             cl_selectedDate = day.dataset.date;
@@ -161,31 +161,38 @@ function cl_buildCalendarGrid() {
             document.getElementById('sum-date').textContent = `${monthNames[month]} ${currentDayNum}`;
             document.getElementById('sum-date').classList.add('has-value');
             
-            cl_mockTimeSlotsForDate(cl_selectedDate);
+            await cl_mockTimeSlotsForDate(cl_selectedDate);
         });
     });
 }
 
-function cl_mockTimeSlotsForDate(dateStr) {
+async function cl_mockTimeSlotsForDate(dateStr) {
     const slotsContainer = document.getElementById('time-slots');
     if (!slotsContainer) return;
-    
-    slotsContainer.innerHTML = `
-        <button type="button" class="time-slot" data-time="09:00 AM">09:00 AM</button>
-        <button type="button" class="time-slot" data-time="11:30 AM">11:30 AM</button>
-        <button type="button" class="time-slot" data-time="02:00 PM">02:00 PM</button>
-        <button type="button" class="time-slot" data-time="04:30 PM">04:30 PM</button>
-    `;
-    
+
+    const fallbackSlots = ["09:00 AM", "11:30 AM", "02:00 PM", "04:30 PM"];
+    let slots = fallbackSlots;
+
+    try {
+        const res = await fetch('/api/availability?date=' + dateStr);
+        if (res.ok) {
+            const data = await res.json();
+            slots = data.available;
+        }
+    } catch (err) {
+        console.error("Could not load availability:", err);
+    }
+
+    slotsContainer.innerHTML = slots.map(slot => `
+        <button type="button" class="time-slot" data-time="${slot}">${slot}</button>
+    `).join('');
+
     slotsContainer.querySelectorAll('.time-slot').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             slotsContainer.querySelectorAll('.time-slot').forEach(t => t.classList.remove('active'));
             btn.classList.add('active');
-            
-            // 🌟 FIX: Assign selection parameter string straight to your validation state variable!
-            cl_selectedTime = btn.dataset.time; 
-            
+            cl_selectedTime = btn.dataset.time;
             document.getElementById('sum-time').textContent = btn.textContent;
             document.getElementById('sum-time').classList.add('has-value');
         });

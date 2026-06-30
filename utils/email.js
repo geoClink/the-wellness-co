@@ -16,7 +16,7 @@ async function sendDynamicTenantEmail(tenantId, emailOptions) {
         // 2. Fall back cleanly if they haven't plugged their own key in yet
         const activeApiKey = (!error && settings && settings.resend_api_key) 
             ? settings.resend_api_key 
-            : process.env.STRIPE_SECRET_KEY; // Fallback to process env master key if empty
+            : process.env.RESEND_API_KEY; // Fallback to process env master key if empty
 
         if (!activeApiKey) {
             throw new Error("No valid Resend API key resolved.");

@@ -69,13 +69,15 @@ router.put("/api/settings/footer", adminAuth, async (req, res) => {
         
         const { data, error } = await supabase
             .from("tenant_settings")
-            .update({ 
+            .upsert({ 
+                tenant_id: String(req.tenant.id),
                 footer_bio: bio, 
                 footer_email: email, 
                 footer_phone: phone, 
                 footer_address: address 
-            })
-            .eq("tenant_id", String(req.tenant.id)); // Isolate securely to text field string matching format
+            }, {
+                onConflict: "tenant_id"
+            });
 
         if (error) return res.status(500).json({ error: error.message });
         return res.json({ success: true, data });
@@ -115,7 +117,7 @@ router.get("/api/settings/profile", async (req, res) => {
             .from("tenants")
             .select("phone, business_hours")
             .eq("id", req.tenant.id)
-            .single();
+            .maybeSingle();
         if (error) return res.status(500).json({ error: error.message });
         res.json(data);
     } catch (err) {
@@ -244,13 +246,15 @@ router.put("/api/settings/integrations", adminAuth, async (req, res) => {
         
         const { data, error } = await supabase
             .from("tenant_settings")
-            .update({
+            .upsert({
+                tenant_id: String(req.tenant.id),
                 stripe_publishable_key: stripe_pub,
                 stripe_secret_key: stripe_sec,
                 stripe_webhook_secret: stripe_wh,
                 resend_api_key: resend_key 
-            })
-            .eq("tenant_id", String(req.tenant.id)); // 🌟 FIXED: Enforce clear text string parameter conversion lookup match
+            }, {
+                onConflict: "tenant_id"
+            });
 
         if (error) return res.status(500).json({ error: error.message });
         return res.json({ success: true });
