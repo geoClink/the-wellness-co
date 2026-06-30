@@ -41,39 +41,43 @@ router.get("/api/availability", async (req, res) => {
             .eq("day_of_week", dayOfWeek)
             .maybeSingle();
 
-            if (!rule || !rule.is_active) {
-                return res.json({ available: [] });
-            }
-       const toMinutes = (timeStr) => {
-    const [h, m] = timeStr.split(':').map(Number);
-    return h * 60 + m;
-};
-const toLabel = (minutes) => {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    const displayH = h % 12 === 0 ? 12 : h % 12;
-    return `${String(displayH).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
-};
+        if (!rule || !rule.is_active) {
+            return res.json({ available: [] });
+        }
+        const toMinutes = (timeStr) => {
+            const [h, m] = timeStr.split(':').map(Number);
+            return h * 60 + m;
+        };
+        const toLabel = (minutes) => {
+            const h = Math.floor(minutes / 60);
+            const m = minutes % 60;
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const displayH = h % 12 === 0 ? 12 : h % 12;
+            return `${String(displayH).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
+        };
 
         const startMins = toMinutes(rule.start_time);
         const endMins = toMinutes(rule.end_time);
-        const allSlots = [];
+        const allSlotMins = [];
 
         for (let t = startMins; t + duration <= endMins; t += duration) {
-            allSlots.push(toLabel(t));
+            allSlotMins.push(t);
         }
 
-         const { data: booked } = await supabase
+        const { data: booked } = await supabase
             .from("appointments")
-            .select("time")
+            .select("time, services(duration_minutes)")
             .eq("tenant_id", req.tenant.id)
             .eq("date", date)
             .neq("status", "cancelled");
 
-        const bookedTimes = new Set((booked || []).map(a => a.time));
-
-        const available = allSlots.filter(slot => !bookedTimes.has(slot));
+        const available = allSlotMins.filter(slotMins => {
+            return !(booked || []).some(b => {
+                const bookedMins = toMinutes(b.time.replace(' AM', '').replace(' PM', ''));
+                const bookedDuration = b.services?.duration_minutes || 60;
+                return slotMins < bookedMins + bookedDuration && bookedMins < slotMins + duration;
+            });
+        }).map(toLabel);
 
         return res.json({ available });
     } catch (err) {
@@ -84,10 +88,10 @@ const toLabel = (minutes) => {
 
 router.post("/api/appointments", async (req, res) => {
     try {
-        const { 
-            serviceId, service_id, 
-            guestName, guest_name, 
-            email, phone, date, time, notes 
+        const {
+            serviceId, service_id,
+            guestName, guest_name,
+            email, phone, date, time, notes
         } = req.body;
 
         const finalServiceId = serviceId || service_id;
@@ -99,7 +103,7 @@ router.post("/api/appointments", async (req, res) => {
 
         // Query looking up columns by ID OR matching slug strings to safely locate the product row
         let query = supabase.from("services").select("id, name, price").eq("tenant_id", req.tenant.id);
-        
+
         // Check if the parameter passed is a valid UUID structure format
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (uuidRegex.test(finalServiceId)) {
@@ -117,8 +121,8 @@ router.post("/api/appointments", async (req, res) => {
 
         const activeStripe = await getDynamicStripeClient(req.tenant.id);
 
-        const origin = process.env.NODE_ENV === 'production' 
-            ? `https://${req.get("host")}` 
+        const origin = process.env.NODE_ENV === 'production'
+            ? `https://${req.get("host")}`
             : `${req.protocol}://${req.get("host")}`;
 
         const session = await activeStripe.checkout.sessions.create({
@@ -126,9 +130,9 @@ router.post("/api/appointments", async (req, res) => {
             line_items: [{
                 price_data: {
                     currency: "usd",
-                    product_data: { 
-                        name: activeServiceName, 
-                        description: `${date} at ${time}` 
+                    product_data: {
+                        name: activeServiceName,
+                        description: `${date} at ${time}`
                     },
                     unit_amount: Math.round(parseFloat(activeServicePrice) * 100)
                 },
@@ -138,15 +142,15 @@ router.post("/api/appointments", async (req, res) => {
             customer_email: email,
             success_url: `${origin}/confirmation.html?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}/appointments.html`,
-            metadata: { 
-                tenant_id: req.tenant.id, 
-                service_id: activeServiceId, 
-                guest_name: finalGuestName, 
-                email, 
-                phone: phone || "", 
-                date, 
-                time, 
-                notes: notes || "" 
+            metadata: {
+                tenant_id: req.tenant.id,
+                service_id: activeServiceId,
+                guest_name: finalGuestName,
+                email,
+                phone: phone || "",
+                date,
+                time,
+                notes: notes || ""
             }
         });
 
