@@ -162,6 +162,22 @@ async function renderDynamicFooterContent() {
     }
 }
 
+async function loadHeroImage() {
+    try {
+        const res = await fetch('/api/settings/hero');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.imageUrl) {
+            const img = document.getElementById('hero-portrait-img');
+            if (img) img.src = data.imgUrl;
+        }
+    } catch (err) {
+        console.error("Could not load hero image.", err);
+    }
+}
+
+loadHeroImage();
+
 document.addEventListener('DOMContentLoaded', () => {
     loadPublicReviews();
     loadFeaturedQuoteOnHomepage();

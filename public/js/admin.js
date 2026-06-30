@@ -150,6 +150,32 @@ if (heroForm) {
         e.preventDefault();
         const currentToken = localStorage.getItem('admin_token');
         const statusEl = document.getElementById('hero-status');
+        const fileInput = document.getElementById('hero-image-file');
+
+        let heroImageUrl = undefined;
+
+        if (fileInput && fileInput.files[0]) {
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            const uploadRes = await fetch('/api/upload/site-image', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${currentToken}` },
+                body: formData
+            });
+            const uploadData = await uploadRes.json();
+            if (!uploadRes.ok) {
+                if (statusEl) statusEl.textContent = "Image upload failed.";
+                return;
+            }
+            heroImageUrl = uploadData.url;
+        }
+
+        const payload = {
+            hero_heading: document.getElementById('hero-title').value.trim(),
+            hero_subtext: document.getElementById('hero-desc').value.trim()
+        };
+
+        if (heroImageUrl) payload.hero_image_url = heroImageUrl;
 
         const res = await fetch('/api/site-settings', {
             method: 'PATCH',
@@ -157,10 +183,7 @@ if (heroForm) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${currentToken}`
             },
-            body: JSON.stringify({
-                hero_heading: document.getElementById('hero-title').value.trim(),
-                hero_subtext: document.getElementById('hero-desc').value.trim()
-            })
+            body: JSON.stringify(payload)
         });
 
         if (res.ok) {
