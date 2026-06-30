@@ -7,6 +7,8 @@ let cl_selectedDate = null;
 let cl_selectedTime = null; // 🌟 TRACKS ACTIVE SELECTED TIME
 let cl_selectedServiceId = null; // 🌟 TRACKS AUTO-SELECTED REQ ID
 let cl_availabilityRules = []; 
+let cl_blockedDates = [];
+
 
 function cl_getDaysInMonth(year, month) {
     return new Date(year, month + 1, 0).getDate();
@@ -43,6 +45,16 @@ async function cl_initializeBookingPage() {
             { day_of_week: 5, is_active: true, start_time: "09:00", end_time: "17:00" }, 
             { day_of_week: 6, is_active: false }  
         ];
+    }
+
+    try {
+        const res = await fetch("/api/blocked-dates/public");
+        if (res.ok) {
+            const data = await res.json();
+            cl_blockedDates = data.map(d => d.date);
+        }
+    } catch (err) {
+        console.error("Could not load blocked dates:", err);
     }
 
     await cl_renderServicePillsFallback();
@@ -142,7 +154,9 @@ function cl_buildCalendarGrid() {
         const isClosed = rule ? !rule.is_active : true; 
         const isPast = compareLoopDate < exactToday;
 
-        if (isClosed || isPast) {
+        const isBlocked = cl_blockedDates.includes(dateString);
+
+        if (isClosed || isPast || isBlocked) {
             gridHtml += `<div class="cal-day disabled" data-date="${dateString}">${d}</div>`;
         } else {
             gridHtml += `<div class="cal-day clickable-day" data-date="${dateString}">${d}</div>`;
@@ -297,5 +311,15 @@ document.getElementById('booking-form')?.addEventListener('submit', async (e) =>
         }
     }
 });
+
+try {
+    const res = await fetch('/api/blocked-dates/public');
+    if (res.ok) {
+        const data = await res.json();
+        cl_blockedDates = data.map(d => d.date);
+    }
+} catch (err) {
+    console.error("Could not load blocked dates.", err);
+}
 
 cl_initializeBookingPage();

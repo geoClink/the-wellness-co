@@ -56,4 +56,17 @@ router.delete("/api/blocked-dates/:id", adminAuth, async (req, res) => {
     }
 });
 
+router.get("/api/blocked-dates/public", async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from("blocked_dates")
+            .select("date")
+            .eq("tenant_id", req.tenant.id);
+
+        if (error) return res.status(500).json({ error: error.message });
+        return res.json(data);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
 module.exports = router;
