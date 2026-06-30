@@ -637,6 +637,17 @@ async function loadAvailabilitySettings() {
                             ${generateTimeOptions(currentRule.end_time)}
                         </select>
                     </td>
+                    <td style="padding: 12px 10px;>
+                    <select class="avail-break-start" style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                        ${generateTimeOptions(currentRule.break_start)}
+                        </select>
+                        </td>
+                        <td style="padding: 12px 10px;>
+                    <select class="avail-break-end" style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                        ${generateTimeOptions(currentRule.break_end)}
+                        </select>
+                        </td>
+
                 </tr>
             `;
         }).join('');
@@ -661,7 +672,7 @@ async function loadBlockedDates() {
         <td>${escapeHtml(d.reason || '-')}</td>
         <td><button onclick="removeBlockedDate('${escapeHtml(d.id)}')">Remove</button></td>
         </tr>
-        `).join('') :'<tr><td colspan="3">No Blocked dates.</td></tr>';
+        `).join('') : '<tr><td colspan="3">No Blocked dates.</td></tr>';
 }
 
 async function removeBlockedDate(id) {
@@ -700,7 +711,9 @@ if (availForm) {
                 day_of_week: row.dataset.day,
                 is_active: row.querySelector('.avail-active').checked,
                 start_time: row.querySelector('.avail-start').value,
-                end_time: row.querySelector('.avail-end').value
+                end_time: row.querySelector('.avail-end').value,
+                break_start: row.querySelector('.avail-break-start').value,
+                break_end: row.querySelector('.avail-break-end').value,
             });
         });
 

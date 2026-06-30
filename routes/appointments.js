@@ -82,6 +82,13 @@ router.get("/api/availability", async (req, res) => {
             .neq("status", "cancelled");
 
         const available = allSlotMins.filter(slotMins => {
+            if (rule.break_start && rule.break_end) {
+                const breakStartMins = toMinutes(rule.break_start);
+                const breakEndMins = toMinutes(rule.break_end);
+                const overlapsBreak = slotMins < breakEndMins && slotMins + duration > breakStartMins;
+                if (overlapsBreak) return false;
+            }
+
             return !(booked || []).some(b => {
                 const bookedMins = toMinutes(b.time.replace(' AM', '').replace(' PM', ''));
                 const bookedDuration = b.services?.duration_minutes || 60;

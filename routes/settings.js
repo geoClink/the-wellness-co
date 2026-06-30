@@ -198,7 +198,9 @@ router.post("/api/settings/availability", adminAuth, async (req, res) => {
                 day_of_week: parseInt(r.day_of_week),
                 start_time: padTime(r.start_time),
                 end_time: padTime(r.end_time),
-                is_active: !!r.is_active
+                is_active: !!r.is_active,
+                break_start: r.break_start || null,
+                break_end: r.break_end || null,
             };
         });
 
