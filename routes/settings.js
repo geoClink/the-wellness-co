@@ -24,7 +24,7 @@ router.patch("/api/site-settings", adminAuth, async (req, res) => {
     try {
         const { hero_heading, hero_subtext, hero_image_url, hours, hours_note, banner_visible, banner_text } = req.body;
         const updates = { tenant_id: req.tenant.id };
-        
+
         if (hero_heading !== undefined) updates.hero_heading = hero_heading;
         if (hero_subtext !== undefined) updates.hero_subtext = hero_subtext;
         if (hero_image_url !== undefined) updates.hero_image_url = hero_image_url;
@@ -32,7 +32,7 @@ router.patch("/api/site-settings", adminAuth, async (req, res) => {
         if (hours_note !== undefined) updates.hours_note = hours_note;
         if (banner_visible !== undefined) updates.banner_visible = banner_visible;
         if (banner_text !== undefined) updates.banner_text = banner_text;
-        
+
         const { error } = await supabase.from("site_settings").upsert(updates, {
             onConflict: "tenant_id"
         });
@@ -50,12 +50,12 @@ router.get("/api/settings/hero", async (req, res) => {
             .select("hero_heading, hero_subtext, hero_image_url")
             .eq("tenant_id", req.tenant.id)
             .maybeSingle();
-            
+
         if (error) return res.status(500).json({ error: error.message });
-        
+
         res.json({
             title: data?.hero_heading || "",
-            description: data?.hero_subtext || "", 
+            description: data?.hero_subtext || "",
             imageUrl: data?.hero_image_url || ""
         });
     } catch (err) {
@@ -66,15 +66,15 @@ router.get("/api/settings/hero", async (req, res) => {
 router.put("/api/settings/footer", adminAuth, async (req, res) => {
     try {
         const { bio, email, phone, address } = req.body;
-        
+
         const { data, error } = await supabase
             .from("tenant_settings")
-            .upsert({ 
+            .upsert({
                 tenant_id: String(req.tenant.id),
-                footer_bio: bio, 
-                footer_email: email, 
-                footer_phone: phone, 
-                footer_address: address 
+                footer_bio: bio,
+                footer_email: email,
+                footer_phone: phone,
+                footer_address: address
             }, {
                 onConflict: "tenant_id"
             });
@@ -129,7 +129,7 @@ router.get("/api/settings/profile", async (req, res) => {
 router.put("/api/settings/profile", adminAuth, async (req, res) => {
     try {
         const { phone, hours } = req.body;
-        
+
         const { data, error } = await supabase
             .from("tenants")
             .update({ phone, business_hours: hours })
@@ -235,7 +235,12 @@ router.get("/api/settings/integrations", adminAuth, async (req, res) => {
             .maybeSingle();
 
         if (error) return res.status(500).json({ error: error.message });
-        return res.json(data || {});
+        return res.json({
+            stripe_publishable_key: data?.stripe_publishable_key || null,
+            stripe_secret_key: data?.stripe_secret_key ? '••••••••' : null,
+            stripe_webhook_secret: data?.stripe_webhook_secret ? '••••••••' : null,
+            resend_api_key: data?.resend_api_key ? '••••••••' : null,
+        });
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
@@ -245,7 +250,7 @@ router.get("/api/settings/integrations", adminAuth, async (req, res) => {
 router.put("/api/settings/integrations", adminAuth, async (req, res) => {
     try {
         const { stripe_pub, stripe_sec, stripe_wh, resend_key } = req.body;
-        
+
         const { data, error } = await supabase
             .from("tenant_settings")
             .upsert({
@@ -253,7 +258,7 @@ router.put("/api/settings/integrations", adminAuth, async (req, res) => {
                 stripe_publishable_key: stripe_pub,
                 stripe_secret_key: stripe_sec,
                 stripe_webhook_secret: stripe_wh,
-                resend_api_key: resend_key 
+                resend_api_key: resend_key
             }, {
                 onConflict: "tenant_id"
             });
