@@ -81,6 +81,7 @@ app.use("/", resolveTenant, require("./routes/gift-cards"));
 app.use("/", resolveTenant, require("./routes/coupons"));
 app.use("/", resolveTenant, require("./routes/reviews"));
 app.use("/", resolveTenant, require("./routes/blocked-dates"));
+app.use("/", resolveTenant, require("./routes/upload"));
 // --- 8. ERROR FALLBACK HANDLERS ---
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, "public", "404.html"));

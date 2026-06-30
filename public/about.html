@@ -54,13 +54,13 @@
         <section class="about-page page-section">
             <div class="container">
                 <p class="eyebrow">About</p>
-                <h1>A practice built on presence, not pressure.</h1>
+                <h1 id="about-page-heading">A practice built on presence, not pressure.</h1>
                 <div class="about-flex">
                     <div class="about-img img-loading">
-                        <img src="https://images.pexels.com/photos/6076131/pexels-photo-6076131.jpeg" alt="Elena, wellness practitioner" onload="this.parentElement.classList.remove('img-loading')" >
+                        <img id="about-page-img" src="https://images.pexels.com/photos/6076131/pexels-photo-6076131.jpeg" alt="Elena, wellness practitioner" onload="this.parentElement.classList.remove('img-loading')" >
                     </div>
                     <div class="about-text">
-                        <div class="about-bio">
+                        <div id="about-page-body" class="about-bio">
                             <p>I came to this work the way many do — through my own unraveling. A decade ago I was running on empty, certain that healing meant pushing harder. It didn't. What changed everything was being met with stillness instead of solutions.</p>
                             <p>Since then I've trained across both energetic and clinical traditions, drawn to the places where they overlap. QHHT taught me to trust the wisdom of the subconscious. Acupuncture grounded me in the body's intelligent flow. Biofield tuning and Cognomovement showed me how gently the nervous system can be invited to let go.</p>
 
@@ -87,4 +87,58 @@
             </div>
         </section>
     </main>
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/index.html" class="logo">
+                        <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                            <circle cx="20" cy="20" r="18" stroke="#8a9a7b" stroke-width="1" />
+                            <circle cx="20" cy="20" r="12" stroke="#b5713f" stroke-width="1" />
+                            <circle cx="20" cy="20" r="6" stroke="#8a9a7b" stroke-width="1" />
+                            <circle cx="20" cy="20" r="2" fill="#b5713f" />
+                        </svg>
+                        <span>The Wellness Co.</span>
+                    </a>
+                    <p class="hero-text" id="live-footer-bio">Quantum and energy healing for body, mind, and spirit. One practitioner, fully present with you.</p>
+                </div>
+                <div class="footer-explore">
+                    <p class="hero-text">Explore</p>
+                    <a href="/about.html">About</a>
+                    <a href="/services.html">Services</a>
+                    <a href="/stories.html">Stories</a>
+                    <a href="/faq.html">FAQ</a>
+                </div>
+                <div class="footer-contact">
+                    <p class="hero-text">Get in touch</p>
+                    <a href="mailto:hello@thewellnessco.com" id="live-footer-email">hello@thewellnessco.com</a>
+                    <a href="tel:7777777777" id="live-footer-phone">(777) 777-7777</a>
+                    <p class="hero-text" id="live-footer-address">AnyTown, MI</p>
+                    <a href="/appointments.html" class="btn-primary">Book a session</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 The Wellness Co. All rights reserved.</p>
+                <p>Complementary care — not a substitute for medical treatment. <a href="/privacy.html" style="color:inherit;">Privacy</a> · <a href="/terms.html" style="color:inherit;">Terms</a> · <span style="opacity: 0.8;">Site by <a href="https://your-studio-link.com" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:underline;">CH Studios</a></span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    (async () => {
+        try {
+            const res = await fetch('/api/settings/about');
+            if (!res.ok) return;
+            const data = await res.json();
+            if (data.heading) document.getElementById('about-page-heading').innerHTML = data.heading;
+            if (data.body) document.getElementById('about-page-body').innerHTML = data.body;
+            if (data.imageUrl) {
+                const img = document.getElementById('about-page-img');
+                img.src = data.imageUrl;
+            }
+        } catch (err) {
+            console.errpr('Could not load about content.', err);
+        }
+    })();
+    </script>
   </html>

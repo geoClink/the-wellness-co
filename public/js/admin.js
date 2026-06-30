@@ -742,14 +742,14 @@ if (availForm) {
 
 async function loadAboutContent() {
     try {
-        const res = await fetch('/api/site-settings');
+        const res = await fetch('/api/settings/about');
         if (res.ok) {
             const data = await res.json();
             const headingEl = document.getElementById('about-heading');
             const bodyEl = document.getElementById('about-body');
 
-            if (headingEl) headingEl.value = data.about_heading || '';
-            if (bodyEl) bodyEl.value = data.about_body || '';
+            if (headingEl) headingEl.value = data.heading || '';
+            if (bodyEl) bodyEl.value = data.body || '';
         }
     } catch (err) {
         console.error("Failed to load about settings:", err);
@@ -762,11 +762,32 @@ if (aboutForm) {
         e.preventDefault();
         const currentToken = localStorage.getItem('admin_token');
         const statusEl = document.getElementById('about-status');
+        const fileInput = document.getElementById('about-image-file');
+
+        let aboutImageUrl = undefined;
+
+        if (fileInput.files[0]) {
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            const uploadRes = await fetch('/api/upload/site-image', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${currentToken}` },
+                body: formData
+            });
+            const uploadData = await uploadRes.json();
+            if (!uploadRes.ok) {
+                if (statusEl) statusEl.textContent = "Image upload failed.";
+                return;
+            }
+            aboutImageUrl = uploadData.url;
+        }
 
         const payload = {
             about_heading: document.getElementById('about-heading').value.trim(),
             about_body: document.getElementById('about-body').value.trim()
         };
+
+        if (aboutImageUrl) payload.about_image_url = aboutImageUrl;
 
         const res = await fetch('/api/site-settings', {
             method: 'PATCH',

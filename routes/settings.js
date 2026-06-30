@@ -22,7 +22,7 @@ router.get("/api/site-settings", async (req, res) => {
 // Comprehensive Patch Route (Handles Hero Updates + Banners + General Hours)
 router.patch("/api/site-settings", adminAuth, async (req, res) => {
     try {
-        const { hero_heading, hero_subtext, hero_image_url, hours, hours_note, banner_visible, banner_text } = req.body;
+        const { hero_heading, hero_subtext, hero_image_url, hours, hours_note, banner_visible, banner_text, about_heading, about_body, about_image_url } = req.body;
         const updates = { tenant_id: req.tenant.id };
 
         if (hero_heading !== undefined) updates.hero_heading = hero_heading;
@@ -32,6 +32,9 @@ router.patch("/api/site-settings", adminAuth, async (req, res) => {
         if (hours_note !== undefined) updates.hours_note = hours_note;
         if (banner_visible !== undefined) updates.banner_visible = banner_visible;
         if (banner_text !== undefined) updates.banner_text = banner_text;
+        if (about_heading !== undefined) updates.about_heading = about_heading;
+        if (about_body !== undefined) updates.about_body = about_body;
+        if (about_image_url !== undefined) updates.about_image_url = about_image_url;
 
         const { error } = await supabase.from("site_settings").upsert(updates, {
             onConflict: "tenant_id"
@@ -57,6 +60,25 @@ router.get("/api/settings/hero", async (req, res) => {
             title: data?.hero_heading || "",
             description: data?.hero_subtext || "",
             imageUrl: data?.hero_image_url || ""
+        });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+router.get("/api/settings/about", async (req, res) => {
+    try {
+        const { data, error } = await supabase.from("site_settings")
+            .select("about_heading, about_body, about_image_url")
+            .eq("tenant_id", req.tenant.id)
+            .maybeSingle();
+
+        if (error) return res.status(500).json({ error: error.message });
+
+        res.json({
+            heading: data?.about_heading || "",
+            body: data?.about_body || "",
+            imageUrl: data?.about_image_url || null
         });
     } catch (err) {
         return res.status(500).json({ error: err.message });
