@@ -532,21 +532,21 @@
         </div>
 
         <div class="panel">
-    <h2>Contact Form Submissions</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email
-                <th>Subject</th>
-                <th>Messa
-                <th>Status</th>
-                <th>Actio
-            </tr>
-        </thead>
-        <tbody id="contact-body"></tbody>
-    </table>
-</div>  
+            <h2>Contact Form Submissions</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email
+                        <th>Subject</th>
+                        <th>Messa
+                        <th>Status</th>
+                        <th>Actio
+                    </tr>
+                </thead>
+                <tbody id="contact-body"></tbody>
+            </table>
+        </div>
 
         <div class="panel">
             <h2>Weekly Calendar Availability</h2>
@@ -570,6 +570,27 @@
                         style="color:var(--success-green); margin-left:15px; font-weight:600;"></span>
                 </div>
             </form>
+        </div>
+
+        <div class="panel">
+            <h2>Blocked Dates</h2>
+            <form id="blocked-date-form"
+                style="display: flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:25px;">
+                <input type="date" id="blocked-date-input" required>
+                <input type="text" id="blocked-reason-input" placeholder="Reason (optional)"
+                    style="flex:1; min-width:200px;">
+                <button type="submit">Block Date</button>
+            </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Reason</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="blocked-dates-list"></tbody>
+            </table>
         </div>
 
         <div class="panel">

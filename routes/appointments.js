@@ -44,6 +44,16 @@ router.get("/api/availability", async (req, res) => {
         if (!rule || !rule.is_active) {
             return res.json({ available: [] });
         }
+
+        const { data: blocked } = await supabase
+            .from("blocked_dates")
+            .select("id")
+            .eq("tenant_id", req.tenant.id)
+            .eq("date", date)
+            .maybeSingle();
+
+        if (blocked) return res.json({ available: [] });
+
         const toMinutes = (timeStr) => {
             const [h, m] = timeStr.split(':').map(Number);
             return h * 60 + m;

@@ -56,12 +56,18 @@ router.patch("/api/reviews/:id/approve", adminAuth, async (req, res) => {
 
 // 6. Admin Delete
 router.delete("/api/reviews/:id", adminAuth, async (req, res) => {
-    const { error } = await supabase.from("reviews")
+    try {
+        const { error } = await supabase.from("reviews")
         .delete()
         .eq("id", req.params.id)
         .eq("tenant_id", req.tenant.id);
     if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });
+    } catch (err) {
+        console.error("Admin delete review failed.", err);
+        return res.status(500).json({ error: err.message });
+    }
+
 });
 
 // 🌟 7. Admin Toggle Feature Flag

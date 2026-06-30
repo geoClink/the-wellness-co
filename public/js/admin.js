@@ -64,6 +64,7 @@ function showDashboard() {
     loadAdminServices();
     loadBusinessProfile();
     loadAboutContent();
+    loadBlockedDates();
     loadAvailabilitySettings();
 
     // 🌟 ADD THIS LINE HERE:
@@ -644,6 +645,47 @@ async function loadAvailabilitySettings() {
         console.error("❌ Critical exception during scheduling rendering operation:", err);
     }
 }
+
+async function loadBlockedDates() {
+    const token = localStorage.getItem('admin_token');
+    const res = await fetch('/api/blocked-dates', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const dates = await res.json();
+    const tbody = document.getElementById('blocked-dates-list');
+    if (!tbody) return;
+
+    tbody.innerHTML = dates.length ? dates.map(d => `
+        <tr>
+        <td>${escapeHtml(d.date)}</td>
+        <td>${escapeHtml(d.reason || '-')}</td>
+        <td><button onclick="removeBlockedDate('${escapeHtml(d.id)}')">Remove</button></td>
+        </tr>
+        `).join('') :'<tr><td colspan="3">No Blocked dates.</td></tr>';
+}
+
+async function removeBlockedDate(id) {
+    const token = localStorage.getItem('admin_token');
+    await fetch(`/api/blocked-dates/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    loadBlockedDates();
+}
+
+document.getElementById('blocked-date-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('admin_token');
+    const date = document.getElementById('blocked-date-input').value;
+    const reason = document.getElementById('blocked-reason-input').value;
+    await fetch('/api/blocked-dates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ date, reason })
+    });
+    e.target.reset();
+    loadBlockedDates();
+});
 
 const availForm = document.getElementById('availability-form');
 if (availForm) {
