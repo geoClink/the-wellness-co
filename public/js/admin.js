@@ -1,5 +1,6 @@
 // Helper to sanitize HTML output and block XSS
 function escapeHtml(str) {
+    if (!str) return '';
     return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
@@ -46,7 +47,7 @@ async function loadContacts() {
 function showLogin() {
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
-    
+
     if (loginView) loginView.style.display = 'block';
     if (dashboardView) dashboardView.style.display = 'none';
 }
@@ -54,19 +55,19 @@ function showLogin() {
 function showDashboard() {
     document.getElementById('login-view').style.display = 'none';
     document.getElementById('dashboard-view').style.display = 'block';
-    
+
     // Core Data Fetch Operations
     loadBookings();
     loadContacts();
     loadAdminReviews();
-    loadHeroContent();     
-    loadAdminServices();   
+    loadHeroContent();
+    loadAdminServices();
     loadBusinessProfile();
     loadAboutContent();
-    loadAvailabilitySettings(); 
-    
+    loadAvailabilitySettings();
+
     // 🌟 ADD THIS LINE HERE:
-    loadIntegrationSettings(); 
+    loadIntegrationSettings();
 }
 // ==========================================
 // 1. AUTHENTICATION HANDLERS
@@ -85,12 +86,12 @@ if (loginForm) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
-            
+
             if (!res.ok) {
                 alert('Invalid email or password.');
                 return;
             }
-            
+
             const data = await res.json();
             localStorage.setItem('admin_token', data.token);
             showDashboard();
@@ -130,7 +131,7 @@ async function loadHeroContent() {
             const titleEl = document.getElementById('hero-title');
             const descEl = document.getElementById('hero-desc');
             const imgLabel = document.getElementById('current-image-url');
-            
+
             if (titleEl) titleEl.value = data.title || '';
             if (descEl) descEl.value = data.description || ''; // 🌟 Dynamic Tracking
             if (imgLabel && data.imageUrl) {
@@ -183,13 +184,13 @@ async function loadAdminServices() {
         const services = await res.json();
         const tbody = document.getElementById('services-body');
         if (!tbody) return;
-        
+
         if (services.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4">No catalog treatment options created yet.</td></tr>';
             return;
         }
 
-       tbody.innerHTML = services.map(s => `
+        tbody.innerHTML = services.map(s => `
             <tr>
                 <td>${escapeHtml(s.name)}</td>   
                 <td>${escapeHtml(s.description)}</td>
@@ -212,7 +213,7 @@ async function loadBusinessProfile() {
             const phoneEl = document.getElementById('biz-phone');
             const wkdayEl = document.getElementById('biz-hours-wkday');
             const wkndEl = document.getElementById('biz-hours-wknd');
-            
+
             if (phoneEl) phoneEl.value = data.phone || '';
             if (wkdayEl) wkdayEl.value = data.business_hours?.mon_fri || '';
             if (wkndEl) wkndEl.value = data.business_hours?.sat_sun || '';
@@ -239,9 +240,9 @@ if (bizProfileForm) {
 
         const res = await fetch('/api/settings/profile', {
             method: 'PUT',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentToken}` 
+                'Authorization': `Bearer ${currentToken}`
             },
             body: JSON.stringify(payload)
         });
@@ -285,7 +286,7 @@ if (servicesBody) {
     servicesBody.addEventListener('click', async (e) => {
         if (!e.target.classList.contains('delete-service-btn')) return;
         if (!confirm('Permanently wipe out this active service profile?')) return;
-        
+
         const currentToken = localStorage.getItem('admin_token');
         const id = e.target.dataset.id;
 
@@ -367,7 +368,7 @@ async function loadAdminReviews() {
         return;
     }
     // 🎯 UPDATE THIS template block inside loadAdminReviews():
-tbody.innerHTML = reviews.map(r => `
+    tbody.innerHTML = reviews.map(r => `
     <tr>
         <td>${escapeHtml(r.name)}</td>
         <td>${escapeHtml(String(r.rating))}/5</td>
@@ -407,11 +408,11 @@ async function deleteReview(id) {
 // 🎯 ADD THIS new function inside Section 5:
 async function toggleFeaturedReview(id) {
     const currentToken = localStorage.getItem('admin_token');
-    
+
     try {
         const res = await fetch(`/api/reviews/${id}/feature`, {
             method: 'PATCH',
-            headers: { 
+            headers: {
                 'Authorization': `Bearer ${currentToken}`,
                 'Content-Type': 'application/json'
             }
@@ -581,7 +582,7 @@ async function loadAvailabilitySettings() {
 
     try {
         const res = await fetch('/api/settings/availability');
-        
+
         // Safe check: handle potential empty database tables or failed calls
         let rules = [];
         if (res.ok) {
@@ -595,16 +596,16 @@ async function loadAvailabilitySettings() {
             let optionsHtml = '';
             // Handle fallbacks if database time string arrives formatted oddly
             const currentSelected = selectedTime ? selectedTime.substring(0, 5) : "09:00";
-            
+
             for (let hour = 0; hour < 24; hour++) {
                 for (let min of ['00', '30']) {
                     const formattedHour = String(hour).padStart(2, '0');
                     const timeValue = `${formattedHour}:${min}`;
-                    
+
                     const ampm = hour >= 12 ? 'PM' : 'AM';
                     const displayHour = hour % 12 === 0 ? 12 : hour % 12;
                     const displayLabel = `${displayHour}:${min} ${ampm}`;
-                    
+
                     const isSelected = timeValue === currentSelected ? 'selected' : '';
                     optionsHtml += `<option value="${timeValue}" ${isSelected}>${displayLabel}</option>`;
                 }
@@ -650,7 +651,7 @@ if (availForm) {
         e.preventDefault();
         const currentToken = localStorage.getItem('admin_token');
         const statusEl = document.getElementById('avail-status');
-        
+
         const rulesArray = [];
         document.querySelectorAll('#availability-rows tr').forEach(row => {
             rulesArray.push({
@@ -663,7 +664,7 @@ if (availForm) {
 
         const res = await fetch('/api/settings/availability', {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${currentToken}`
             },
@@ -689,7 +690,7 @@ async function loadAboutContent() {
             const data = await res.json();
             const headingEl = document.getElementById('about-heading');
             const bodyEl = document.getElementById('about-body');
-            
+
             if (headingEl) headingEl.value = data.about_heading || '';
             if (bodyEl) bodyEl.value = data.about_body || '';
         }
@@ -712,9 +713,9 @@ if (aboutForm) {
 
         const res = await fetch('/api/site-settings', {
             method: 'PATCH',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentToken}` 
+                'Authorization': `Bearer ${currentToken}`
             },
             body: JSON.stringify(payload)
         });
