@@ -70,7 +70,7 @@ async function cl_renderServicePillsFallback() {
         if (activeIndex === -1) activeIndex = 0;
 
         pillsContainer.innerHTML = services.map((s, idx) => `
-            <button type="button" class="service-pill ${idx === activeIndex ? 'active' : ''}" data-id="${s.id}" data-price="${s.price}" data-name="${s.name}">
+            <button type="button" class="service-pill ${idx === activeIndex ? 'active' : ''}" data-id="${s.id}" data-price="${s.price}" data-name="${s.name}" data-duration="${$.duration_minutes}">
                 ${escapeHtml(s.name)} · $${s.price}
             </button>
         `).join('');
@@ -172,9 +172,11 @@ async function cl_mockTimeSlotsForDate(dateStr) {
 
     const fallbackSlots = ["09:00 AM", "11:30 AM", "02:00 PM", "04:30 PM"];
     let slots = fallbackSlots;
+    const activePill = document.querySelector('.service-pill.active');
+    const duration = activePill ? activePill.dataset.duration : 60;
 
     try {
-        const res = await fetch('/api/availability?date=' + dateStr);
+        const res = await fetch(`/api/availability?date=${dateStr}&duration=${duration}`);
         if (res.ok) {
             const data = await res.json();
             slots = data.available;

@@ -29,26 +29,57 @@ async function getDynamicStripeClient(tenantId) {
 router.get("/api/availability", async (req, res) => {
     try {
         const { date } = req.query;
+        const duration = parseInt(req.query.duration) || 60;
         if (!date) return res.status(400).json({ error: "date is required." });
 
-        const allSlots = ["09:00 AM", "11:30 AM", "02:00 PM", "04:30 PM"];
+        const dayOfWeek = new Date(date + 'T12:00:00').getDay();
 
-        const { data, error } = await supabase
+        const { data: rule } = await supabase
+            .from("availability_rules")
+            .select("is_active, start_time, end_time")
+            .eq("tenant_id", req.tenant.id)
+            .eq("day_of_week", dayOfWeek)
+            .maybeSingle();
+
+            if (!rule || !rule.is_active) {
+                return res.json({ available: [] });
+            }
+       const toMinutes = (timeStr) => {
+    const [h, m] = timeStr.split(':').map(Number);
+    return h * 60 + m;
+};
+const toLabel = (minutes) => {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const displayH = h % 12 === 0 ? 12 : h % 12;
+    return `${String(displayH).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
+};
+
+        const startMins = toMinutes(rule.start_time);
+        const endMins = toMinutes(rule.end_time);
+        const allSlots = [];
+
+        for (let t = startMins; t + duration <= endMins; t += duration) {
+            allSlots.push(toLabel(t));
+        }
+
+         const { data: booked } = await supabase
             .from("appointments")
             .select("time")
             .eq("tenant_id", req.tenant.id)
             .eq("date", date)
             .neq("status", "cancelled");
 
-        if (error) return res.status(500).json({ error: error.message });
+        const bookedTimes = new Set((booked || []).map(a => a.time));
 
-        const bookedTimes = data.map(a => a.time);
-        const available = allSlots.filter(slot => !bookedTimes.includes(slot));
-        
+        const available = allSlots.filter(slot => !bookedTimes.has(slot));
+
         return res.json({ available });
     } catch (err) {
         return res.status(500).json({ error: err.message });
     }
+
 });
 
 router.post("/api/appointments", async (req, res) => {
