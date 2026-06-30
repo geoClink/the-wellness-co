@@ -312,14 +312,4 @@ document.getElementById('booking-form')?.addEventListener('submit', async (e) =>
     }
 });
 
-try {
-    const res = await fetch('/api/blocked-dates/public');
-    if (res.ok) {
-        const data = await res.json();
-        cl_blockedDates = data.map(d => d.date);
-    }
-} catch (err) {
-    console.error("Could not load blocked dates.", err);
-}
-
 cl_initializeBookingPage();
