@@ -117,7 +117,7 @@ if (logoutBtn) {
 async function markContactRead(id) {
     const currentToken = localStorage.getItem('admin_token');
     await fetch(`/api/contact/${id}/read`, {
-        method: 'PATHC',
+        method: 'PATCH',
         headers: { 'Authorization': `Bearer ${currentToken}` }
     });
     loadContacts();
