@@ -96,6 +96,41 @@ async function loadFeaturedQuoteOnHomepage() {
     }
 }
 
+async function contactSubmitHandler(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const message = document.getElementById('message').value.trim();
+
+    if (!name || !email || !message) {
+        const errorEl = document.getElementById('contact-error');
+        errorEl.textContent = 'Please fill in all fields.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, message })
+        });
+
+        if (response.ok) {
+            document.getElementById('contact-success').style.display = 'block';
+            document.getElementById('contact-error').style.display = 'none';
+            e.target.reset();
+        } else {
+            throw new Error('Server error');
+        }
+    }  catch (err) {
+        const errorEl = document.getElementById('contact-error');
+        errorEl.textContent = 'Something went wrong. Please try again.';
+        errorEl.style.display = 'block';
+    }
+}
+document.getElementById('contact-form')?.addEventListener('submit',contactSubmitHandler);
 async function renderDynamicFooterContent() {
     try {
         const res = await fetch("/api/settings/footer");
