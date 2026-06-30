@@ -30,13 +30,14 @@ router.get("/api/availability", async (req, res) => {
     try {
         const { date } = req.query;
         const duration = parseInt(req.query.duration) || 60;
+        if (duration <= 0 || duration > 480) return res.status(400).json({ error: "Invalid duration." })
         if (!date) return res.status(400).json({ error: "date is required." });
 
         const dayOfWeek = new Date(date + 'T12:00:00').getDay();
 
         const { data: rule } = await supabase
             .from("availability_rules")
-            .select("is_active, start_time, end_time")
+            .select("is_active, start_time, end_time, break_start, break_end")
             .eq("tenant_id", req.tenant.id)
             .eq("day_of_week", dayOfWeek)
             .maybeSingle();
@@ -90,7 +91,15 @@ router.get("/api/availability", async (req, res) => {
             }
 
             return !(booked || []).some(b => {
-                const bookedMins = toMinutes(b.time.replace(' AM', '').replace(' PM', ''));
+                const bookedMins = (() => {
+    const isPM = b.time.includes('PM');
+    const isAM = b.time.includes('AM');
+    const [h, m] = b.time.replace(' AM', '').replace(' PM', '').split(':').map(Number);
+    let hour = h;
+    if (isPM && h !== 12) hour += 12;
+    if (isAM && h === 12) hour = 0;
+    return hour * 60 + m;
+})();
                 const bookedDuration = b.services?.duration_minutes || 60;
                 return slotMins < bookedMins + bookedDuration && bookedMins < slotMins + duration;
             });
@@ -131,10 +140,10 @@ router.post("/api/appointments", async (req, res) => {
 
         const { data: service, error: serviceError } = await query.maybeSingle();
 
-        // 🌟 FIXED: Changed sql style comment '--' to proper js style code comment '//'
-        const activeServiceId = service ? service.id : "cab90af2-b9ac-43fb-8f60-3fa9f18df477"; // Fallback to safe workspace ID
-        const activeServiceName = service ? service.name : "Wellness Session Reservation Balance";
-        const activeServicePrice = service ? service.price : 110;
+        
+        if (!service) {
+            return res.status(400).json({ error: "Service not found." });
+        }
 
         const activeStripe = await getDynamicStripeClient(req.tenant.id);
 
@@ -148,10 +157,10 @@ router.post("/api/appointments", async (req, res) => {
                 price_data: {
                     currency: "usd",
                     product_data: {
-                        name: activeServiceName,
+                        name: service.name,
                         description: `${date} at ${time}`
                     },
-                    unit_amount: Math.round(parseFloat(activeServicePrice) * 100)
+                    unit_amount: Math.round(parseFloat(service.price) * 100)
                 },
                 quantity: 1
             }],
@@ -161,7 +170,7 @@ router.post("/api/appointments", async (req, res) => {
             cancel_url: `${origin}/appointments.html`,
             metadata: {
                 tenant_id: req.tenant.id,
-                service_id: activeServiceId,
+                service_id: service.id,
                 guest_name: finalGuestName,
                 email,
                 phone: phone || "",
