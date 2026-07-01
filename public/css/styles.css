@@ -161,12 +161,12 @@ nav a {
 }
 
 nav a:hover {
-    color: var(--clay);
+    color: var(--clay-text);
 }
 
 nav a.active {
-    color: var(--clay);
-    border-bottom-color: var(--clay);
+    color: var(--clay-text);
+    border-bottom-color: var(--clay-text);
 }
 
 .logo {
@@ -1197,7 +1197,7 @@ footer {
 }
 
 .footer-contact a:first-of-type {
-    color: var(--clay-soft);
+    color: var(--footer-text);
 }
 
 .footer-bottom {
