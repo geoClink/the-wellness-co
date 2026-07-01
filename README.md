@@ -4,6 +4,15 @@ A full-stack, multi-tenant booking platform for wellness and energy healing prac
 
 Built as a learning project while transitioning from Swift/SwiftUI to web development.
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Home](docs/screenshots/wellnesscoindex.png) | ![About](docs/screenshots/wellnesscoaboutpage.png) |
+| ![Services](docs/screenshots/wellnesscoservicespage.png) | ![Book a Session](docs/screenshots/wellnesscobooksessionpage.png) |
+| ![Stories](docs/screenshots/wellnesscostoriespage.png) | ![FAQ](docs/screenshots/wellnesscofaqpage.png) |
+| ![Contact](docs/screenshots/wellnesscocontactpage.png) | |
+
 ## Stack
 
 **Frontend**
