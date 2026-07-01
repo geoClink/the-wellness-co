@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancel Appointment | The Wellness Co.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Hanken+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/script.js" defer></script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                    <circle cx="20" cy="20" r="18" stroke="#8a9a7b" stroke-width="1" />
+                    <circle cx="20" cy="20" r="12" stroke="#b5713f" stroke-width="1" />
+                    <circle cx="20" cy="20" r="6" stroke="#8a9a7b" stroke-width="1" />
+                    <circle cx="20" cy="20" r="2" fill="#b5713f" />
+                </svg>
+                <span>The Wellness Co.</span>
+            </a>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="services.html">Services</a>
+                <a href="stories.html">Stories</a>
+                <a href="faq.html">FAQ</a>
+                <a href="contact.html">Contact</a>
+                <a href="appointments.html" class="nav-book-btn">Book a session</a>
+            </nav>
+            <button class="hamburger" id="hamburger" aria-label="Open navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section class="confirmation page-section">
+            <div class="container" style="max-width: 560px;">
+
+                <!-- Loading state -->
+                <div id="state-loading">
+                    <p class="hero-text" style="color: var(--muted);">Loading your appointment…</p>
+                </div>
+
+                <!-- Details state -->
+                <div id="state-details" style="display: none;">
+                    <p class="eyebrow">Cancel appointment</p>
+                    <h1>Are you sure?</h1>
+                    <p class="hero-text" id="cancel-greeting"></p>
+
+                    <div style="background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px 28px; margin: 32px 0; text-align: left;">
+                        <p style="margin: 0 0 8px;"><strong>Date:</strong> <span id="cancel-date"></span></p>
+                        <p style="margin: 0 0 8px;"><strong>Time:</strong> <span id="cancel-time"></span></p>
+                        <p style="margin: 0;"><strong>When:</strong> <span id="cancel-when"></span></p>
+                    </div>
+
+                    <div id="cancel-refund-box" style="border-radius: 14px; padding: 20px 24px; margin-bottom: 32px; text-align: left;">
+                        <p style="margin: 0; font-weight: 600;" id="cancel-refund-title"></p>
+                        <p style="margin: 6px 0 0; font-size: 14px; color: var(--muted);" id="cancel-refund-desc"></p>
+                    </div>
+
+                    <button id="cancel-confirm-btn" class="btn-primary" style="background: #c0392b; border-color: #c0392b;">
+                        Yes, cancel my appointment
+                    </button>
+                    <p style="margin-top: 16px;">
+                        <a href="index.html" style="color: var(--muted); font-size: 14px;">Never mind, keep my appointment</a>
+                    </p>
+                </div>
+
+                <!-- Success state -->
+                <div id="state-success" style="display: none;">
+                    <svg class="confirm-logo" width="80" height="80" viewBox="0 0 40 40" fill="none">
+                        <circle cx="20" cy="20" r="18" stroke="#8a9a7b" stroke-width="1" />
+                        <circle cx="20" cy="20" r="12" stroke="#b5713f" stroke-width="1" />
+                        <circle cx="20" cy="20" r="6" stroke="#8a9a7b" stroke-width="1" />
+                        <circle cx="20" cy="20" r="2" fill="#b5713f" />
+                    </svg>
+                    <p class="eyebrow">Appointment cancelled</p>
+                    <h1>You're all set.</h1>
+                    <p class="hero-text" id="success-refund-msg"></p>
+                    <a href="appointments.html" class="btn-primary" style="margin-top: 24px; display: inline-block;">Book a new session</a>
+                </div>
+
+                <!-- Error state -->
+                <div id="state-error" style="display: none;">
+                    <p class="eyebrow">Something went wrong</p>
+                    <h1 id="error-heading">This link is invalid.</h1>
+                    <p class="hero-text" id="error-message">This cancellation link has expired or has already been used.</p>
+                    <a href="contact.html" class="btn-primary" style="margin-top: 24px; display: inline-block;">Contact us for help</a>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/index.html" class="logo">
+                        <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                            <circle cx="20" cy="20" r="18" stroke="#8a9a7b" stroke-width="1" />
+                            <circle cx="20" cy="20" r="12" stroke="#b5713f" stroke-width="1" />
+                            <circle cx="20" cy="20" r="6" stroke="#8a9a7b" stroke-width="1" />
+                            <circle cx="20" cy="20" r="2" fill="#b5713f" />
+                        </svg>
+                        <span>The Wellness Co.</span>
+                    </a>
+                    <p class="hero-text" id="live-footer-bio">Quantum and energy healing for body, mind, and spirit. One practitioner, fully present with you.</p>
+                </div>
+                <div class="footer-explore">
+                    <p class="hero-text">Explore</p>
+                    <a href="/about.html">About</a>
+                    <a href="/services.html">Services</a>
+                    <a href="/stories.html">Stories</a>
+                    <a href="/faq.html">FAQ</a>
+                </div>
+                <div class="footer-contact">
+                    <p class="hero-text">Get in touch</p>
+                    <a href="mailto:hello@thewellnessco.com" id="live-footer-email">hello@thewellnessco.com</a>
+                    <a href="tel:7777777777" id="live-footer-phone">(777) 777-7777</a>
+                    <p class="hero-text" id="live-footer-address">AnyTown, MI</p>
+                    <a href="/appointments.html" class="btn-primary">Book a session</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 The Wellness Co. All rights reserved.</p>
+                <p>Complementary care — not a substitute for medical treatment.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function showState(name) {
+            ['loading', 'details', 'success', 'error'].forEach(s => {
+                document.getElementById(`state-${s}`).style.display = s === name ? '' : 'none';
+            });
+        }
+
+        function formatWhen(hoursUntil) {
+            if (hoursUntil <= 0) return 'This appointment has already passed';
+            if (hoursUntil < 24) return `In about ${Math.round(hoursUntil)} hour${hoursUntil >= 2 ? 's' : ''}`;
+            return `In about ${Math.round(hoursUntil / 24)} day${hoursUntil >= 48 ? 's' : ''}`;
+        }
+
+        function setRefundBox(refundType) {
+            const box = document.getElementById('cancel-refund-box');
+            const title = document.getElementById('cancel-refund-title');
+            const desc = document.getElementById('cancel-refund-desc');
+
+            if (refundType === 'full') {
+                box.style.background = '#f0faf4';
+                box.style.border = '1px solid #a8dbb9';
+                title.textContent = 'You qualify for a full refund';
+                desc.textContent = 'Your payment will be returned within 5–10 business days.';
+            } else if (refundType === 'half') {
+                box.style.background = '#fffbf0';
+                box.style.border = '1px solid #f5d78e';
+                title.textContent = 'You qualify for a 50% refund';
+                desc.textContent = 'Cancellations inside 48 hours receive a partial refund. Your payment will be returned within 5–10 business days.';
+            } else {
+                box.style.background = '#fdf2f2';
+                box.style.border = '1px solid #f5c0c0';
+                title.textContent = 'No refund available';
+                desc.textContent = 'This appointment has already passed.';
+            }
+        }
+
+        async function loadCancelPage() {
+            const params = new URLSearchParams(window.location.search);
+            const cancelToken = params.get('token');
+
+            if (!cancelToken) {
+                document.getElementById('error-heading').textContent = 'No cancellation link found';
+                document.getElementById('error-message').textContent = 'Please use the cancellation link from your confirmation email.';
+                showState('error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/cancel?token=${cancelToken}`);
+                const data = await res.json();
+
+                if (!res.ok) {
+                    document.getElementById('error-heading').textContent =
+                        data.error === 'This appointment is already cancelled.' ? 'Already cancelled' : 'Link not found';
+                    document.getElementById('error-message').textContent = data.error;
+                    showState('error');
+                    return;
+                }
+
+                document.getElementById('cancel-greeting').textContent = `Hi ${data.guest_name} — here are your appointment details.`;
+                document.getElementById('cancel-date').textContent = data.date;
+                document.getElementById('cancel-time').textContent = data.time;
+                document.getElementById('cancel-when').textContent = formatWhen(data.hoursUntil);
+                setRefundBox(data.refundType);
+                showState('details');
+
+                document.getElementById('cancel-confirm-btn').addEventListener('click', async () => {
+                    const btn = document.getElementById('cancel-confirm-btn');
+                    btn.textContent = 'Cancelling…';
+                    btn.disabled = true;
+
+                    const postRes = await fetch('/api/cancel', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token: cancelToken })
+                    });
+                    const postData = await postRes.json();
+
+                    if (postRes.ok) {
+                        const msgs = {
+                            full: 'Your full refund is on its way — allow 5–10 business days.',
+                            half: 'A 50% refund has been issued — allow 5–10 business days.',
+                            none: 'Your appointment has been cancelled. No refund was issued.'
+                        };
+                        document.getElementById('success-refund-msg').textContent = msgs[postData.refundType];
+                        showState('success');
+                    } else {
+                        document.getElementById('error-message').textContent = postData.error;
+                        showState('error');
+                    }
+                });
+
+            } catch (err) {
+                showState('error');
+            }
+        }
+
+        loadCancelPage();
+    </script>
+
+</body>
+</html>

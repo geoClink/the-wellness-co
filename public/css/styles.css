@@ -406,14 +406,6 @@ nav a.active {
     padding: 74px 0;
 }
 
-#availability-rows td:nth-of-types(5):before {
-    content: "Break Start";
-}
-
-#availability-rows td:nth-of-types(6):before {
-    content: "Break End";
-}
-
 .modalities-header {
     display: flex;
     align-items: flex-end;
