@@ -28,4 +28,37 @@ router.post("/api/login", async (req, res) => {
     }
 });
 
+router.post("/api/reset-password", async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ error: "Email is required." });
+
+        const authClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+        const { error } = await authClient.auth.resetPasswordForEmail(email, {
+            redirectTo: `${req.protocol}://${req.get('host')}/admin.html`
+        });
+
+        if (error) return res.status(400).json({ error: error.message });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to send reset email." });
+    }
+});
+
+router.post("/api/update-password", async (req, res) => {
+    try {
+        const { password, accessToken, refreshToken } = req.body;
+        if (!password || !accessToken) return res.status(400).json({ error: "Missing required fields." });
+
+        const authClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+        await authClient.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+        const { error } = await authClient.auth.updateUser({ password });
+
+        if (error) return res.status(400).json({ error: error.message });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to update password." });
+    }
+});
+
 module.exports = router;

@@ -119,6 +119,91 @@ if (logoutBtn) {
     });
 }
 
+// ==========================================
+// PASSWORD RESET FLOW
+// ==========================================
+
+// On page load, check if we arrived via a reset email link
+(function checkRecoveryToken() {
+    const hash = new URLSearchParams(window.location.hash.replace('#', '?'));
+    const type = hash.get('type');
+    const accessToken = hash.get('access_token');
+    const refreshToken = hash.get('refresh_token');
+
+    if (type === 'recovery' && accessToken) {
+        showLogin();
+        document.getElementById('login-form').style.display = 'none';
+        document.getElementById('new-password-form').style.display = '';
+        // Store tokens temporarily for the update call
+        document.getElementById('new-password-form').dataset.accessToken = accessToken;
+        document.getElementById('new-password-form').dataset.refreshToken = refreshToken || '';
+        // Clean up URL
+        history.replaceState(null, '', window.location.pathname);
+    }
+})();
+
+document.getElementById('show-reset-link')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('reset-request-form').style.display = '';
+});
+
+document.getElementById('back-to-login-link')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('reset-request-form').style.display = 'none';
+    document.getElementById('login-form').style.display = '';
+});
+
+document.getElementById('reset-request-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('reset-email').value;
+    const msg = document.getElementById('reset-request-msg');
+
+    const res = await fetch('/api/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+    });
+
+    if (res.ok) {
+        msg.style.color = 'green';
+        msg.textContent = 'Reset link sent — check your email.';
+    } else {
+        msg.style.color = 'red';
+        msg.textContent = 'Something went wrong. Try again.';
+    }
+});
+
+document.getElementById('new-password-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = document.getElementById('new-password-form');
+    const password = document.getElementById('new-password').value;
+    const msg = document.getElementById('new-password-msg');
+
+    const res = await fetch('/api/update-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            password,
+            accessToken: form.dataset.accessToken,
+            refreshToken: form.dataset.refreshToken
+        })
+    });
+
+    if (res.ok) {
+        msg.style.color = 'green';
+        msg.textContent = 'Password updated! Redirecting to login…';
+        setTimeout(() => {
+            form.style.display = 'none';
+            document.getElementById('login-form').style.display = '';
+        }, 1500);
+    } else {
+        const data = await res.json();
+        msg.style.color = 'red';
+        msg.textContent = data.error || 'Failed to update password.';
+    }
+});
+
 
 // ==========================================
 // 2. WEBSITE CUSTOMIZER (HERO SECTION)
