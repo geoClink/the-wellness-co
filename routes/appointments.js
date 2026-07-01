@@ -228,4 +228,39 @@ router.patch("/api/appointments/:id/status", adminAuth, async (req, res) => {
     }
 });
 
+router.post("/api/admin/appointments/:id/cancel", adminAuth, async (req, res) => {
+    try {
+        const { data: appt, error } = await supabase
+            .from("appointments")
+            .select("id, status, payment_intent_id, tenant_id")
+            .eq("id", req.params.id)
+            .eq("tenant_id", req.tenant.id)
+            .single();
+
+        if (error || !appt) return res.status(404).json({ error: "Appointment not found." });
+        if (appt.status === "cancelled") return res.status(400).json({ error: "Already cancelled." });
+
+        let refunded = false;
+        if (appt.payment_intent_id) {
+            const stripe = await getDynamicStripeClient(req.tenant.id);
+            const intent = await stripe.paymentIntents.retrieve(appt.payment_intent_id);
+            await stripe.refunds.create({
+                payment_intent: appt.payment_intent_id,
+                amount: intent.amount
+            });
+            refunded = true;
+        }
+
+        await supabase
+            .from("appointments")
+            .update({ status: "cancelled" })
+            .eq("id", appt.id)
+            .eq("tenant_id", req.tenant.id);
+
+        return res.json({ success: true, refunded });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;

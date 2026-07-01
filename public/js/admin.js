@@ -486,8 +486,7 @@ async function loadBookings() {
             <td>${escapeHtml(b.status)}</td>
             <td>
                 <div class="table-actions">
-                    <button onclick="updateStatus('${escapeHtml(b.id)}', 'confirmed')">Confirm</button>
-                    <button onclick="updateStatus('${escapeHtml(b.id)}', 'cancelled')">Cancel</button>
+                    <button class="delete-service-btn" onclick="adminCancelAndRefund('${escapeHtml(b.id)}')">Cancel & Refund</button>
                 </div>
             </td>
         </tr>
@@ -505,6 +504,27 @@ async function updateStatus(id, status) {
         body: JSON.stringify({ status })
     });
     loadBookings();
+}
+
+async function adminCancelAndRefund(id) {
+    if (!confirm('Cancel this appointment and issue a full refund to the client?')) return;
+
+    const currentToken = localStorage.getItem('admin_token');
+    const res = await fetch(`/api/admin/appointments/${id}/cancel`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${currentToken}` }
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+        alert(data.refunded
+            ? 'Appointment cancelled and full refund issued.'
+            : 'Appointment cancelled (no payment on record to refund).'
+        );
+        loadBookings();
+    } else {
+        alert('Error: ' + data.error);
+    }
 }
 
 
@@ -531,7 +551,7 @@ async function loadAdminReviews() {
     <tr>
         <td>${escapeHtml(r.name)}</td>
         <td>${escapeHtml(String(r.rating))}/5</td>
-        <td>${escapeHtml(r.body)}</td>            
+        <td>${escapeHtml(r.body)}</td>
         <td>${r.approved ? 'Approved' : 'Pending'}</td>
         <td>
             <div class="table-actions">

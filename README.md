@@ -17,19 +17,19 @@ Clients select a service, pick a date from a live availability calendar, choose 
 Available time slots are calculated server-side on every request. Any slot that already has a confirmed or pending appointment on that date is excluded from the response. Clients only ever see genuinely open times.
 
 ### Cancellations
-Every confirmation email includes a unique cancellation link tied to a secure token. Clients can cancel their own appointment without logging in or contacting the practitioner. On cancellation, the appointment status is updated and a full refund is automatically issued through the Stripe API.
+Every confirmation email includes a unique cancellation link tied to a secure token. Clients can cancel their own appointment without logging in or contacting the practitioner. Refunds are issued automatically through the Stripe API on a time-based policy: full refund if cancelled more than 48 hours before the appointment, half refund within 48 hours, no refund if the appointment time has passed.
 
 ### Rescheduling
 Clients can reschedule directly from their confirmation email. The original appointment is cancelled and a full refund is issued via Stripe, then the client is sent through a new booking flow to select a different date and time. No manual intervention required.
 
 ### Admin Dashboard
 Password-protected dashboard for the practitioner to manage the entire site:
-- View, confirm, and cancel bookings
+- View bookings and cancel with automatic full Stripe refund
 - Add, edit, and delete services
 - Set weekly availability and block specific dates
 - Approve client reviews and mark featured testimonials
 - Edit homepage, about page, and footer content
-- Configure Stripe and Resend API keys per tenant
+- Connect Stripe and Resend accounts directly from the Settings tab — no code changes or redeployment needed
 
 ### Transactional Email
 Booking confirmations, cancellation receipts, and reschedule links are sent automatically via Resend. Emails include appointment details, a calendar-friendly summary, and the self-serve cancellation link.
@@ -48,7 +48,7 @@ Booking confirmations, cancellation receipts, and reschedule links are sent auto
 - Helmet for security headers
 - express-rate-limit for API protection
 
-**Deployed on Vercel**
+**Deployed on Render**
 
 ## Pages
 
@@ -74,18 +74,19 @@ Booking confirmations, cancellation receipts, and reschedule links are sent auto
 | GET | `/api/services` | Fetch active services |
 | GET | `/api/availability?date=YYYY-MM-DD` | Available time slots for a date |
 | POST | `/api/appointments` | Initiate Stripe checkout |
-| POST | `/api/webhook` | Stripe webhook — saves appointment and sends confirmation email |
+| POST | `/stripe-webhook` | Stripe webhook — saves appointment and sends confirmation email |
 | GET | `/api/cancel?token=` | Load appointment details for cancellation |
 | POST | `/api/cancel` | Cancel appointment and issue refund |
 | POST | `/api/reschedule` | Reschedule appointment and issue full refund |
+| POST | `/api/admin/appointments/:id/cancel` | Admin cancel with automatic full Stripe refund |
 | POST | `/api/contact` | Submit contact form |
 | POST | `/api/login` | Admin login via Supabase Auth |
 | POST | `/api/reset-password` | Send password reset email |
 | POST | `/api/update-password` | Set new password via reset token |
 | GET/PUT | `/api/settings/footer` | Footer content |
-| GET/PUT | `/api/settings/availability` | Weekly availability schedule |
+| GET/POST | `/api/settings/availability` | Weekly availability schedule |
 | GET/PUT | `/api/settings/integrations` | Per-tenant Stripe and Resend keys |
-| GET/PUT | `/api/blocked-dates` | Admin-blocked dates |
+| GET/POST/DELETE | `/api/blocked-dates` | Admin-blocked dates |
 | GET/POST | `/api/reviews` | Client reviews with admin approval |
 
 ## Local Setup
