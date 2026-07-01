@@ -19,6 +19,14 @@ if (token) {
     showLogin();
 }
 
+document.querySelectorAll('.admin-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).style.display = 'block';
+    });
+});
 
 async function loadContacts() {
     const currentToken = localStorage.getItem('admin_token');
