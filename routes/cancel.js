@@ -36,6 +36,43 @@ router.get('/api/cancel', async (req, res) => {
     }
 });
 
+router.post('/api/reschedule', async (req, res) => {
+    try {
+        const { token } = req.body;
+        if (!token) return res.status(400).json({ error: 'Missing token.' });
+
+        const { data: appt, error } = await supabase
+            .from("appointments")
+            .select('id, date, time, status, payment_intent_id, tenant_id')
+            .eq('cancel_token', token)
+            .single();
+
+        if (error || !appt) return res.status(404).json({ error: 'Appointment not found.' });
+        if (appt.status === 'rescheduled') return res.status(400).json({ error: 'Already canceled.' });
+
+
+        if (appt.payment_intent_id) {
+            const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+            const intent = await stripe.paymentIntents.retrieve(appt.payment_intent_id);
+
+           
+                await stripe.refunds.create({
+                    payment_intent: appt.payment_intent_id,
+                    amount: intent.amount
+                });
+        }
+
+        await supabase
+            .from('appointments')
+            .update({ status: 'rescheduled' })
+            .eq('id', appt.id)
+
+            res.json({ success: true, refundType: 'full' })
+            
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 router.post('/api/cancel', async (req, res) => {
     try {
@@ -77,4 +114,5 @@ router.post('/api/cancel', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
 module.exports = router;

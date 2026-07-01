@@ -73,6 +73,9 @@
                     <button id="cancel-confirm-btn" class="btn-primary" style="background: #c0392b; border-color: #c0392b;">
                         Yes, cancel my appointment
                     </button>
+                    <button id="reschedule-btn" class="btn-primary" style="background: var(--sage); border-color: var(--sage);">
+                        I want to reschedule my appointment.
+                    </button>
                     <p style="margin-top: 16px;">
                         <a href="index.html" style="color: var(--muted); font-size: 14px;">Never mind, keep my appointment</a>
                     </p>
@@ -225,6 +228,28 @@
                             half: 'A 50% refund has been issued — allow 5–10 business days.',
                             none: 'Your appointment has been cancelled. No refund was issued.'
                         };
+                        document.getElementById('success-refund-msg').textContent = msgs[postData.refundType];
+                        showState('success');
+                    } else {
+                        document.getElementById('error-message').textContent = postData.error;
+                        showState('error');
+                    }
+                });
+
+                document.getElementById('reschedule-btn').addEventListener('click', async () => {
+                    const btn = document.getElementById('reschedule-btn');
+                    btn.textContent = 'Rescheduling';
+                    btn.disabled = true;
+
+                    const postRes = await fetch('/api/reschedule', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token: cancelToken })
+                    });
+                    const postData = await postRes.json();
+
+                    if (postRes.ok) {
+                        cdocument.getElementById('success-refund-msg').textContent = 'Your full refund is on its way. Book a new time whenever you are ready.';
                         document.getElementById('success-refund-msg').textContent = msgs[postData.refundType];
                         showState('success');
                     } else {
