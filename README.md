@@ -142,6 +142,10 @@ VALUES ('Your Business', 'your-slug', 'wellness', 'owner@yourdomain.com', 'info@
 
 Each deployment is scoped to a single tenant via the `TENANT_SLUG` environment variable. All database queries are filtered by `tenant_id`, so multiple tenants can share the same Supabase instance and API server safely. To onboard a new client, insert a tenant row and deploy a new Vercel project with their `TENANT_SLUG`.
 
+## Admin Walkthrough
+
+https://github.com/user-attachments/assets/79d25a97-625b-4dc2-8631-862cca6d2f43
+
 ## Screenshots
 
 **Live site:** [the-wellness-co.onrender.com](https://the-wellness-co.onrender.com) · Fully responsive — adapted for mobile.
