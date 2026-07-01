@@ -622,6 +622,10 @@ a.btn-primary:visited {
     margin: 0 0 20px;
 }
 
+.about-training {
+    margin-top: 40px;
+}
+
 .about-training ul {
     list-style: none;
     padding: 0;
@@ -657,7 +661,7 @@ a.btn-primary:visited {
     border-radius: 14px;
 }
 
-.about-promise h3 {
+.about-promise h2 {
     font-family: 'Cormorant Garamond', serif;
     font-size: 28px;
     font-weight: 500;
@@ -668,7 +672,7 @@ a.btn-primary:visited {
     color: var(--muted);
     font-size: 16px;
     line-height: 1.7;
-    margin: 0 0 20px;
+    margin: 0 0 28px;
 }
 
 .stories-hero .hero-text {
