@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const supabase = require("../lib/supabase");
+const { emailTemplate } = require('../lib/email');
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -81,25 +82,22 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
         try {
             // Requiring dynamically inside code logic prevents root compilation crashes if file structure changes
             const emailUtils = require("../utils/email");
-            if (emailUtils && typeof emailUtils.sendDynamicTenantEmail === 'function') {
-                await emailUtils.sendDynamicTenantEmail(m.tenant_id, {
-                    to: m.email,
-                    subject: "Your appointment is confirmed!",
-                    html: `
-                        <div style="font-family: sans-serif; color: #2c2823; max-width: 600px; padding: 20px;">
-                            <h3>Hi ${escapeHtml(m.guest_name)},</h3>
-                            <p>Your appointment has been successfully booked and confirmed!</p>
-                            <hr style="border: 0; border-top: 1px solid #e6dcc9; margin: 20px 0;">
-                            <p><strong>Session Date:</strong> ${escapeHtml(m.date)}</p>
-                            <p><strong>Arrival Time:</strong> ${escapeHtml(m.time)}</p>
-                            <hr style="border: 0; border-top: 1px solid #e6dcc9; margin: 20px 0;">
-                            <p style="font-size: 14px; color: #6f665a;">Thank you for booking with us.</p>
-                            <p style="margin-top: 16px; font-size: 14px;">Need to cancel? <a href="${req.protocol}://${req.get('host')}/cancel.html?token=${newAppt.cancel_token}" style="color: #b5713f;">Cancel this appointment</a></p>
-                        </div>
-                    `
-                });
-                console.log("✅ Dynamic confirmation email processed cleanly!");
-            }
+            const bodyHtml = `
+                <p>Hi ${escapeHtml(m.guest_name)},</p>
+                <p>Your appointment has been successfully booked and confirmed!</p>
+                <hr style="border: 0; border-top: 1px solid #e6dcc9; margin: 20px 0;">
+                <p><strong>Session Date:</strong> ${escapeHtml(m.date)}</p>
+                <p><strong>Arrival Time:</strong> ${escapeHtml(m.time)}</p>
+                <hr style="border: 0; border-top: 1px solid #e6dcc9; margin: 20px 0;">
+                <p style="font-size: 14px; color: #6f665a;">Thank you for booking with us.</p>
+                <p style="margin-top: 16px; font-size: 14px;">Need to cancel? <a href="${req.protocol}://${req.get('host')}/cancel.html?token=${newAppt.cancel_token}" style="color: #b5713f;">Cancel this appointment</a></p>
+            `;
+            await emailUtils.sendDynamicTenantEmail(m.tenant_id, {
+                to: m.email,
+                subject: "Your appointment is confirmed!",
+                html: emailTemplate('Your appointment is confirmed!', bodyHtml)
+            });
+            console.log("✅ Dynamic confirmation email processed cleanly!");
         } catch (emailErr) {
             console.error("⚠️ Webhook database updated, but dynamic email delivery engine failed gracefully:", emailErr.message);
         }

@@ -53,14 +53,8 @@ router.post('/api/cancel', async (req, res) => {
 
         const hoursUntil = (new Date(`${appt.date} ${appt.time}`) - Date.now()) / (1000 * 60 * 60);
 
-        const { data: settings } = await supabase
-            .from('site_settings')
-            .select('stripe_secret_key')
-            .eq('tenant_id', appt.tenant_id)
-            .single();
-
-        if (appt.payment_intent_id && settings?.stripe_secret_key) {
-            const stripe = require('stripe')(settings.stripe_secret_key);
+        if (appt.payment_intent_id) {
+            const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
             const intent = await stripe.paymentIntents.retrieve(appt.payment_intent_id);
             const refundAmount = hoursUntil > 48 ? intent.amount : Math.round(intent.amount / 2);
 
