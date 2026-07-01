@@ -8,40 +8,6 @@ Built as a learning project while transitioning from Swift/SwiftUI to web develo
 
 https://github.com/user-attachments/assets/f558698f-1bda-43a5-9770-638f02d315e4
 
-## Screenshots
-
-**Live site:** [the-wellness-co.onrender.com](https://the-wellness-co.onrender.com) · Fully responsive — adapted for mobile.
-
-| **Home** | **About** |
-|---|---|
-| Hero, service cards, testimonials, and closing CTA | Practitioner bio, training certifications, and promise card |
-| ![Home](docs/screenshots/wellnesscoindex.png) | ![About](docs/screenshots/wellnesscoaboutpage.png) |
-
-| **Services** | **Book a Session** |
-|---|---|
-| Full service list with pricing and booking links | Multi-step booking flow with calendar, time slots, and Stripe checkout |
-| ![Services](docs/screenshots/wellnesscoservicespage.png) | ![Book a Session](docs/screenshots/wellnesscobooksessionpage.png) |
-
-| **Stories** | **FAQ** |
-|---|---|
-| Client testimonials with a featured quote banner | Accordion FAQ with expandable answers |
-| ![Stories](docs/screenshots/wellnesscostoriespage.png) | ![FAQ](docs/screenshots/wellnesscofaqpage.png) |
-
-| **Contact** | |
-|---|---|
-| Contact form with business hours and location info | |
-| ![Contact](docs/screenshots/wellnesscocontactpage.png) | |
-
-## Mobile
-
-<img src="docs/screenshots/wellnesscomobileindexview.png" width="32%" alt="Mobile Home" />
-<img src="docs/screenshots/wellnesscomobileaboutview.html.png" width="32%" alt="Mobile About" />
-<img src="docs/screenshots/wellnesscomobileservicesview.html.png" width="32%" alt="Mobile Services" />
-<img src="docs/screenshots/wellnesscomobileappointmentview.html.png" width="32%" alt="Mobile Book a Session" />
-<img src="docs/screenshots/wellnesscomobilestoriesview.html.png" width="32%" alt="Mobile Stories" />
-<img src="docs/screenshots/wellnesscomobilefaqview.html.png" width="32%" alt="Mobile FAQ" />
-<img src="docs/screenshots/wellnesscomobilecontactview.html.png" width="32%" alt="Mobile Contact" />
-
 ## Stack
 
 **Frontend**
@@ -148,3 +114,47 @@ VALUES ('Your Business', 'your-slug', 'wellness', 'owner@yourdomain.com', 'info@
 ## Multi-Tenant Architecture
 
 Each deployment is scoped to a single tenant via the `TENANT_SLUG` environment variable. All database queries are filtered by `tenant_id`, so multiple tenants can share the same Supabase instance and API server safely. To onboard a new client, insert a tenant row and deploy a new Vercel project with their `TENANT_SLUG`.
+
+## Screenshots
+
+**Live site:** [the-wellness-co.onrender.com](https://the-wellness-co.onrender.com) · Fully responsive — adapted for mobile.
+
+| **Home** | **About** |
+|---|---|
+| Hero, service cards, testimonials, and closing CTA | Practitioner bio, training certifications, and promise card |
+| ![Home](docs/screenshots/wellnesscoindex.png) | ![About](docs/screenshots/wellnesscoaboutpage.png) |
+
+| **Services** | **Book a Session** |
+|---|---|
+| Full service list with pricing and booking links | Multi-step booking flow with calendar, time slots, and Stripe checkout |
+| ![Services](docs/screenshots/wellnesscoservicespage.png) | ![Book a Session](docs/screenshots/wellnesscobooksessionpage.png) |
+
+| **Stories** | **FAQ** |
+|---|---|
+| Client testimonials with a featured quote banner | Accordion FAQ with expandable answers |
+| ![Stories](docs/screenshots/wellnesscostoriespage.png) | ![FAQ](docs/screenshots/wellnesscofaqpage.png) |
+
+| **Contact** | |
+|---|---|
+| Contact form with business hours and location info | |
+| ![Contact](docs/screenshots/wellnesscocontactpage.png) | |
+
+## Mobile
+
+<table>
+  <tr>
+    <td><img src="docs/screenshots/wellnesscomobileindexview.png" alt="Mobile Home" /></td>
+    <td><img src="docs/screenshots/wellnesscomobileaboutview.html.png" alt="Mobile About" /></td>
+    <td><img src="docs/screenshots/wellnesscomobileservicesview.html.png" alt="Mobile Services" /></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/wellnesscomobileappointmentview.html.png" alt="Mobile Book a Session" /></td>
+    <td><img src="docs/screenshots/wellnesscomobilestoriesview.html.png" alt="Mobile Stories" /></td>
+    <td><img src="docs/screenshots/wellnesscomobilefaqview.html.png" alt="Mobile FAQ" /></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/wellnesscomobilecontactview.html.png" alt="Mobile Contact" /></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
