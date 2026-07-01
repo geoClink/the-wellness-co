@@ -345,16 +345,15 @@
                 padding: 16px 12px;
             }
 
-            /* 🌟 FIX: Changes header into vertical layout so Log Out drops cleanly below the text */
             .dashboard-header-block {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 14px;
+                gap: 12px;
                 margin-bottom: 20px;
             }
 
             .dashboard-header-block h1 {
-                font-size: 28px;
+                font-size: 24px;
                 text-align: center;
             }
 
@@ -366,11 +365,10 @@
             }
 
             .panel {
-                padding: 20px 14px;
-                margin-bottom: 20px;
+                padding: 18px 14px;
+                margin-bottom: 16px;
             }
 
-            /* 🌟 FIX: Ensures no element runs off the right side edge */
             input[type="text"],
             input[type="url"],
             input[type="email"],
@@ -385,7 +383,7 @@
             #add-review-form div {
                 flex-direction: column !important;
                 align-items: stretch !important;
-                gap: 12px !important;
+                gap: 0 !important;
             }
 
             #add-service-form button,
@@ -393,12 +391,26 @@
                 width: 100% !important;
             }
 
-            /* Responsive Table Transformations */
-            table,
-            tbody,
-            th,
-            td,
-            tr {
+            /* Tab bar: single horizontally scrollable row */
+            .admin-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding-bottom: 4px;
+            }
+
+            .admin-tabs::-webkit-scrollbar {
+                display: none;
+            }
+
+            .admin-tab {
+                flex-shrink: 0;
+                white-space: nowrap;
+            }
+
+            /* Standard tables → stacked card layout */
+            table, tbody, th, td, tr {
                 display: block;
             }
 
@@ -410,18 +422,18 @@
 
             tr {
                 border: 1px solid var(--line);
-                border-radius: 8px;
-                margin-bottom: 15px;
+                border-radius: 10px;
+                margin-bottom: 12px;
                 background: var(--white);
-                padding: 8px;
+                padding: 4px 12px;
+                box-shadow: 0 2px 8px -2px rgba(44, 40, 35, 0.08);
             }
 
             td {
                 border: none;
                 border-bottom: 1px dashed var(--bg);
-                position: relative;
-                padding-left: 45% !important;
-                text-align: right !important;
+                padding: 10px 0;
+                text-align: left !important;
                 white-space: normal;
             }
 
@@ -429,110 +441,74 @@
                 border-bottom: none;
             }
 
+            /* Label stacks above the value */
             td:before {
-                position: absolute;
-                top: 14px;
-                left: 12px;
-                width: 40%;
-                padding-right: 10px;
+                display: block;
+                position: static;
+                width: auto;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                color: var(--muted);
+                margin-bottom: 3px;
                 white-space: nowrap;
-                text-align: left;
-                font-weight: 600;
-                color: var(--clay-text);
-            }
-
-            #availability-rows td:nth-of-type(1):before {
-                content: "Day";
-            }
-
-            #availability-rows td:nth-of-type(2):before {
-                content: "Status";
-            }
-
-            #availability-rows td:nth-of-type(3):before {
-                content: "Start Time";
-            }
-
-            #availability-rows td:nth-of-type(4):before {
-                content: "End Time";
-            }
-
-            #availability-rows td:nth-of-type(5):before {
-                content: "Break Start";
-            }
-
-            #availability-rows td:nth-of-type(6):before {
-                content: "Break End";
-            }
-
-            #services-body td:nth-of-type(1):before {
-                content: "Service";
-            }
-
-            #services-body td:nth-of-type(2):before {
-                content: "Description";
-            }
-
-            #services-body td:nth-of-type(3):before {
-                content: "Rate";
-            }
-
-            #services-body td:nth-of-type(4):before {
-                content: "Action";
-            }
-
-            #bookings-body td:nth-of-type(1):before {
-                content: "Date";
-            }
-
-            #bookings-body td:nth-of-type(2):before {
-                content: "Time";
-            }
-
-            #bookings-body td:nth-of-type(3):before {
-                content: "Client";
-            }
-
-            #bookings-body td:nth-of-type(4):before {
-                content: "Email";
-            }
-
-            #bookings-body td:nth-of-type(5):before {
-                content: "Phone";
-            }
-
-            #bookings-body td:nth-of-type(6):before {
-                content: "Status";
-            }
-
-            #bookings-body td:nth-of-type(7):before {
-                content: "Action";
-            }
-
-            #reviews-body td:nth-of-type(1):before {
-                content: "Name";
-            }
-
-            #reviews-body td:nth-of-type(2):before {
-                content: "Rating";
-            }
-
-            #reviews-body td:nth-of-type(3):before {
-                content: "Quote";
-            }
-
-            #reviews-body td:nth-of-type(4):before {
-                content: "Status";
-            }
-
-            #reviews-body td:nth-of-type(5):before {
-                content: "Action";
             }
 
             td button {
                 width: 100%;
                 margin: 4px 0 !important;
             }
+
+            /* Availability table: too complex to stack — use horizontal scroll */
+            #availability-form {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #availability-form table  { display: table; min-width: 560px; }
+            #availability-form thead  { display: table-header-group; }
+            #availability-form tbody  { display: table-row-group; }
+            #availability-form tr     { display: table-row; box-shadow: none; border: none; border-radius: 0; margin: 0; padding: 0; background: transparent; }
+            #availability-form th,
+            #availability-form td     { display: table-cell; padding: 10px 8px; text-align: left !important; border-bottom: 1px solid var(--bg); }
+            #availability-form thead tr { position: static; }
+            #availability-form td:before { display: none; }
+
+            /* td:before labels — Bookings */
+            #bookings-body td:nth-of-type(1):before { content: "Date"; }
+            #bookings-body td:nth-of-type(2):before { content: "Time"; }
+            #bookings-body td:nth-of-type(3):before { content: "Client"; }
+            #bookings-body td:nth-of-type(4):before { content: "Email"; }
+            #bookings-body td:nth-of-type(5):before { content: "Phone"; }
+            #bookings-body td:nth-of-type(6):before { content: "Status"; }
+            #bookings-body td:nth-of-type(7):before { content: "Action"; }
+
+            /* Services */
+            #services-body td:nth-of-type(1):before { content: "Service"; }
+            #services-body td:nth-of-type(2):before { content: "Description"; }
+            #services-body td:nth-of-type(3):before { content: "Rate"; }
+            #services-body td:nth-of-type(4):before { content: "Action"; }
+
+            /* Reviews */
+            #reviews-body td:nth-of-type(1):before { content: "Name"; }
+            #reviews-body td:nth-of-type(2):before { content: "Rating"; }
+            #reviews-body td:nth-of-type(3):before { content: "Quote"; }
+            #reviews-body td:nth-of-type(4):before { content: "Status"; }
+            #reviews-body td:nth-of-type(5):before { content: "Action"; }
+
+            /* Inbox */
+            #contact-body td:nth-of-type(1):before { content: "Name"; }
+            #contact-body td:nth-of-type(2):before { content: "Email"; }
+            #contact-body td:nth-of-type(3):before { content: "Subject"; }
+            #contact-body td:nth-of-type(4):before { content: "Message"; }
+            #contact-body td:nth-of-type(5):before { content: "Status"; }
+            #contact-body td:nth-of-type(6):before { content: "Action"; }
+
+            /* Blocked Dates */
+            #blocked-dates-list td:nth-of-type(1):before { content: "Date"; }
+            #blocked-dates-list td:nth-of-type(2):before { content: "Reason"; }
+            #blocked-dates-list td:nth-of-type(3):before { content: "Action"; }
         }
     </style>
 </head>

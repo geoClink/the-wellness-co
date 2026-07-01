@@ -5,6 +5,14 @@ const adminAuth = async (req, res, next) => {
         const token = req.headers.authorization?.replace("Bearer ", "");
         if (!token) return res.status(401).json({ error: "Unauthorized" });
 
+        if (process.env.DEMO_TOKEN && token === process.env.DEMO_TOKEN) {
+            if (req.method !== "GET") {
+                return res.status(403).json({ error: "Read-only demo — this action is disabled." });
+            }
+            req.isDemo = true;
+            return next();
+        }
+
         const { data: { user }, error } = await supabase.auth.getUser(token);
         if (error || !user) return res.status(401).json({ error: "Unauthorized" });
 

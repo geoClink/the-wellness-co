@@ -10,14 +10,33 @@ function escapeHtml(str) {
 }
 
 // Global state tracking for auth session
-const token = localStorage.getItem('admin_token');
+const isDemo = localStorage.getItem('demo_mode') === 'true';
 
-// Application Bootstrapper
-if (token) {
-    showDashboard();
-} else {
-    showLogin();
-}
+// Auto-login when arriving via ?demo param (e.g. from a portfolio link)
+(async function checkDemoParam() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('demo') === 'true') {
+        try {
+            const res = await fetch('/api/demo-login');
+            if (res.ok) {
+                const data = await res.json();
+                localStorage.setItem('admin_token', data.token);
+                localStorage.setItem('demo_mode', 'true');
+                history.replaceState(null, '', window.location.pathname);
+                showDashboard();
+                return;
+            }
+        } catch (err) {
+            console.error("Demo auto-login failed:", err);
+        }
+    }
+    const token = localStorage.getItem('admin_token');
+    if (token) {
+        showDashboard();
+    } else {
+        showLogin();
+    }
+})();
 
 document.querySelectorAll('.admin-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -74,9 +93,55 @@ function showDashboard() {
     loadAboutContent();
     loadBlockedDates();
     loadAvailabilitySettings();
-
-    // 🌟 ADD THIS LINE HERE:
     loadIntegrationSettings();
+
+    if (isDemo) applyDemoMode();
+}
+
+function applyDemoMode() {
+    document.body.classList.add('demo-mode');
+
+    const banner = document.createElement('div');
+    banner.id = 'demo-banner';
+    banner.style.cssText = `
+        background: #5f6e52; color: #fff; text-align: center;
+        padding: 10px 20px; font-size: 14px; font-family: inherit;
+        position: sticky; top: 0; z-index: 999; letter-spacing: 0.02em;
+    `;
+    banner.innerHTML = `<strong>Demo Mode</strong> &mdash; You are viewing a live read-only preview. All actions are disabled.`;
+    document.body.prepend(banner);
+
+    document.querySelectorAll('button:not(#logout-btn):not(.admin-tab), input[type="submit"]').forEach(btn => {
+        btn.disabled = true;
+        btn.title = 'Disabled in demo mode';
+        btn.style.opacity = '0.45';
+        btn.style.cursor = 'not-allowed';
+    });
+}
+
+function showDemoToast() {
+    let toast = document.getElementById('demo-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'demo-toast';
+        toast.style.cssText = `
+            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+            background: #2c2823; color: #fff; padding: 12px 28px; border-radius: 8px;
+            font-size: 14px; font-family: inherit; z-index: 9999;
+            transition: opacity 0.3s; pointer-events: none;
+        `;
+        document.body.appendChild(toast);
+    }
+    toast.textContent = 'Actions are disabled in demo mode.';
+    toast.style.opacity = '1';
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+}
+
+function demoGuard() {
+    if (!isDemo) return false;
+    showDemoToast();
+    return true;
 }
 // ==========================================
 // 1. AUTHENTICATION HANDLERS
@@ -103,6 +168,8 @@ if (loginForm) {
 
             const data = await res.json();
             localStorage.setItem('admin_token', data.token);
+            if (data.isDemo) localStorage.setItem('demo_mode', 'true');
+            else localStorage.removeItem('demo_mode');
             showDashboard();
         } catch (err) {
             console.error("Network error during login:", err);
@@ -115,6 +182,7 @@ const logoutBtn = document.getElementById('logout-btn');
 if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
         localStorage.removeItem('admin_token');
+        localStorage.removeItem('demo_mode');
         showLogin();
     });
 }
@@ -210,6 +278,7 @@ document.getElementById('new-password-form')?.addEventListener('submit', async (
 // ==========================================
 
 async function markContactRead(id) {
+    if (demoGuard()) return;
     const currentToken = localStorage.getItem('admin_token');
     await fetch(`/api/contact/${id}/read`, {
         method: 'PATCH',
@@ -241,6 +310,7 @@ const heroForm = document.getElementById('hero-form');
 if (heroForm) {
     heroForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (demoGuard()) return;
         const currentToken = localStorage.getItem('admin_token');
         const statusEl = document.getElementById('hero-status');
         const fileInput = document.getElementById('hero-image-file');
@@ -345,6 +415,7 @@ function editServiceRow(id, name, description, price) {
 }
 
 async function saveServiceEdit(id) {
+    if (demoGuard()) return;
     const currentToken = localStorage.getItem('admin_token');
     const name = document.getElementById(`edit-name-${id}`).value;
     const description = document.getElementById(`edit-desc-${id}`).value;
@@ -384,6 +455,7 @@ const bizProfileForm = document.getElementById('business-profile-form');
 if (bizProfileForm) {
     bizProfileForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (demoGuard()) return;
         const currentToken = localStorage.getItem('admin_token');
         const statusEl = document.getElementById('profile-status');
 
@@ -415,6 +487,7 @@ const addServiceForm = document.getElementById('add-service-form');
 if (addServiceForm) {
     addServiceForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (demoGuard()) return;
         const currentToken = localStorage.getItem('admin_token');
         const title = document.getElementById('service-title').value.trim();
         const description = document.getElementById('service-desc').value.trim();
@@ -442,6 +515,7 @@ const servicesBody = document.getElementById('services-body');
 if (servicesBody) {
     servicesBody.addEventListener('click', async (e) => {
         if (!e.target.classList.contains('delete-service-btn')) return;
+        if (demoGuard()) return;
         if (!confirm('Permanently wipe out this active service profile?')) return;
 
         const currentToken = localStorage.getItem('admin_token');
@@ -494,6 +568,7 @@ async function loadBookings() {
 }
 
 async function updateStatus(id, status) {
+    if (demoGuard()) return;
     const currentToken = localStorage.getItem('admin_token');
     await fetch(`/api/appointments/${id}/status`, {
         method: 'PATCH',
@@ -507,6 +582,7 @@ async function updateStatus(id, status) {
 }
 
 async function adminCancelAndRefund(id) {
+    if (demoGuard()) return;
     if (!confirm('Cancel this appointment and issue a full refund to the client?')) return;
 
     const currentToken = localStorage.getItem('admin_token');
@@ -569,6 +645,7 @@ async function loadAdminReviews() {
 }
 
 async function approveReview(id) {
+    if (demoGuard()) return;
     const currentToken = localStorage.getItem('admin_token');
     const res = await fetch(`/api/reviews/${id}/approve`, {
         method: 'PATCH',
@@ -578,6 +655,7 @@ async function approveReview(id) {
 }
 
 async function deleteReview(id) {
+    if (demoGuard()) return;
     const currentToken = localStorage.getItem('admin_token');
     const res = await fetch(`/api/reviews/${id}`, {
         method: 'DELETE',
@@ -588,6 +666,7 @@ async function deleteReview(id) {
 
 // 🎯 ADD THIS new function inside Section 5:
 async function toggleFeaturedReview(id) {
+    if (demoGuard()) return;
     const currentToken = localStorage.getItem('admin_token');
 
     try {
@@ -614,6 +693,7 @@ const addReviewForm = document.getElementById('add-review-form');
 if (addReviewForm) {
     addReviewForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (demoGuard()) return;
         const currentToken = localStorage.getItem('admin_token');
         const name = document.getElementById('review-name').value.trim();
         const rating = document.getElementById('review-rating').value;
@@ -663,6 +743,7 @@ async function loadFooterContent() {
 
 document.getElementById('footer-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (demoGuard()) return;
     const token = localStorage.getItem('admin_token');
     const statusEl = document.getElementById('footer-status');
 
@@ -716,6 +797,7 @@ const integrationsForm = document.getElementById('integrations-form');
 if (integrationsForm) {
     integrationsForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (demoGuard()) return;
         const token = localStorage.getItem('admin_token');
         const statusEl = document.getElementById('gateway-status');
 
@@ -858,6 +940,7 @@ async function loadBlockedDates() {
 }
 
 async function removeBlockedDate(id) {
+    if (demoGuard()) return;
     const token = localStorage.getItem('admin_token');
     await fetch(`/api/blocked-dates/${id}`, {
         method: 'DELETE',
@@ -868,6 +951,7 @@ async function removeBlockedDate(id) {
 
 document.getElementById('blocked-date-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (demoGuard()) return;
     const token = localStorage.getItem('admin_token');
     const date = document.getElementById('blocked-date-input').value;
     const reason = document.getElementById('blocked-reason-input').value;
@@ -884,6 +968,7 @@ const availForm = document.getElementById('availability-form');
 if (availForm) {
     availForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (demoGuard()) return;
         const currentToken = localStorage.getItem('admin_token');
         const statusEl = document.getElementById('avail-status');
 
@@ -940,6 +1025,7 @@ const aboutForm = document.getElementById('about-form');
 if (aboutForm) {
     aboutForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (demoGuard()) return;
         const currentToken = localStorage.getItem('admin_token');
         const statusEl = document.getElementById('about-status');
         const fileInput = document.getElementById('about-image-file');

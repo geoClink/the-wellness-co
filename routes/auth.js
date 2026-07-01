@@ -6,7 +6,14 @@ router.post("/api/login", async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Isolate client creation directly to the route execution stack 
+        if (
+            process.env.DEMO_EMAIL && process.env.DEMO_PASSWORD && process.env.DEMO_TOKEN &&
+            email === process.env.DEMO_EMAIL && password === process.env.DEMO_PASSWORD
+        ) {
+            return res.json({ token: process.env.DEMO_TOKEN, isDemo: true });
+        }
+
+        // Isolate client creation directly to the route execution stack
         // to prevent global thread pooling/tenant resolution bugs on serverless runtimes.
         const authClient = createClient(
             process.env.SUPABASE_URL,
@@ -26,6 +33,13 @@ router.post("/api/login", async (req, res) => {
         console.error("Login Exception caught:", err.message);
         res.status(500).json({ error: "Internal service routing failure." });
     }
+});
+
+router.get("/api/demo-login", async (req, res) => {
+    if (!process.env.DEMO_TOKEN) {
+        return res.status(404).json({ error: "Demo not configured." });
+    }
+    return res.json({ token: process.env.DEMO_TOKEN, isDemo: true });
 });
 
 router.post("/api/reset-password", async (req, res) => {

@@ -38,6 +38,12 @@ Password-protected dashboard for the practitioner to manage the entire site:
 ### Transactional Email
 Booking confirmations, cancellation receipts, and reschedule links are sent automatically via Resend. Emails include appointment details, a calendar-friendly summary, and the self-serve cancellation link.
 
+## Admin Walkthrough
+
+A walkthrough of the password-protected admin dashboard — managing bookings, services, availability, reviews, site content, and payment integrations.
+
+https://github.com/user-attachments/assets/79d25a97-625b-4dc2-8631-862cca6d2f43
+
 ## Stack
 
 **Frontend**
@@ -52,7 +58,7 @@ Booking confirmations, cancellation receipts, and reschedule links are sent auto
 - Helmet for security headers
 - express-rate-limit for API protection
 
-**Deployed on Render**
+**Deployed on Vercel**
 
 ## Pages
 
@@ -145,12 +151,6 @@ VALUES ('Your Business', 'your-slug', 'wellness', 'owner@yourdomain.com', 'info@
 ## Multi-Tenant Architecture
 
 Each deployment is scoped to a single tenant via the `TENANT_SLUG` environment variable. All database queries are filtered by `tenant_id`, so multiple tenants can share the same Supabase instance and API server safely. To onboard a new client, insert a tenant row and deploy a new Vercel project with their `TENANT_SLUG`.
-
-## Admin Walkthrough
-
-A walkthrough of the password-protected admin dashboard — managing bookings, services, availability, reviews, site content, and payment integrations.
-
-https://github.com/user-attachments/assets/79d25a97-625b-4dc2-8631-862cca6d2f43
 
 ## Screenshots
 
