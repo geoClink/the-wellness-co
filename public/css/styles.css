@@ -227,7 +227,7 @@ nav a.active {
 a.btn-primary,
 a.btn-primary:hover,
 a.btn-primary:visited {
-    color: var(--white);
+    color: var(--white) !important;
 }
 
 .btn-outline {
