@@ -223,18 +223,56 @@ async function loadAdminServices() {
         }
 
         tbody.innerHTML = services.map(s => `
-            <tr>
-                <td>${escapeHtml(s.name)}</td>   
+            <tr id="service-row-${s.id}">
+                <td>${escapeHtml(s.name)}</td>
                 <td>${escapeHtml(s.description)}</td>
                 <td>$${escapeHtml(String(s.price))}</td>
                 <td>
                     <button class="delete-service-btn" data-id="${escapeHtml(s.id)}">Delete</button>
+                    <button
+                        data-id="${s.id}"
+                        data-name="${escapeHtml(s.name)}"
+                        data-desc="${escapeHtml(s.description)}"
+                        data-price="${s.price}"
+                        onclick="editServiceRow(this.dataset.id, this.dataset.name, this.dataset.desc, this.dataset.price)"
+                    >Edit</button>
                 </td>
             </tr>
         `).join('');
     } catch (err) {
         console.error("Failed to map dynamic treatment items:", err);
     }
+}
+
+function editServiceRow(id, name, description, price) {
+    const row = document.getElementById(`service-row-${id}`);
+    row.innerHTML = `
+    <td><input type="text" id="edit-name-${id}" value="${escapeHtml(name)}" style="width:100%;"></td>
+    <td><input type="text" id="edit-desc-${id}" value="${escapeHtml(description)}" style="width:100%;"></td>
+     <td><input type="text" id="edit-price-${id}" value="${price}" style="width:80px;"></td>
+        <td>
+            <button onclick="saveServiceEdit('${id}')">Save</button>
+            <button onclick="loadAdminServices()">Cancel</button>
+        </td>
+    `;
+}
+
+async function saveServiceEdit(id) {
+    const currentToken = localStorage.getItem('admin_token');
+    const name = document.getElementById(`edit-name-${id}`).value;
+    const description = document.getElementById(`edit-desc-${id}`).value;
+    const price = document.getElementById(`edit-price-${id}`).value;
+
+    const res = await fetch(`/api/services/admin/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentToken}`
+        },
+        body: JSON.stringify({ name, description, price })
+    });
+
+    if (res.ok) loadAdminServices();
 }
 
 async function loadBusinessProfile() {

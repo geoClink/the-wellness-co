@@ -69,4 +69,20 @@ router.delete("/api/services/admin/:id", adminAuth, async (req, res) => {
     res.json({ success: true });
 });
 
+router.patch("/api/services/admin/:id", adminAuth, async (req, res) => {
+    try {
+        const { name, description, price } = req.body;
+        const { error } = await supabase
+            .from("services")
+            .update({ name, description, price })
+            .eq("id", req.params.id)
+            .eq("tenant_id", req.tenant.id);
+
+        if (error) return res.status(500).json({ error: error.message });
+        res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
