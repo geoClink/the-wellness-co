@@ -224,6 +224,12 @@ nav a.active {
     background: var(--sage-deep-hover);
 }
 
+a.btn-primary,
+a.btn-primary:hover,
+a.btn-primary:visited {
+    color: var(--white);
+}
+
 .btn-outline {
     background: transparent;
     color: var(--ink);
