@@ -30,9 +30,13 @@ Built as a learning project while transitioning from Swift/SwiftUI to web develo
 
 ## Mobile
 
-| **Home** | **Services** | **Book a Session** |
-|---|---|---|
-| ![Mobile Home](docs/screenshots/wellnesscomobileindexview.png) | ![Mobile Services](docs/screenshots/wellnesscomobileservicesview.html.png) | ![Mobile Booking](docs/screenshots/wellnesscomobileappointmentview.html.png) |
+<img src="docs/screenshots/wellnesscomobileindexview.png" width="32%" alt="Mobile Home" />
+<img src="docs/screenshots/wellnesscomobileaboutview.html.png" width="32%" alt="Mobile About" />
+<img src="docs/screenshots/wellnesscomobileservicesview.html.png" width="32%" alt="Mobile Services" />
+<img src="docs/screenshots/wellnesscomobileappointmentview.html.png" width="32%" alt="Mobile Book a Session" />
+<img src="docs/screenshots/wellnesscomobilestoriesview.html.png" width="32%" alt="Mobile Stories" />
+<img src="docs/screenshots/wellnesscomobilefaqview.html.png" width="32%" alt="Mobile FAQ" />
+<img src="docs/screenshots/wellnesscomobilecontactview.html.png" width="32%" alt="Mobile Contact" />
 
 ## Stack
 
