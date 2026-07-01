@@ -57,7 +57,7 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
 
         // 🚀 WRITE TO SUPABASE: Commit the paid entry row safely
         console.log(`✍️ Inserting booking into database for client: ${m.guest_name}`);
-        const { error } = await supabase.from("appointments").insert([{
+        const { data: newAppt, error } = await supabase.from("appointments").insert([{
             tenant_id: m.tenant_id,
             service_id: m.service_id,
             guest_name: m.guest_name,
@@ -68,7 +68,7 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
             notes: m.notes || "",
             status: "confirmed", 
             payment_intent_id: session.payment_intent
-        }]);
+        }]).select().single();
 
         if (error) {
             console.error("❌ Supabase Insertion Failure Error:", error);
@@ -93,7 +93,8 @@ router.post("/", express.raw({ type: "application/json" }), async (req, res) => 
                             <p><strong>Session Date:</strong> ${escapeHtml(m.date)}</p>
                             <p><strong>Arrival Time:</strong> ${escapeHtml(m.time)}</p>
                             <hr style="border: 0; border-top: 1px solid #e6dcc9; margin: 20px 0;">
-                            <p style="font-size: 14px; color: #6f665a;">Thank you for booking with us. If you need to cancel or reschedule, please contact your practitioner directly.</p>
+                            <p style="font-size: 14px; color: #6f665a;">Thank you for booking with us.</p>
+                            <p style="margin-top: 16px; font-size: 14px;">Need to cancel? <a href="${req.protocol}://${req.get('host')}/cancel.html?token=${newAppt.cancel_token}" style="color: #b5713f;">Cancel this appointment</a></p>
                         </div>
                     `
                 });

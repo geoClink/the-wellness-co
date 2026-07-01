@@ -183,6 +183,30 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFeaturedQuoteOnHomepage();
     renderDynamicFooterContent();
 
+    // FAQ accordion
+    document.querySelectorAll('.faq-question').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const item = btn.closest('.faq-item');
+            const isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(i => {
+                i.classList.remove('open');
+                i.querySelector('.faq-icon').textContent = '+';
+            });
+            if (!isOpen) {
+                item.classList.add('open');
+                btn.querySelector('.faq-icon').textContent = '×';
+            }
+        });
+    });
+
+    // Active nav link
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('nav a').forEach(link => {
+        const linkPage = link.getAttribute('href').split('/').pop();
+        if (linkPage === currentPage) link.classList.add('active');
+        else link.classList.remove('active');
+    });
+
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.querySelector('nav');
 
