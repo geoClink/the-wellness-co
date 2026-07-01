@@ -249,8 +249,7 @@
                     const postData = await postRes.json();
 
                     if (postRes.ok) {
-                        cdocument.getElementById('success-refund-msg').textContent = 'Your full refund is on its way. Book a new time whenever you are ready.';
-                        document.getElementById('success-refund-msg').textContent = msgs[postData.refundType];
+                        document.getElementById('success-refund-msg').textContent = 'Your full refund is on its way. Book a new time whenever you are ready.';
                         showState('success');
                     } else {
                         document.getElementById('error-message').textContent = postData.error;
