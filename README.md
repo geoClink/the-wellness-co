@@ -6,12 +6,33 @@ Built as a learning project while transitioning from Swift/SwiftUI to web develo
 
 ## Screenshots
 
-| | |
+**Live site:** [the-wellness-co.onrender.com](https://the-wellness-co.onrender.com) · Fully responsive — adapted for mobile.
+
+| **Home** | **About** |
 |---|---|
+| Hero, service cards, testimonials, and closing CTA | Practitioner bio, training certifications, and promise card |
 | ![Home](docs/screenshots/wellnesscoindex.png) | ![About](docs/screenshots/wellnesscoaboutpage.png) |
+
+| **Services** | **Book a Session** |
+|---|---|
+| Full service list with pricing and booking links | Multi-step booking flow with calendar, time slots, and Stripe checkout |
 | ![Services](docs/screenshots/wellnesscoservicespage.png) | ![Book a Session](docs/screenshots/wellnesscobooksessionpage.png) |
+
+| **Stories** | **FAQ** |
+|---|---|
+| Client testimonials with a featured quote banner | Accordion FAQ with expandable answers |
 | ![Stories](docs/screenshots/wellnesscostoriespage.png) | ![FAQ](docs/screenshots/wellnesscofaqpage.png) |
+
+| **Contact** | |
+|---|---|
+| Contact form with business hours and location info | |
 | ![Contact](docs/screenshots/wellnesscocontactpage.png) | |
+
+## Mobile
+
+| **Home** | **Services** | **Book a Session** |
+|---|---|---|
+| ![Mobile Home](docs/screenshots/wellnesscomobileindexview.png) | ![Mobile Services](docs/screenshots/wellnesscomobileservicesview.html.png) | ![Mobile Booking](docs/screenshots/wellnesscomobileappointmentview.html.png) |
 
 ## Stack
 
