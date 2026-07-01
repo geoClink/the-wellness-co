@@ -313,14 +313,16 @@ async function loadAdminServices() {
                 <td>${escapeHtml(s.description)}</td>
                 <td>$${escapeHtml(String(s.price))}</td>
                 <td>
-                    <button class="delete-service-btn" data-id="${escapeHtml(s.id)}">Delete</button>
-                    <button
-                        data-id="${s.id}"
-                        data-name="${escapeHtml(s.name)}"
-                        data-desc="${escapeHtml(s.description)}"
-                        data-price="${s.price}"
-                        onclick="editServiceRow(this.dataset.id, this.dataset.name, this.dataset.desc, this.dataset.price)"
-                    >Edit</button>
+                    <div class="table-actions">
+                        <button class="delete-service-btn" data-id="${escapeHtml(s.id)}">Delete</button>
+                        <button
+                            data-id="${s.id}"
+                            data-name="${escapeHtml(s.name)}"
+                            data-desc="${escapeHtml(s.description)}"
+                            data-price="${s.price}"
+                            onclick="editServiceRow(this.dataset.id, this.dataset.name, this.dataset.desc, this.dataset.price)"
+                        >Edit</button>
+                    </div>
                 </td>
             </tr>
         `).join('');
@@ -483,8 +485,10 @@ async function loadBookings() {
             <td>${escapeHtml(b.phone || '-')}</td>
             <td>${escapeHtml(b.status)}</td>
             <td>
-                <button onclick="updateStatus('${escapeHtml(b.id)}', 'confirmed')">Confirm</button>
-                <button onclick="updateStatus('${escapeHtml(b.id)}', 'cancelled')">Cancel</button>
+                <div class="table-actions">
+                    <button onclick="updateStatus('${escapeHtml(b.id)}', 'confirmed')">Confirm</button>
+                    <button onclick="updateStatus('${escapeHtml(b.id)}', 'cancelled')">Cancel</button>
+                </div>
             </td>
         </tr>
     `).join('');
@@ -530,13 +534,15 @@ async function loadAdminReviews() {
         <td>${escapeHtml(r.body)}</td>            
         <td>${r.approved ? 'Approved' : 'Pending'}</td>
         <td>
-            <button 
-                class="btn-feature ${r.is_featured ? 'active' : ''}" 
-                onclick="toggleFeaturedReview('${escapeHtml(r.id)}')">
-                ${r.is_featured ? '★ Featured' : '☆ Make Featured'}
-            </button>
-            ${!r.approved ? `<button onclick="approveReview('${escapeHtml(r.id)}')">Approve</button>` : ''}
-            <button onclick="deleteReview('${escapeHtml(r.id)}')">Delete</button>
+            <div class="table-actions">
+                <button
+                    class="btn-feature ${r.is_featured ? 'active' : ''}"
+                    onclick="toggleFeaturedReview('${escapeHtml(r.id)}')">
+                    ${r.is_featured ? '★ Featured' : '☆ Make Featured'}
+                </button>
+                ${!r.approved ? `<button onclick="approveReview('${escapeHtml(r.id)}')">Approve</button>` : ''}
+                <button onclick="deleteReview('${escapeHtml(r.id)}')">Delete</button>
+            </div>
         </td>
     </tr>
 `).join('');

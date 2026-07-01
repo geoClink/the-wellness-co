@@ -8,6 +8,32 @@ Built as a learning project while transitioning from Swift/SwiftUI to web develo
 
 https://github.com/user-attachments/assets/f558698f-1bda-43a5-9770-638f02d315e4
 
+## Features
+
+### Booking Flow
+Clients select a service, pick a date from a live availability calendar, choose a time slot, and enter their details. Submitting the form creates a pending appointment and redirects to Stripe Checkout for payment. The appointment is only confirmed once the Stripe webhook fires — so no booking is saved to the database without a completed payment.
+
+### No Double Bookings
+Available time slots are calculated server-side on every request. Any slot that already has a confirmed or pending appointment on that date is excluded from the response. Clients only ever see genuinely open times.
+
+### Cancellations
+Every confirmation email includes a unique cancellation link tied to a secure token. Clients can cancel their own appointment without logging in or contacting the practitioner. On cancellation, the appointment status is updated and a full refund is automatically issued through the Stripe API.
+
+### Rescheduling
+Clients can reschedule directly from their confirmation email. The original appointment is cancelled and a full refund is issued via Stripe, then the client is sent through a new booking flow to select a different date and time. No manual intervention required.
+
+### Admin Dashboard
+Password-protected dashboard for the practitioner to manage the entire site:
+- View, confirm, and cancel bookings
+- Add, edit, and delete services
+- Set weekly availability and block specific dates
+- Approve client reviews and mark featured testimonials
+- Edit homepage, about page, and footer content
+- Configure Stripe and Resend API keys per tenant
+
+### Transactional Email
+Booking confirmations, cancellation receipts, and reschedule links are sent automatically via Resend. Emails include appointment details, a calendar-friendly summary, and the self-serve cancellation link.
+
 ## Stack
 
 **Frontend**
@@ -143,17 +169,17 @@ Each deployment is scoped to a single tenant via the `TENANT_SLUG` environment v
 
 <table>
   <tr>
-    <td><img src="docs/screenshots/wellnesscomobileindexview.png" alt="Mobile Home" /></td>
-    <td><img src="docs/screenshots/wellnesscomobileaboutview.html.png" alt="Mobile About" /></td>
-    <td><img src="docs/screenshots/wellnesscomobileservicesview.html.png" alt="Mobile Services" /></td>
+    <td valign="top"><img src="docs/screenshots/wellnesscomobileindexview.png" alt="Mobile Home" /></td>
+    <td valign="top"><img src="docs/screenshots/wellnesscomobileaboutview.html.png" alt="Mobile About" /></td>
+    <td valign="top"><img src="docs/screenshots/wellnesscomobileservicesview.html.png" alt="Mobile Services" /></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/wellnesscomobileappointmentview.html.png" alt="Mobile Book a Session" /></td>
-    <td><img src="docs/screenshots/wellnesscomobilestoriesview.html.png" alt="Mobile Stories" /></td>
-    <td><img src="docs/screenshots/wellnesscomobilefaqview.html.png" alt="Mobile FAQ" /></td>
+    <td valign="top"><img src="docs/screenshots/wellnesscomobileappointmentview.html.png" alt="Mobile Book a Session" /></td>
+    <td valign="top"><img src="docs/screenshots/wellnesscomobilestoriesview.html.png" alt="Mobile Stories" /></td>
+    <td valign="top"><img src="docs/screenshots/wellnesscomobilefaqview.html.png" alt="Mobile FAQ" /></td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/wellnesscomobilecontactview.html.png" alt="Mobile Contact" /></td>
+    <td valign="top"><img src="docs/screenshots/wellnesscomobilecontactview.html.png" alt="Mobile Contact" /></td>
     <td></td>
     <td></td>
   </tr>
