@@ -6,7 +6,11 @@ Built as a learning project while transitioning from Swift/SwiftUI to web develo
 
 ## Demo
 
+A walkthrough of the client-facing site — browsing services, booking an appointment, and completing checkout via Stripe.
+
 https://github.com/user-attachments/assets/f558698f-1bda-43a5-9770-638f02d315e4
+
+**Live site:** [the-wellness-co.onrender.com](https://the-wellness-co.onrender.com)
 
 ## Features
 
@@ -144,11 +148,11 @@ Each deployment is scoped to a single tenant via the `TENANT_SLUG` environment v
 
 ## Admin Walkthrough
 
+A walkthrough of the password-protected admin dashboard — managing bookings, services, availability, reviews, site content, and payment integrations.
+
 https://github.com/user-attachments/assets/79d25a97-625b-4dc2-8631-862cca6d2f43
 
 ## Screenshots
-
-**Live site:** [the-wellness-co.onrender.com](https://the-wellness-co.onrender.com) · Fully responsive — adapted for mobile.
 
 | **Home** | **About** |
 |---|---|
