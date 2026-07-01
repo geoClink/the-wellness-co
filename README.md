@@ -4,6 +4,10 @@ A full-stack, multi-tenant booking platform for wellness and energy healing prac
 
 Built as a learning project while transitioning from Swift/SwiftUI to web development.
 
+## Demo
+
+https://github.com/user-attachments/assets/f558698f-1bda-43a5-9770-638f02d315e4
+
 ## Screenshots
 
 **Live site:** [the-wellness-co.onrender.com](https://the-wellness-co.onrender.com) · Fully responsive — adapted for mobile.
