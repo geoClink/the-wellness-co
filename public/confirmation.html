@@ -9,11 +9,147 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Hanken+Grotesk:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/script.js" defer></script>
+    <style>
+        .confirmation-wrap {
+            max-width: 540px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 60px 20px 80px;
+        }
+
+        .check-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #eef2eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 28px;
+        }
+
+        .check-circle svg {
+            width: 36px;
+            height: 36px;
+        }
+
+        .confirmation-wrap .eyebrow {
+            margin-bottom: 8px;
+        }
+
+        .confirmation-wrap h1 {
+            font-size: clamp(32px, 6vw, 48px);
+            margin-bottom: 12px;
+            line-height: 1.15;
+        }
+
+        .confirmation-wrap .sub {
+            font-size: 15px;
+            color: var(--muted);
+            margin-bottom: 36px;
+            line-height: 1.6;
+        }
+
+        .booking-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 28px 32px;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+
+        .booking-card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--line);
+            gap: 16px;
+        }
+
+        .booking-card-row:last-child {
+            border-bottom: none;
+        }
+
+        .booking-card-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .booking-card-value {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--ink);
+            text-align: right;
+        }
+
+        .booking-card-value.amount {
+            color: var(--sage-deep);
+            font-weight: 700;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .btn-outline {
+            display: inline-block;
+            padding: 12px 24px;
+            border: 1.5px solid var(--ink);
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+            font-family: inherit;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .btn-outline:hover {
+            background: var(--ink);
+            color: var(--white);
+        }
+
+        .cancel-note {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* Skeleton loader */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-alt) 25%, var(--line) 50%, var(--bg-alt) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 6px;
+            height: 16px;
+            display: inline-block;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @media (max-width: 480px) {
+            .booking-card { padding: 20px 18px; }
+            .confirm-actions { flex-direction: column; }
+            .confirm-actions a, .confirm-actions button { width: 100%; text-align: center; }
+        }
+    </style>
 </head>
 
 <body>
@@ -38,28 +174,55 @@
                 <a href="appointments.html" class="nav-book-btn">Book a session</a>
             </nav>
             <button class="hamburger" id="hamburger" aria-label="Open navigation">
-                <span></span>
-                <span></span>
-                <span></span>
+                <span></span><span></span><span></span>
             </button>
         </div>
     </header>
+
     <main>
-        <section class="confirmation page-section">
-            <div class="container">
-                <svg class="confirm-logo" width="80" height="80" viewBox="0 0 40 40" fill="none">
-                    <circle cx="20" cy="20" r="18" stroke="#8a9a7b" stroke-width="1" />
-                    <circle cx="20" cy="20" r="12" stroke="#b5713f" stroke-width="1" />
-                    <circle cx="20" cy="20" r="6" stroke="#8a9a7b" stroke-width="1" />
-                    <circle cx="20" cy="20" r="2" fill="#b5713f" />
-                </svg>
+        <section class="page-section">
+            <div class="confirmation-wrap">
+
+                <div class="check-circle">
+                    <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 18L14.5 25.5L29 11" stroke="#5f6e52" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+
                 <p class="eyebrow">Booking confirmed</p>
-                <h1>You are booked.</h1>
-                <p class="hero-text">A confirmation has been sent to your email. See you then.</p>
-                <a href="index.html" class="btn-primary">Back to home</a>
+                <h1 id="confirm-heading">You are booked.</h1>
+                <p class="sub" id="confirm-sub">A confirmation has been sent to your email. See you then.</p>
+
+                <div class="booking-card" id="booking-card">
+                    <div class="booking-card-row">
+                        <span class="booking-card-label">Service</span>
+                        <span class="booking-card-value" id="card-service"><span class="skeleton" style="width:120px;"></span></span>
+                    </div>
+                    <div class="booking-card-row">
+                        <span class="booking-card-label">Date</span>
+                        <span class="booking-card-value" id="card-date"><span class="skeleton" style="width:140px;"></span></span>
+                    </div>
+                    <div class="booking-card-row">
+                        <span class="booking-card-label">Time</span>
+                        <span class="booking-card-value" id="card-time"><span class="skeleton" style="width:80px;"></span></span>
+                    </div>
+                    <div class="booking-card-row">
+                        <span class="booking-card-label">Paid</span>
+                        <span class="booking-card-value amount" id="card-amount"><span class="skeleton" style="width:60px;"></span></span>
+                    </div>
+                </div>
+
+                <div class="confirm-actions">
+                    <a href="index.html" class="btn-primary">Back to home</a>
+                    <a href="appointments.html" class="btn-outline">Book another session</a>
+                </div>
+
+                <p class="cancel-note">Need to cancel? Check your confirmation email for the cancellation link.</p>
+
             </div>
         </section>
     </main>
+
     <footer>
         <div class="container">
             <div class="footer-grid">
@@ -96,4 +259,50 @@
             </div>
         </div>
     </footer>
-    </html>
+
+    <script>
+        (async function loadConfirmation() {
+            const params = new URLSearchParams(window.location.search);
+            const sessionId = params.get('session_id');
+            if (!sessionId) return;
+
+            try {
+                const res = await fetch(`/api/confirmation?session_id=${encodeURIComponent(sessionId)}`);
+                if (!res.ok) return;
+                const data = await res.json();
+
+                // Personalize heading
+                const firstName = data.guest_name ? data.guest_name.split(' ')[0] : null;
+                if (firstName) {
+                    document.getElementById('confirm-heading').textContent = `You're all set, ${firstName}.`;
+                }
+
+                if (data.email) {
+                    document.getElementById('confirm-sub').textContent =
+                        `A confirmation has been sent to ${data.email}. See you then.`;
+                }
+
+                // Format date: "2026-07-08" → "Wednesday, July 8, 2026"
+                let dateDisplay = data.date;
+                if (data.date) {
+                    const [y, m, d] = data.date.split('-').map(Number);
+                    const dateObj = new Date(y, m - 1, d);
+                    dateDisplay = dateObj.toLocaleDateString('en-US', {
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                }
+
+                document.getElementById('card-service').textContent = data.service || '—';
+                document.getElementById('card-date').textContent = dateDisplay || '—';
+                document.getElementById('card-time').textContent = data.time || '—';
+                document.getElementById('card-amount').textContent = data.amount ? `$${data.amount}` : '—';
+
+            } catch (err) {
+                // Silently fall back to the generic text already in the HTML
+                console.error('Could not load confirmation details:', err);
+            }
+        })();
+    </script>
+
+</body>
+</html>

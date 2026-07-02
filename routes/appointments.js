@@ -23,6 +23,44 @@ async function getDynamicStripeClient(tenantId) {
 }
 
 // ==========================================
+// 0. CONFIRMATION LOOKUP
+// ==========================================
+
+router.get("/api/confirmation", async (req, res) => {
+    const { session_id } = req.query;
+    if (!session_id) return res.status(400).json({ error: "Missing session_id" });
+
+    try {
+        const stripe = await getDynamicStripeClient(req.tenant.id);
+        const session = await stripe.checkout.sessions.retrieve(session_id);
+
+        if (session.payment_status !== "paid") {
+            return res.status(400).json({ error: "Payment not completed." });
+        }
+
+        const m = session.metadata;
+
+        const { data: service } = await supabase
+            .from("services")
+            .select("name")
+            .eq("id", m.service_id)
+            .maybeSingle();
+
+        return res.json({
+            guest_name: m.guest_name,
+            email: m.email,
+            date: m.date,
+            time: m.time,
+            service: service?.name || "Session",
+            amount: (session.amount_total / 100).toFixed(2)
+        });
+    } catch (err) {
+        console.error("❌ Confirmation lookup failed:", err);
+        return res.status(500).json({ error: "Could not retrieve booking details." });
+    }
+});
+
+// ==========================================
 // 1. PUBLIC ENDPOINTS: AVAILABILITY & BOOKING
 // ==========================================
 
